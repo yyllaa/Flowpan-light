@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Go
+*.test
+coverage.out
+
+# Local secrets/config
+.env
+.env.*
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+config/
+logs/
+
+# Release artifacts
+*.tar
+*.tar.gz
+*.zip
+*.sha256
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
