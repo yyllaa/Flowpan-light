@@ -141,3 +141,73 @@ func TestCallRejectsMissingToken(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
+
+func TestTransientReadRetries(t *testing.T) {
+	hits := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits++
+		w.Header().Set("Content-Type", "application/json")
+		if hits < 3 {
+			w.WriteHeader(http.StatusBadGateway)
+			_, _ = w.Write([]byte(`{"code":502,"msg":"temporary","data":{}}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"code":200,"data":{"driver":"open","result":{"total":10,"used":2,"available":8}}}`))
+	}))
+	defer server.Close()
+
+	client := New(server.URL, "secret")
+	client.RetryPolicy = RetryPolicy{MaxAttempts: 3, InitialDelay: 0, MaxDelay: 0}
+	res, err := client.Usage(context.Background(), DriverOpen)
+	if err != nil {
+		t.Fatalf("Usage returned error: %v", err)
+	}
+	if hits != 3 {
+		t.Fatalf("request count = %d, want 3", hits)
+	}
+	if res.Result.Available != 8 {
+		t.Fatalf("result = %+v", res.Result)
+	}
+}
+
+func TestInvalidDriverAndActionRejected(t *testing.T) {
+	client := New("http://127.0.0.1:8088", "secret")
+	if err := client.SetDefaultDriver("invalid"); err == nil {
+		t.Fatal("expected invalid default driver error")
+	}
+	if _, err := client.Usage(context.Background(), "invalid"); err == nil {
+		t.Fatal("expected invalid request driver error")
+	}
+	if _, err := client.Raw(context.Background(), DriverAuto, "usage?token=secret", nil); err == nil {
+		t.Fatal("expected invalid action error")
+	}
+}
+
+func TestTypedUploadRequestAndSession(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode request: %v", err)
+		}
+		if payload["name"] != "movie.mkv" {
+			t.Fatalf("payload = %#v", payload)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"code":200,"data":{"driver":"cookie","result":{"session_id":"s-1","name":"movie.mkv","size":10,"target_cid":9,"parts":[{"part_number":1,"etag":"etag-1","size":10}]}}}`))
+	}))
+	defer server.Close()
+
+	client := New(server.URL, "secret")
+	res, err := client.UploadInitTyped(context.Background(), DriverCookie, UploadInitRequest{
+		Name:      "movie.mkv",
+		Size:      10,
+		SHA1:      strings.Repeat("A", 40),
+		TargetCID: 9,
+	})
+	if err != nil {
+		t.Fatalf("UploadInitTyped returned error: %v", err)
+	}
+	if res.Result.SessionID != "s-1" || len(res.Result.Parts) != 1 {
+		t.Fatalf("session = %+v", res.Result)
+	}
+}

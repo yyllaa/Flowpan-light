@@ -25,32 +25,58 @@ const (
 
 // Client calls Flowpan's external 115 storage API.
 type Client struct {
-	BaseURL       string
-	Token         string
-	DefaultDriver Driver
-	HTTPClient    *http.Client
+	BaseURL         string
+	Token           string
+	DefaultDriver   Driver
+	HTTPClient      *http.Client
+	RetryPolicy     RetryPolicy
+	UserAgent       string
+	MaxResponseBody int64
 }
 
 // New returns a client that defaults to DriverAuto.
 func New(baseURL string, token string) *Client {
 	return &Client{
-		BaseURL:       strings.TrimRight(strings.TrimSpace(baseURL), "/"),
-		Token:         strings.TrimSpace(token),
-		DefaultDriver: DriverAuto,
-		HTTPClient:    &http.Client{Timeout: defaultTimeout},
+		BaseURL:         strings.TrimRight(strings.TrimSpace(baseURL), "/"),
+		Token:           strings.TrimSpace(token),
+		DefaultDriver:   DriverAuto,
+		HTTPClient:      &http.Client{Timeout: defaultTimeout},
+		RetryPolicy:     DefaultRetryPolicy(),
+		UserAgent:       "flowpan115-go/" + Version,
+		MaxResponseBody: defaultMaxResponseBody,
 	}
 }
 
 // SetDefaultDriver changes the driver used when a method receives an empty driver.
-func (c *Client) SetDefaultDriver(driver Driver) {
-	c.DefaultDriver = normalizeDriver(driver, DriverAuto)
+func (c *Client) SetDefaultDriver(driver Driver) error {
+	resolved, err := resolveDriver(driver, DriverAuto)
+	if err != nil {
+		return err
+	}
+	c.DefaultDriver = resolved
+	return nil
 }
 
 // WithDefaultDriver returns a shallow client copy with a different default driver.
 func (c *Client) WithDefaultDriver(driver Driver) *Client {
 	clone := *c
-	clone.DefaultDriver = normalizeDriver(driver, c.DefaultDriver)
+	value := Driver(strings.ToLower(strings.TrimSpace(string(driver))))
+	if value == "" {
+		value = c.DefaultDriver
+	}
+	clone.DefaultDriver = value
 	return &clone
+}
+
+// WithDefaultDriverChecked returns a client copy after validating the driver.
+func (c *Client) WithDefaultDriverChecked(driver Driver) (*Client, error) {
+	resolved, err := resolveDriver(driver, c.DefaultDriver)
+	if err != nil {
+		return nil, err
+	}
+	clone := *c
+	clone.DefaultDriver = resolved
+	return &clone, nil
 }
 
 // StorageResult is the common Flowpan response payload.
@@ -126,6 +152,13 @@ func (c *Client) Raw(ctx context.Context, driver Driver, action string, payload 
 
 func call[T any](ctx context.Context, c *Client, driver Driver, action string, payload any) (StorageResult[T], error) {
 	var zero StorageResult[T]
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	action, err := validateAction(action)
+	if err != nil {
+		return zero, err
+	}
 	endpoint, err := c.endpoint(driver, action)
 	if err != nil {
 		return zero, err
@@ -137,66 +170,113 @@ func call[T any](ctx context.Context, c *Client, driver Driver, action string, p
 	if err != nil {
 		return zero, fmt.Errorf("flowpan115: encode payload: %w", err)
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
-	if err != nil {
-		return zero, err
-	}
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Authorization", "Bearer "+strings.TrimSpace(c.Token))
 
 	client := c.HTTPClient
 	if client == nil {
 		client = &http.Client{Timeout: defaultTimeout}
 	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return zero, err
+	policy := c.RetryPolicy.normalized()
+	maxBody := c.MaxResponseBody
+	if maxBody <= 0 {
+		maxBody = defaultMaxResponseBody
 	}
-	defer resp.Body.Close()
+	for attempt := 1; ; attempt++ {
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
+		if err != nil {
+			return zero, err
+		}
+		req.Header.Set("Content-Type", "application/json; charset=utf-8")
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set("Authorization", "Bearer "+strings.TrimSpace(c.Token))
+		if strings.TrimSpace(c.UserAgent) != "" {
+			req.Header.Set("User-Agent", strings.TrimSpace(c.UserAgent))
+		}
 
-	respBody, _ := io.ReadAll(resp.Body)
-	envelope, parseErr := parseEnvelope(respBody)
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		apiErr := &APIError{
-			StatusCode: resp.StatusCode,
-			Code:       envelope.Code,
-			Message:    envelope.message(),
-			Body:       strings.TrimSpace(string(respBody)),
+		resp, err := client.Do(req)
+		if err != nil {
+			if policy.shouldRetry(action, attempt, 0, err) {
+				if err := sleepWithContext(ctx, policy.delay(attempt, "")); err != nil {
+					return zero, err
+				}
+				continue
+			}
+			return zero, err
+		}
+
+		retryAfter := resp.Header.Get("Retry-After")
+		respBody, readErr := io.ReadAll(io.LimitReader(resp.Body, maxBody+1))
+		_ = resp.Body.Close()
+		if readErr != nil {
+			if policy.shouldRetry(action, attempt, resp.StatusCode, readErr) {
+				if err := sleepWithContext(ctx, policy.delay(attempt, retryAfter)); err != nil {
+					return zero, err
+				}
+				continue
+			}
+			return zero, readErr
+		}
+		if int64(len(respBody)) > maxBody {
+			return zero, fmt.Errorf("flowpan115: response body exceeds %d bytes", maxBody)
+		}
+
+		envelope, parseErr := parseEnvelope(respBody)
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			apiErr := &APIError{
+				StatusCode: resp.StatusCode,
+				Code:       envelope.Code,
+				Message:    envelope.message(),
+				Body:       strings.TrimSpace(string(respBody)),
+			}
+			if parseErr != nil {
+				apiErr.Message = parseErr.Error()
+			}
+			if policy.shouldRetry(action, attempt, resp.StatusCode, apiErr) {
+				if err := sleepWithContext(ctx, policy.delay(attempt, retryAfter)); err != nil {
+					return zero, err
+				}
+				continue
+			}
+			return zero, apiErr
 		}
 		if parseErr != nil {
-			apiErr.Message = parseErr.Error()
+			return zero, parseErr
 		}
-		return zero, apiErr
-	}
-	if parseErr != nil {
-		return zero, parseErr
-	}
-	if envelope.Code != 200 {
-		return zero, &APIError{
-			StatusCode: resp.StatusCode,
-			Code:       envelope.Code,
-			Message:    envelope.message(),
-			Body:       strings.TrimSpace(string(respBody)),
+		if envelope.Code != 200 {
+			apiErr := &APIError{
+				StatusCode: resp.StatusCode,
+				Code:       envelope.Code,
+				Message:    envelope.message(),
+				Body:       strings.TrimSpace(string(respBody)),
+			}
+			if policy.shouldRetry(action, attempt, resp.StatusCode, apiErr) {
+				if err := sleepWithContext(ctx, policy.delay(attempt, retryAfter)); err != nil {
+					return zero, err
+				}
+				continue
+			}
+			return zero, apiErr
 		}
-	}
 
-	var data storageEnvelope
-	if len(envelope.Data) > 0 && string(envelope.Data) != "null" {
-		if err := json.Unmarshal(envelope.Data, &data); err != nil {
-			return zero, fmt.Errorf("flowpan115: decode data: %w", err)
+		var data storageEnvelope
+		if len(envelope.Data) > 0 && string(envelope.Data) != "null" {
+			if err := json.Unmarshal(envelope.Data, &data); err != nil {
+				return zero, fmt.Errorf("flowpan115: decode data: %w", err)
+			}
 		}
-	}
-	var result T
-	if len(data.Result) > 0 && string(data.Result) != "null" {
-		if err := json.Unmarshal(data.Result, &result); err != nil {
-			return zero, fmt.Errorf("flowpan115: decode result: %w", err)
+		var result T
+		if len(data.Result) > 0 && string(data.Result) != "null" {
+			if err := json.Unmarshal(data.Result, &result); err != nil {
+				return zero, fmt.Errorf("flowpan115: decode result: %w", err)
+			}
 		}
+		if data.Driver == "" {
+			data.Driver, err = resolveDriver(driver, c.DefaultDriver)
+			if err != nil {
+				return zero, err
+			}
+		}
+		return StorageResult[T]{Driver: data.Driver, Result: result}, nil
 	}
-	if data.Driver == "" {
-		data.Driver = normalizeDriver(driver, c.DefaultDriver)
-	}
-	return StorageResult[T]{Driver: data.Driver, Result: result}, nil
 }
 
 func (c *Client) endpoint(driver Driver, action string) (string, error) {
@@ -207,25 +287,15 @@ func (c *Client) endpoint(driver Driver, action string) (string, error) {
 	if strings.TrimSpace(c.Token) == "" {
 		return "", fmt.Errorf("flowpan115: token is empty")
 	}
-	action = strings.Trim(strings.TrimSpace(action), "/")
-	if action == "" {
-		return "", fmt.Errorf("flowpan115: action is empty")
+	action, err := validateAction(action)
+	if err != nil {
+		return "", err
 	}
-	driver = normalizeDriver(driver, c.DefaultDriver)
-	return baseURL + "/api/v1/storage/115/" + url.PathEscape(string(driver)) + "/" + action, nil
-}
-
-func normalizeDriver(driver Driver, fallback Driver) Driver {
-	value := Driver(strings.ToLower(strings.TrimSpace(string(driver))))
-	if value == "" {
-		value = Driver(strings.ToLower(strings.TrimSpace(string(fallback))))
+	resolved, err := resolveDriver(driver, c.DefaultDriver)
+	if err != nil {
+		return "", err
 	}
-	switch value {
-	case DriverOpen, DriverCookie, DriverAuto:
-		return value
-	default:
-		return DriverAuto
-	}
+	return baseURL + "/api/v1/storage/115/" + url.PathEscape(string(resolved)) + "/" + action, nil
 }
 
 func parseEnvelope(body []byte) (apiEnvelope, error) {
@@ -398,6 +468,72 @@ type UploadFileRequest struct {
 	PartSize  int64  `json:"part_size,omitempty"`
 }
 
+// UploadInitRequest contains the common Cookie/Open upload-init fields.
+// OpenAPI additionally accepts Pickcode when resuming a known file.
+type UploadInitRequest struct {
+	Name      string `json:"name"`
+	Size      int64  `json:"size"`
+	SHA1      string `json:"sha1"`
+	PreID     string `json:"preid,omitempty"`
+	TargetCID int64  `json:"target_cid"`
+	SignKey   string `json:"sign_key,omitempty"`
+	SignVal   string `json:"sign_val,omitempty"`
+	Pickcode  string `json:"pickcode,omitempty"`
+}
+
+// UploadSession is the persisted server-owned upload state.
+// Callers should store and send it back unchanged between upload steps.
+type UploadSession struct {
+	SessionID    string            `json:"session_id,omitempty"`
+	Name         string            `json:"name,omitempty"`
+	Size         int64             `json:"size,omitempty"`
+	SHA1         string            `json:"sha1,omitempty"`
+	PreID        string            `json:"preid,omitempty"`
+	TargetCID    int64             `json:"target_cid,omitempty"`
+	Target       string            `json:"target,omitempty"`
+	Reused       bool              `json:"reused"`
+	RequiresSign bool              `json:"requires_sign"`
+	Status       int64             `json:"status,omitempty"`
+	Code         int64             `json:"code,omitempty"`
+	SignKey      string            `json:"sign_key,omitempty"`
+	SignCheck    string            `json:"sign_check,omitempty"`
+	RangeStart   int64             `json:"range_start,omitempty"`
+	RangeEnd     int64             `json:"range_end,omitempty"`
+	FileID       int64             `json:"file_id,omitempty"`
+	Pickcode     string            `json:"pickcode,omitempty"`
+	Bucket       string            `json:"bucket,omitempty"`
+	Object       string            `json:"object,omitempty"`
+	UploadURL    string            `json:"upload_url,omitempty"`
+	Callback     map[string]string `json:"callback,omitempty"`
+	UploadID     string            `json:"upload_id,omitempty"`
+	PartSize     int64             `json:"part_size,omitempty"`
+	Uploaded     int64             `json:"uploaded,omitempty"`
+	Parts        []UploadPart      `json:"parts,omitempty"`
+	Response     map[string]any    `json:"response,omitempty"`
+}
+
+type UploadPart struct {
+	PartNumber int    `json:"part_number"`
+	ETag       string `json:"etag"`
+	Size       int64  `json:"size,omitempty"`
+}
+
+type UploadPartURL struct {
+	Method  string            `json:"method"`
+	URL     string            `json:"url"`
+	Headers map[string]string `json:"headers"`
+}
+
+type UploadPartURLTypedRequest struct {
+	Session    UploadSession `json:"session"`
+	PartNumber int           `json:"part_number"`
+}
+
+type UploadCompleteTypedRequest struct {
+	Session UploadSession `json:"session"`
+	Parts   []UploadPart  `json:"parts"`
+}
+
 type UploadPartURLRequest struct {
 	Session    any `json:"session"`
 	PartNumber int `json:"part_number"`
@@ -490,4 +626,29 @@ func (c *Client) UploadPartURL(ctx context.Context, driver Driver, req UploadPar
 
 func (c *Client) UploadComplete(ctx context.Context, driver Driver, req UploadCompleteRequest) (StorageResult[json.RawMessage], error) {
 	return call[json.RawMessage](ctx, c, driver, "upload/complete", req)
+}
+
+// UploadInitTyped starts an upload with a typed request and session result.
+func (c *Client) UploadInitTyped(ctx context.Context, driver Driver, req UploadInitRequest) (StorageResult[UploadSession], error) {
+	return call[UploadSession](ctx, c, driver, "upload/init", req)
+}
+
+func (c *Client) UploadStartTyped(ctx context.Context, driver Driver, session UploadSession) (StorageResult[UploadSession], error) {
+	return call[UploadSession](ctx, c, driver, "upload/start", map[string]any{"session": session})
+}
+
+func (c *Client) UploadResumeTyped(ctx context.Context, driver Driver, session UploadSession) (StorageResult[UploadSession], error) {
+	return call[UploadSession](ctx, c, driver, "upload/resume", map[string]any{"session": session})
+}
+
+func (c *Client) UploadListPartsTyped(ctx context.Context, driver Driver, session UploadSession) (StorageResult[UploadSession], error) {
+	return call[UploadSession](ctx, c, driver, "upload/list-parts", map[string]any{"session": session})
+}
+
+func (c *Client) UploadPartURLTyped(ctx context.Context, driver Driver, req UploadPartURLTypedRequest) (StorageResult[UploadPartURL], error) {
+	return call[UploadPartURL](ctx, c, driver, "upload/part-url", req)
+}
+
+func (c *Client) UploadCompleteTyped(ctx context.Context, driver Driver, req UploadCompleteTypedRequest) (StorageResult[UploadSession], error) {
+	return call[UploadSession](ctx, c, driver, "upload/complete", req)
 }

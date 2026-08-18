@@ -3,6 +3,7 @@
 Author: `yyllaa`
 
 Flowpan-light SDK for calling Flowpan's external 115 storage gateway.
+SDK version: `0.2.0`
 
 This repository currently publishes only the SDK and API documentation. The main Flowpan-light project will be added later.
 
@@ -28,6 +29,18 @@ Supported driver modes:
 - Python: `sdk/python/flowpan115.py`
 
 Both SDKs use only the standard library.
+
+The Python module can be installed with:
+
+```bash
+pip install .
+```
+
+The Go package can be imported with:
+
+```bash
+go get github.com/yyllaa/Flowpan-light@v0.2.0
+```
 
 ## Go Example
 
@@ -111,6 +124,21 @@ Recommended scopes:
 - `write`: create directory, rename, move, copy, paste, star.
 - `upload`: upload bridge operations.
 - `delete`: delete operations.
+
+## Reliability Defaults
+
+The SDK retries only transient failures for read-like actions and upload
+state/signature lookups. It does not blindly retry move, copy, rename, delete,
+or upload completion, because a network timeout can leave a write operation in
+an unknown state.
+
+Both clients reject invalid driver values and malformed action paths. Use
+`open` or `cookie` explicitly when the backend must stay on one 115 chain.
+
+Typed upload helpers are available as `UploadInitTyped` and the related Go
+methods, or `upload_init_typed` and the related Python methods. Persist the
+returned session unchanged, including `session_id`, `upload_id`, callback data,
+and part metadata.
 
 ## Documentation
 
