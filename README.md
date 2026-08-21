@@ -1,146 +1,138 @@
 # Flowpan-light
 
-Author: `yyllaa`
+Flowpan-light 是一个面向 115 网盘的本地服务，包含文件管理、分享转存、STRM 同步、媒体整理与刮削、Emby 播放代理、通知互动和辅助插件。
 
-Flowpan-light SDK for calling Flowpan's external 115 storage gateway.
-SDK version: `0.2.0`
+本仓库同时发布 Flowpan 外部 115 存储 SDK。完整部署与设置请阅读 [使用指南](./docs/使用指南.md)，外部应用接入请阅读 [外部 115 存储 API 标准](./docs/外部115存储API标准.md) 和 [SDK 文档](./docs/外部115存储SDK.md)。
 
-This repository currently publishes only the SDK and API documentation. The main Flowpan-light project will be added later.
+## 快速开始
 
-## What It Does
+准备好 Flowpan 服务源码与 Docker 环境后，在服务源码根目录执行：
 
-The SDK calls:
+```bash
+docker compose up -d --build
+docker compose logs -f --tail=200
+```
+
+浏览器访问 `http://<服务器IP>:8080`，首次创建 Flowpan 管理员账号，再按顺序完成：
+
+1. **账号**：扫码登录 115 主账号。
+2. **其他设置**：按需配置 HTTP 代理、OpenAPI、通知、AI 和外部 API。
+3. **STRM 配置**：选择本地输出目录和 115 源目录，保存后执行首次同步。
+4. **Emby 代理**：填写 Emby 地址与 API Key，选择 `302` 或本地代理模式。
+
+默认 Docker Compose 使用：
+
+```yaml
+services:
+  flowpan:
+    ports:
+      - "8080:8080" # 管理后台、API、STRM 跳转
+      - "8081:8081" # Emby 本地代理
+    volumes:
+      - ./config:/config # 设置、Cookie、SQLite、更新状态
+      - ./logs:/logs     # 运行日志
+      - ./media:/media   # 本地媒体、STRM 或有声书目录
+```
+
+`config/` 保存管理员账号、115 登录状态和所有 Web 设置。不要删除它；升级镜像前先备份整个目录。
+
+## 功能边界
+
+- 删除、移动、转存和回收站清理会操作 115 云端文件，执行前确认当前账号和目录。
+- Emby 功能提供播放代理、Webhook 通知、媒体库刷新和用户播放策略；不提供“Emby 删除媒体后删除 115 文件”的联动能力。
+- 外部应用应使用独立外部 API Token 调用 `/api/v1/storage/115/...`，不能复用管理员密码、115 Cookie 或通知密钥。
+
+## 外部 115 存储 SDK
+
+SDK 调用 Flowpan 的标准接口：
 
 ```text
 /api/v1/storage/115/{driver}/{action}
 ```
 
-It lets another backend project use the 115 storage capabilities exposed by your Flowpan-light service without receiving your Flowpan admin account, 115 Cookie, or OpenAPI credentials.
+它允许其他后端项目使用 Flowpan 暴露的 115 存储能力，而不会拿到 Flowpan 管理员账号、115 Cookie 或 OpenAPI 凭据。
 
-Supported driver modes:
+支持的 driver：
 
-- `auto`: recommended default. Flowpan-light chooses OpenAPI when available, otherwise Cookie.
-- `open`: force OpenAPI.
-- `cookie`: force Cookie.
+- `auto`：推荐。OpenAPI 已授权时使用 OpenAPI，否则使用 Cookie。
+- `open`：强制 OpenAPI。
+- `cookie`：强制 Cookie。
 
-## Included SDKs
+### 安装
 
-- Go: `sdk/go/flowpan115`
-- Python: `sdk/python/flowpan115.py`
-
-Both SDKs use only the standard library.
-
-The Python module can be installed with:
-
-```bash
-pip install .
-```
-
-The Go package can be imported with:
+Go：
 
 ```bash
 go get github.com/yyllaa/Flowpan-light@v0.2.0
 ```
 
-## Go Example
+Python：
+
+```bash
+pip install .
+```
+
+### Go 示例
 
 ```go
 package main
 
 import (
-	"context"
-	"fmt"
+    "context"
+    "fmt"
 
-	"github.com/yyllaa/Flowpan-light/sdk/go/flowpan115"
+    "github.com/yyllaa/Flowpan-light/sdk/go/flowpan115"
 )
 
 func main() {
-	client := flowpan115.New("http://127.0.0.1:8088", "external-token")
-	ctx := context.Background()
+    client := flowpan115.New("http://127.0.0.1:8080", "external-token")
+    ctx := context.Background()
 
-	client.SetDefaultDriver(flowpan115.DriverAuto)
-	usage, err := client.Usage(ctx, "")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(usage.Driver, usage.Result.Used, usage.Result.Available)
-
-	// Force Cookie for one request.
-	dir, err := client.EnsureDir(ctx, flowpan115.DriverCookie, 0, "test")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(dir.Result.CID)
-
-	// Use a dedicated OpenAPI client view.
-	openClient := client.WithDefaultDriver(flowpan115.DriverOpen)
-	page, err := openClient.ListPage(ctx, "", flowpan115.ListPageRequest{
-		CID:     dir.Result.CID,
-		Offset:  0,
-		Limit:   100,
-		ShowDir: flowpan115.Bool(true),
-	})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(page.Result.Total)
+    client.SetDefaultDriver(flowpan115.DriverAuto)
+    usage, err := client.Usage(ctx, "")
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(usage.Driver, usage.Result.Used, usage.Result.Available)
 }
 ```
 
-## Python Example
+### Python 示例
 
 ```python
 from sdk.python.flowpan115 import DRIVER_AUTO, Flowpan115Client
 
-client = Flowpan115Client("http://127.0.0.1:8088", "external-token")
-
+client = Flowpan115Client("http://127.0.0.1:8080", "external-token")
 client.set_default_driver(DRIVER_AUTO)
 usage = client.usage()
 print(usage.driver, usage.result["used"], usage.result["available"])
-
-# Force Cookie for one request.
-dir_res = client.ensure_dir("test", driver="cookie")
-cid = dir_res.result["cid"]
-
-# Use a dedicated OpenAPI client view.
-open_client = client.with_driver("open")
-page = open_client.list_page(cid=cid, limit=100, show_dir=True)
-print(page.result["total"])
 ```
 
-## Authentication
+### 鉴权与权限
 
-Enable the external API in Flowpan-light and use:
+在 Flowpan 的 **其他设置** 启用外部 API，生成独立 Token 后使用：
 
 ```http
 Authorization: Bearer <external_api_token>
 ```
 
-Do not reuse the MoviePilot plugin event token.
+按调用方需要授予最小权限：
 
-Recommended scopes:
+- `read`：列表、搜索、文件详情、用量、下载链接。
+- `write`：新建目录、移动、复制、粘贴、重命名、星标。
+- `upload`：上传桥接操作。
+- `delete`：删除。
 
-- `read`: list, search, item detail, usage, download URL.
-- `write`: create directory, rename, move, copy, paste, star.
-- `upload`: upload bridge operations.
-- `delete`: delete operations.
+不要复用 MoviePilot 事件密钥、Flowpan 管理员密码或 115 Cookie。
 
-## Reliability Defaults
+### SDK 可靠性约定
 
-The SDK retries only transient failures for read-like actions and upload
-state/signature lookups. It does not blindly retry move, copy, rename, delete,
-or upload completion, because a network timeout can leave a write operation in
-an unknown state.
+SDK 只会对读取类动作和上传状态/签名查询重试短暂故障；不会盲目重试移动、复制、重命名、删除或上传完成，因为网络超时后写入操作可能已经在服务端成功。
 
-Both clients reject invalid driver values and malformed action paths. Use
-`open` or `cookie` explicitly when the backend must stay on one 115 chain.
+两个 SDK 都会拒绝非法 driver 和格式错误的 action 路径。业务必须固定使用某条 115 链路时，应显式选择 `open` 或 `cookie`。上传初始化的 typed helper 会返回完整会话信息，调用方应原样保存 `session_id`、`upload_id`、回调数据与分片元数据。
 
-Typed upload helpers are available as `UploadInitTyped` and the related Go
-methods, or `upload_init_typed` and the related Python methods. Persist the
-returned session unchanged, including `session_id`, `upload_id`, callback data,
-and part metadata.
+## 文档
 
-## Documentation
-
-- [External API standard](docs/外部115存储API标准.md)
-- [SDK guide](docs/外部115存储SDK.md)
+- [完整部署与使用指南](./docs/使用指南.md)
+- [外部 115 存储 API 标准](./docs/外部115存储API标准.md)
+- [外部 115 存储 SDK](./docs/外部115存储SDK.md)
