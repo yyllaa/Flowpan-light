@@ -139,7 +139,7 @@ SDK 只会对读取类动作和上传状态/签名查询重试短暂故障；不
 
 ## 外部插件与开发 SDK
 
-插件源由用户手动添加：`https://github.com/yyllaa/Flowpan-light`。索引位于 [`plugins/index.json`](plugins/index.json)，当前提供癫影外部 WASM 插件；本仓库的插件源不列入宿主内置功能。
+插件源由用户手动添加：`https://github.com/yyllaa/Flowpan-light/tree/main/plugins`。索引位于 [`plugins/index.json`](plugins/index.json)，当前提供癫影外部 WASM 插件；本仓库的插件源不列入宿主内置功能。
 
 - [独立插件 SDK 源码](sdk/plugins) · [插件开发与接入](docs/plugin-development.md) · [24 项宿主工具](docs/plugin-host-tools.md)
 - [癫影插件源码与使用说明](plugins/dian)
