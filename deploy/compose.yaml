@@ -1,0 +1,25 @@
+name: flowpan
+
+services:
+  flowpan-core:
+    image: ${FLOWPAN_IMAGE:?请在 .env 中填写已导入的 Flowpan 镜像标签}
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      FLOWPAN_ROOT: /app
+      FLOWPAN_HOME: /config
+      FLOWPAN_LOGS_DIR: /logs
+      FLOWPAN_MEDIA_DIR: /media
+    ports:
+      - "${FLOWPAN_WEB_PORT:-8080}:8080"
+      - "${FLOWPAN_EMBY_PORT:-8081}:8081"
+      - "${FLOWPAN_FNTV_PORT:-8082}:8082"
+    volumes:
+      - ../config:/config
+      - ../logs:/logs
+      - ../media:/media
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

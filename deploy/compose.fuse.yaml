@@ -1,0 +1,17 @@
+# Optional Linux / NAS overlay. Prepare the shared host directory first.
+services:
+  flowpan-core:
+    environment:
+      FLOWPAN_FUSE_CONFIG: /config/fuse.json
+    volumes:
+      - type: bind
+        source: ${FLOWPAN_CLOUD_DIR:?请填写已准备好的宿主机共享挂载目录绝对路径}
+        target: /cloud
+        bind:
+          propagation: rshared
+    devices:
+      - /dev/fuse:/dev/fuse
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
