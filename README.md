@@ -136,3 +136,21 @@ SDK 只会对读取类动作和上传状态/签名查询重试短暂故障；不
 - [完整部署与使用指南](./docs/使用指南.md)
 - [外部 115 存储 API 标准](./docs/外部115存储API标准.md)
 - [外部 115 存储 SDK](./docs/外部115存储SDK.md)
+
+## 外部插件与开发 SDK
+
+插件源由用户手动添加：`https://github.com/yyllaa/Flowpan-light`。索引位于 [`plugins/index.json`](plugins/index.json)，当前提供癫影外部 WASM 插件；本仓库的插件源不列入宿主内置功能。
+
+- [独立插件 SDK 源码](sdk/plugins) · [插件开发与接入](docs/plugin-development.md) · [24 项宿主工具](docs/plugin-host-tools.md)
+- [癫影插件源码与使用说明](plugins/dian)
+- [下载插件与 SDK](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.06)
+
+浏览器、代理、FFmpeg、转存、整理和通知能力由 Flowpan 宿主提供；浏览器在项目“其他设置”中按需下载维护。插件安装、账号配置与授权在“辅助插件 → 插件管理”完成。
+
+构建需要 Go 1.25+ 和 Python 3：
+
+```sh
+python plugins/build.py --out dist/plugins
+```
+
+生成可直接导入的癫影 ZIP、独立 SDK ZIP 和 SHA-256。开发插件可运行 `python tools/plugin-kit.py --out ../my-plugin --id my-plugin --name 我的插件` 导出独立工程。

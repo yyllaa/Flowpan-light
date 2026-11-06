@@ -28,3 +28,8 @@ logs/
 Thumbs.db
 .idea/
 .vscode/
+
+# Plugin build outputs
+/dist/
+/sdk/plugins/bin/
+/sdk/plugins/plugin.zip

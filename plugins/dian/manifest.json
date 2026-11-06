@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "id": "resource-dian",
+  "version": "1.1.1",
+  "name": "癫影",
+  "description": "资源查询、解锁与每日签到。",
+  "category": "资源",
+  "config_schema_version": 2,
+  "data_schema_version": 1,
+  "runtime": {
+    "kind": "wasm",
+    "module": "plugin.wasm"
+  },
+  "package": {
+    "local": true
+  },
+  "permissions": [
+    "browser.use",
+    "data.read",
+    "data.write",
+    "task.progress",
+    "notification.send"
+  ],
+  "definition": {
+    "schema_version": 2,
+    "api_version": "1",
+    "id": "resource-dian",
+    "version": "1.1.1",
+    "name": "癫影",
+    "description": "资源查询、解锁与每日签到。",
+    "category": "资源",
+    "icon": "search",
+    "runtime": "wasm",
+    "config_version": 2,
+    "permissions": [
+      "browser.use",
+      "data.read",
+      "data.write",
+      "task.progress",
+      "notification.send"
+    ],
+    "resources": {
+      "search_action": "search",
+      "unlock_action": "unlock"
+    },
+    "fields": [
+      {
+        "key": "email",
+        "label": "癫影账号",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "password",
+        "label": "账号密码",
+        "type": "secret",
+        "required": true
+      },
+      {
+        "key": "scheduled",
+        "label": "定时签到",
+        "type": "boolean"
+      },
+      {
+        "key": "cron",
+        "label": "签到时间",
+        "type": "cron",
+        "hint": "每天 08:00：0 0 8 * * *",
+        "visible_when": {
+          "field": "scheduled",
+          "equals": true
+        },
+        "required": true
+      },
+      {
+        "key": "notify",
+        "label": "签到通知",
+        "type": "boolean"
+      }
+    ],
+    "actions": [
+      {
+        "id": "checkin",
+        "label": "立即签到",
+        "kind": "run",
+        "icon": "calendar",
+        "requires_enabled": true,
+        "timeout_seconds": 240
+      },
+      {
+        "id": "status",
+        "label": "检查连接",
+        "kind": "probe",
+        "icon": "refresh",
+        "requires_enabled": true,
+        "idempotent": true,
+        "timeout_seconds": 240
+      },
+      {
+        "id": "search",
+        "label": "查询资源",
+        "kind": "probe",
+        "icon": "search",
+        "requires_enabled": true,
+        "idempotent": true,
+        "timeout_seconds": 240
+      },
+      {
+        "id": "unlock",
+        "label": "解锁",
+        "kind": "run",
+        "requires_enabled": true,
+        "danger": true,
+        "confirmation": "确认解锁该资源？将按资源标价扣除积分。",
+        "timeout_seconds": 240
+      }
+    ],
+    "result_fields": [
+      {
+        "key": "points",
+        "label": "当前积分"
+      }
+    ],
+    "browser": {
+      "hosts": [
+        "m.dian115.com"
+      ],
+      "credentials": [
+        "password"
+      ]
+    }
+  }
+}

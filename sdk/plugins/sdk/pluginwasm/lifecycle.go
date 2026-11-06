@@ -1,0 +1,66 @@
+package pluginwasm
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"flowpan/app/pluginapi"
+)
+
+type Handler func(Invocation) (pluginapi.Result, error)
+type Handlers struct{ Run, Health, Migrate Handler }
+
+// Serve owns command decoding and JSON output. Health/migrate never invoke Run.
+func Serve(handlers Handlers) {
+	if serve(os.Stdin, os.Stdout, handlers) != nil {
+		os.Exit(1)
+	}
+}
+
+func serve(input io.Reader, output io.Writer, handlers Handlers) error {
+	result := func() (result pluginapi.Result) {
+		defer func() {
+			if recover() != nil {
+				result = pluginapi.Result{Failed: true, Message: "插件执行异常"}
+			}
+		}()
+		var invocation Invocation
+		decoder := json.NewDecoder(io.LimitReader(input, pluginapi.MaxHostResponse+1))
+		err := decoder.Decode(&invocation)
+		if err == nil && decoder.Decode(&struct{}{}) != io.EOF {
+			err = fmt.Errorf("插件调用输入格式错误")
+		}
+		if err == nil && invocation.ABIVersion != pluginapi.APIVersion {
+			err = fmt.Errorf("unsupported ABI")
+		}
+		if err != nil {
+			return pluginapi.Result{Failed: true, Message: err.Error()}
+		}
+		var handler Handler
+		switch invocation.Mode {
+		case "health":
+			handler = handlers.Health
+		case "migrate":
+			handler = handlers.Migrate
+		case "run":
+			handler = handlers.Run
+		default:
+			return pluginapi.Result{Failed: true, Message: "插件调用模式无效"}
+		}
+		if handler == nil {
+			if invocation.Mode == "run" {
+				return pluginapi.Result{Failed: true, Message: "插件缺少运行处理函数"}
+			}
+			return pluginapi.Result{Message: "ready"}
+		}
+		value, err := handler(invocation)
+		if err != nil {
+			value.Failed = true
+			value.Message = err.Error()
+		}
+		return value
+	}()
+	return json.NewEncoder(output).Encode(result)
+}

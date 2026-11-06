@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "external-example",
+  "version": "1.0.0",
+  "name": "外部插件示例",
+  "description": "外部插件接入示例",
+  "category": "示例",
+  "config_schema_version": 1,
+  "data_schema_version": 1,
+  "runtime": {
+    "kind": "wasm",
+    "module": "bin/plugin.wasm"
+  },
+  "package": {
+    "local": true
+  },
+  "permissions": [
+    "host.read",
+    "task.progress",
+    "log.write",
+    "data.read",
+    "data.write"
+  ],
+  "definition": {
+    "schema_version": 2,
+    "api_version": "1",
+    "id": "external-example",
+    "version": "1.0.0",
+    "name": "外部插件示例",
+    "runtime": "wasm",
+    "config_version": 1,
+    "permissions": [
+      "host.read",
+      "task.progress",
+      "log.write",
+      "data.read",
+      "data.write"
+    ],
+    "fields": [
+      {
+        "key": "message",
+        "label": "消息",
+        "type": "text"
+      }
+    ],
+    "actions": [
+      {
+        "id": "run",
+        "label": "运行",
+        "kind": "run",
+        "requires_enabled": true,
+        "cancellable": true
+      }
+    ]
+  }
+}
