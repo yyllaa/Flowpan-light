@@ -140,20 +140,20 @@
     {
       "schema_version": 1,
       "id": "resource-dian-openapi",
-      "version": "1.3.7",
+      "version": "1.3.8",
       "name": "癫影 OpenAPI",
       "description": "资源查询、解锁与每日签到。",
       "category": "资源",
-      "config_schema_version": 4,
+      "config_schema_version": 5,
       "data_schema_version": 1,
       "runtime": {
         "kind": "wasm",
         "module": "plugin.wasm"
       },
       "package": {
-        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.13/resource-dian-openapi-1.3.7.zip",
-        "sha256": "058cb56ac90bf2534f7df2b04608464edb0f52712269bdd38632417872038e52",
-        "commit_sha": "280af864435ac5be01d2fb547bda0da4ea2c2573"
+        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.13-signin/resource-dian-openapi-1.3.8.zip",
+        "sha256": "03598914107f9e3bacd13efa7e523f7a84452dbf876eb6b13afdd116eecc7abb",
+        "commit_sha": "5c8d38bd01e5fb65ae870aacf32df8631911325d"
       },
       "permissions": [
         "sdk.call",
@@ -167,13 +167,13 @@
         "schema_version": 2,
         "api_version": "1",
         "id": "resource-dian-openapi",
-        "version": "1.3.7",
+        "version": "1.3.8",
         "name": "癫影 OpenAPI",
         "description": "资源查询、解锁与每日签到。",
         "category": "资源",
         "icon": "search",
         "runtime": "wasm",
-        "config_version": 4,
+        "config_version": 5,
         "network": {
           "proxy": "project"
         },
@@ -197,6 +197,23 @@
             "type": "secret",
             "hint": "在癫影个人中心获取；留空保留已保存密钥。",
             "required": true
+          },
+          {
+            "key": "signin_action",
+            "label": "签到模式",
+            "type": "select",
+            "default": "checkin",
+            "required": true,
+            "options": [
+              {
+                "value": "checkin",
+                "label": "普通签到"
+              },
+              {
+                "value": "signin-lucky",
+                "label": "幸运签到"
+              }
+            ]
           },
           {
             "key": "scheduled",
@@ -224,6 +241,7 @@
           {
             "id": "checkin",
             "label": "立即签到",
+            "choice_field": "signin_action",
             "choices": [
               {
                 "value": "checkin",
