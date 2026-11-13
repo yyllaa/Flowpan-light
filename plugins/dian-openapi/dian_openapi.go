@@ -21,6 +21,14 @@ func dianPositiveID(value any, zero bool) (int, bool) {
 func executeOpenAPI(h host, r pluginapi.Request) (pluginapi.Result, error) {
 	action := r.ActionID
 	mode := "normal"
+	if action == "checkin" && r.Schedule != nil {
+		saved, _ := r.Config["signin_action"].(string)
+		if saved == "signin-lucky" {
+			action = "signin-lucky"
+		} else if saved != "" && saved != "checkin" {
+			return pluginapi.Result{}, fmt.Errorf("签到模式无效")
+		}
+	}
 	if action == "signin-lucky" {
 		if !r.Confirmed {
 			return pluginapi.Result{}, fmt.Errorf("请先确认幸运签到")

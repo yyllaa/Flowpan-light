@@ -83,6 +83,7 @@ type InputGroup struct {
 }
 
 type Action struct {
+	ChoiceField     string           `json:"choice_field,omitempty"`
 	Choices         []Option         `json:"choices,omitempty"`
 	Description     string           `json:"description,omitempty"`
 	MediaInput      *MediaInput      `json:"media_input,omitempty"`
@@ -217,12 +218,35 @@ func (d Definition) Validate() error {
 		}
 		actions[action.ID] = true
 	}
+	choiceFields := map[string]bool{}
 	for _, action := range d.Actions {
 		if len(action.Choices) == 0 {
+			if action.ChoiceField != "" {
+				return fmt.Errorf("插件动作选项字段缺少选项：%s", action.ID)
+			}
 			continue
 		}
 		if len(action.Choices) < 2 || len(action.Choices) > 8 || action.Placement != "" || action.Choices[0].Value != action.ID {
 			return fmt.Errorf("插件动作选项无效：%s", action.ID)
+		}
+		if action.ChoiceField != "" {
+			f := fields[action.ChoiceField]
+			if f.Type != "select" || f.ReadOnly || f.VisibleWhen != nil || choiceFields[f.Key] || len(f.Options) != len(action.Choices) {
+				return fmt.Errorf("插件动作选项配置无效：%s", action.ID)
+			}
+			values := map[string]bool{}
+			for _, choice := range action.Choices {
+				values[choice.Value] = true
+			}
+			for _, option := range f.Options {
+				if !values[option.Value] {
+					return fmt.Errorf("插件动作选项配置不匹配：%s", action.ID)
+				}
+			}
+			if f.Default != nil && !values[fmt.Sprint(f.Default)] {
+				return fmt.Errorf("插件动作默认选项无效：%s", action.ID)
+			}
+			choiceFields[f.Key] = true
 		}
 		seen := map[string]bool{}
 		for _, choice := range action.Choices {

@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "id": "resource-dian-openapi",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "name": "癫影 OpenAPI",
   "description": "资源查询、解锁与每日签到。",
   "category": "资源",
-  "config_schema_version": 4,
+  "config_schema_version": 5,
   "data_schema_version": 1,
   "runtime": {
     "kind": "wasm",
@@ -26,13 +26,13 @@
     "schema_version": 2,
     "api_version": "1",
     "id": "resource-dian-openapi",
-    "version": "1.3.7",
+    "version": "1.3.8",
     "name": "癫影 OpenAPI",
     "description": "资源查询、解锁与每日签到。",
     "category": "资源",
     "icon": "search",
     "runtime": "wasm",
-    "config_version": 4,
+    "config_version": 5,
     "network": { "proxy": "project" },
     "permissions": [
       "sdk.call",
@@ -54,6 +54,17 @@
         "type": "secret",
         "hint": "在癫影个人中心获取；留空保留已保存密钥。",
         "required": true
+      },
+      {
+        "key": "signin_action",
+        "label": "签到模式",
+        "type": "select",
+        "default": "checkin",
+        "required": true,
+        "options": [
+          { "value": "checkin", "label": "普通签到" },
+          { "value": "signin-lucky", "label": "幸运签到" }
+        ]
       },
       {
         "key": "scheduled",
@@ -81,6 +92,7 @@
       {
         "id": "checkin",
         "label": "立即签到",
+        "choice_field": "signin_action",
         "choices": [
           { "value": "checkin", "label": "普通签到" },
           { "value": "signin-lucky", "label": "幸运签到" }

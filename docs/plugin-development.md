@@ -237,6 +237,14 @@ response, err := pluginwasm.Fetch(pluginwasm.HTTPRequest{
 
 项目闭源而插件公开时，优先通过 `sdk.call` 对接宿主已登记的 SDK。仅在公开插件中保留业务代码、字段和 SDKRequest/SDKResponse；私有 SDK 不参与 WASM 链接。具体清单、参数表单和隔离规则见 [宿主 SDK 桥接](plugin-host-tools.md#宿主-sdk-桥接)。插件公开前同时检查源码包、WASM 和 ZIP，不只检查清单。
 
+## 动作选项保存
+
+动作的 `choices` 可用可选 `choice_field` 绑定同一插件已声明的 `select` 配置字段。字段选项值须与动作选项完全一致，字段必须可编辑且无条件隐藏；未保存时使用字段 `default` 或第一项。切换只修改配置草稿，点击保存配置后写入宿主；未绑定的旧动作保持临时选择。
+
+手动运行仍提交实际选中的动作，目标动作的确认规则保持生效。定时注册保持稳定动作 ID；插件可在 `Request.Schedule` 非空时按冻结的 `Request.Config` 读取已保存方式，沿用定时任务确认及回执。
+
+配置页将绑定动作放在该字段旁，顶部不重复渲染同一选项；其他标签保留快捷选项。两处共用草稿，切换标签不丢失未保存内容。手机端标签支持横向滑动，动作与选项保持同排和同高。
+
 ## 公开仓库构建
 
 通用 SDK 位于 sdk/plugins。每个插件有自己的 go.mod，通过相对路径引用公共合同，不依赖主程序源码。测试时进入插件目录执行 go test ./...；在仓库根目录运行 python plugins/build.py --out dist/plugins 构建全部插件，也可以多次传 --plugin 只选择需要的目录。
