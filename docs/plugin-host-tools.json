@@ -29,6 +29,51 @@
       }
     },
     {
+      "name": "sdk.call",
+      "permission": "sdk.call",
+      "group": "宿主 SDK",
+      "description": "调用声明的宿主 SDK；密钥、协议实现和网络连接由宿主管理",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "input": {
+            "type": "object"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "operation"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "secrets.read",
+      "permission": "secrets.read",
+      "group": "私有数据",
+      "description": "读取本插件明确允许运行时访问的私密配置，用于 SDK 加密签名",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "type": "object"
+      }
+    },
+    {
       "name": "kv.get",
       "permission": "data.read",
       "group": "私有数据",
@@ -181,6 +226,9 @@
           },
           "body": {
             "type": "string"
+          },
+          "headers": {
+            "type": "object"
           },
           "method": {
             "type": "string"

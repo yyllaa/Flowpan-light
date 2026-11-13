@@ -10,7 +10,7 @@ import (
 )
 
 type Handler func(Invocation) (pluginapi.Result, error)
-type Handlers struct{ Run, Health, Migrate Handler }
+type Handlers struct{ Run, Health, Migrate, Storage Handler }
 
 // Serve owns command decoding and JSON output. Health/migrate never invoke Run.
 func Serve(handlers Handlers) {
@@ -46,11 +46,16 @@ func serve(input io.Reader, output io.Writer, handlers Handlers) error {
 			handler = handlers.Migrate
 		case "run":
 			handler = handlers.Run
+		case "storage":
+			if invocation.Request.Storage == nil {
+				return pluginapi.Result{Failed: true, Message: "缺少网盘调用上下文"}
+			}
+			handler = handlers.Storage
 		default:
 			return pluginapi.Result{Failed: true, Message: "插件调用模式无效"}
 		}
 		if handler == nil {
-			if invocation.Mode == "run" {
+			if invocation.Mode == "run" || invocation.Mode == "storage" {
 				return pluginapi.Result{Failed: true, Message: "插件缺少运行处理函数"}
 			}
 			return pluginapi.Result{Message: "ready"}

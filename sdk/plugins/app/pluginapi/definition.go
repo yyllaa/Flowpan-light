@@ -29,28 +29,40 @@ type Definition struct {
 	ResultFields  []ResultField      `json:"result_fields,omitempty"`
 	LegacyUI      bool               `json:"legacy_ui,omitempty"`
 	HTTPHosts     []string           `json:"http_hosts,omitempty"`
+	Network       *NetworkPolicy     `json:"network,omitempty"`
+	Schedules     []Schedule         `json:"schedules,omitempty"`
 	Subscriptions []Subscription     `json:"subscriptions,omitempty"`
 	Contributions []Contribution     `json:"contributions,omitempty"`
 	Service       *ServiceConnection `json:"service,omitempty"`
 	Resources     *ResourceProvider  `json:"resources,omitempty"`
+	SDKs          []SDKAccess        `json:"sdks,omitempty"`
 	Browser       *BrowserAccess     `json:"browser,omitempty"`
+	Storage       *StorageDefinition `json:"storage,omitempty"`
 }
 
 type Field struct {
-	Key         string     `json:"key"`
-	Label       string     `json:"label"`
-	Type        string     `json:"type"`
-	Required    bool       `json:"required,omitempty"`
-	ReadOnly    bool       `json:"read_only,omitempty"`
-	Hint        string     `json:"hint,omitempty"`
-	Options     []Option   `json:"options,omitempty"`
-	VisibleWhen *Condition `json:"visible_when,omitempty"`
+	Key           string     `json:"key"`
+	Label         string     `json:"label"`
+	Type          string     `json:"type"`
+	Required      bool       `json:"required,omitempty"`
+	RuntimeAccess bool       `json:"runtime_access,omitempty"`
+	ReadOnly      bool       `json:"read_only,omitempty"`
+	Hint          string     `json:"hint,omitempty"`
+	Options       []Option   `json:"options,omitempty"`
+	VisibleWhen   *Condition `json:"visible_when,omitempty"`
+	Default       any        `json:"default,omitempty"`
+	Min           *float64   `json:"min,omitempty"`
+	Max           *float64   `json:"max,omitempty"`
+	Step          *float64   `json:"step,omitempty"`
+	Group         string     `json:"group,omitempty"`
+	OptionsSource string     `json:"options_source,omitempty"`
+	DependsOn     []string   `json:"depends_on,omitempty"`
 }
 
 // Conditions refer to field IDs. The renderer never evaluates source code.
 type Condition struct {
 	Field  string `json:"field"`
-	Equals bool   `json:"equals"`
+	Equals any    `json:"equals"`
 }
 
 type Option struct {
@@ -58,7 +70,26 @@ type Option struct {
 	Label string `json:"label"`
 }
 
+// MediaInput binds the host's TMDB picker to declared action input fields.
+type MediaInput struct {
+	IDField   string `json:"id_field"`
+	TypeField string `json:"type_field"`
+}
+
+type InputGroup struct {
+	ID          string `json:"id"`
+	Label       string `json:"label"`
+	Collapsible bool   `json:"collapsible,omitempty"`
+}
+
 type Action struct {
+	Choices         []Option         `json:"choices,omitempty"`
+	Description     string           `json:"description,omitempty"`
+	MediaInput      *MediaInput      `json:"media_input,omitempty"`
+	InputGroups     []InputGroup     `json:"input_groups,omitempty"`
+	ResultFields    []ResultField    `json:"result_fields,omitempty"`
+	Placement       string           `json:"placement,omitempty"`
+	InputFields     []Field          `json:"input_fields,omitempty"`
 	Idempotent      bool             `json:"idempotent,omitempty"`
 	Cancellable     bool             `json:"cancellable,omitempty"`
 	TimeoutSeconds  int              `json:"timeout_seconds,omitempty"`
@@ -95,7 +126,13 @@ type ResultItem struct {
 	Failed  bool   `json:"failed,omitempty"`
 }
 
+type ResultTable struct {
+	Columns []ResultField       `json:"columns"`
+	Rows    []map[string]string `json:"rows"`
+}
+
 type Result struct {
+	Table   *ResultTable   `json:"table,omitempty"`
 	Message string         `json:"message"`
 	Data    map[string]any `json:"data,omitempty"`
 	Items   []ResultItem   `json:"items,omitempty"`
@@ -110,6 +147,7 @@ type Snapshot struct {
 	State      State               `json:"state"`
 	Result     *Result             `json:"result,omitempty"`
 	Running    bool                `json:"running"`
+	Schedules  []ScheduleStatus    `json:"schedules,omitempty"`
 }
 
 var identifier = regexp.MustCompile(`^[a-z0-9][a-z0-9._-]{0,63}$`)
@@ -120,6 +158,9 @@ func (d Definition) Validate() error {
 	}
 	if !identifier.MatchString(d.ID) || d.Name == "" || d.Version == "" || d.ConfigVersion < 1 || (d.Runtime != "builtin" && d.Runtime != "wasm") {
 		return fmt.Errorf("插件定义不完整")
+	}
+	if err := d.validateNetwork(); err != nil {
+		return err
 	}
 	fields := map[string]Field{}
 	for _, field := range d.Fields {
@@ -133,6 +174,9 @@ func (d Definition) Validate() error {
 		case "boolean", "text", "cron", "account-list", "url", "path", "select", "secret", "number", "directory-list":
 		default:
 			return fmt.Errorf("插件配置字段类型未注册：%s", field.Type)
+		}
+		if field.RuntimeAccess && field.Type != "secret" {
+			return fmt.Errorf("运行时凭据访问只适用于密钥字段：%s", field.Key)
 		}
 		seen := map[string]bool{}
 		for _, option := range field.Options {
@@ -151,8 +195,11 @@ func (d Definition) Validate() error {
 			return fmt.Errorf("插件显示条件无效：%s", field.Key)
 		}
 	}
+	if err := d.validateSDKs(fields); err != nil {
+		return err
+	}
 	actions := map[string]bool{}
-	if len(d.Actions) == 0 {
+	if len(d.Actions) == 0 && d.Storage == nil {
 		return fmt.Errorf("插件缺少动作")
 	}
 	for _, action := range d.Actions {
@@ -165,7 +212,33 @@ func (d Definition) Validate() error {
 		if action.Danger && action.Confirmation == "" {
 			return fmt.Errorf("插件动作缺少确认文案")
 		}
+		if err := validateActionInputs(action); err != nil {
+			return err
+		}
 		actions[action.ID] = true
+	}
+	for _, action := range d.Actions {
+		if len(action.Choices) == 0 {
+			continue
+		}
+		if len(action.Choices) < 2 || len(action.Choices) > 8 || action.Placement != "" || action.Choices[0].Value != action.ID {
+			return fmt.Errorf("插件动作选项无效：%s", action.ID)
+		}
+		seen := map[string]bool{}
+		for _, choice := range action.Choices {
+			if !actions[choice.Value] || choice.Label == "" || seen[choice.Value] {
+				return fmt.Errorf("插件动作选项无效：%s", action.ID)
+			}
+			seen[choice.Value] = true
+			for _, target := range d.Actions {
+				if target.ID == choice.Value && (len(target.InputFields) > 0 || target.ID != action.ID && (target.Placement != "tools" || len(target.Choices) > 0)) {
+					return fmt.Errorf("插件动作选项需要无输入的独立动作：%s", choice.Value)
+				}
+			}
+		}
+	}
+	if err := d.validateSchedules(fields, actions); err != nil {
+		return err
 	}
 	for _, sub := range d.Subscriptions {
 		if !actions[sub.Action] || !ValidEventType(sub.Type) {
@@ -190,11 +263,13 @@ func (d Definition) Validate() error {
 	}
 	if d.Resources != nil {
 		p := d.Resources
-		if !actions[p.SearchAction] || !actions[p.UnlockAction] || p.SearchAction == p.UnlockAction {
+		if !actions[p.SearchAction] || !actions[p.UnlockAction] || p.SearchAction == p.UnlockAction || p.FilterAction != "" && (!actions[p.FilterAction] || p.FilterAction == p.UnlockAction) {
 			return fmt.Errorf("插件资源动作无效")
 		}
 		for _, a := range d.Actions {
-			if a.ID == p.SearchAction && a.Kind != "probe" || a.ID == p.UnlockAction && (!a.Danger || a.Kind != "run") {
+			// Encrypted POST queries use run + idempotent; ordinary probe actions stay read-only.
+			searchOK := !a.Danger && (a.Kind == "probe" || a.Kind == "run" && a.Idempotent)
+			if (a.ID == p.SearchAction || a.ID == p.FilterAction) && !searchOK || a.ID == p.UnlockAction && (!a.Danger || a.Kind != "run") {
 				return fmt.Errorf("插件资源动作类型无效")
 			}
 		}
@@ -212,6 +287,30 @@ func (d Definition) Validate() error {
 			if fields[key].Type != "secret" {
 				return fmt.Errorf("插件浏览器凭据字段无效")
 			}
+		}
+	}
+	if d.Storage != nil {
+		if d.Runtime != "wasm" {
+			return fmt.Errorf("网盘插件需要 WASM 运行时")
+		}
+		if err := d.Storage.Validate(); err != nil {
+			return err
+		}
+		for _, rule := range d.Storage.ShareLinks {
+			declared := false
+			for _, host := range d.HTTPHosts {
+				declared = declared || strings.EqualFold(host, rule.Host)
+			}
+			if !declared {
+				return fmt.Errorf("分享域名需要声明 HTTP 访问权限")
+			}
+		}
+		found := false
+		for _, p := range d.Permissions {
+			found = found || p == "storage.provider"
+		}
+		if !found {
+			return fmt.Errorf("网盘插件缺少驱动权限")
 		}
 	}
 	return nil

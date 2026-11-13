@@ -19,6 +19,7 @@ type ServiceConnection struct {
 type ResourceProvider struct {
 	SearchAction string `json:"search_action"`
 	UnlockAction string `json:"unlock_action"`
+	FilterAction string `json:"filter_action,omitempty"`
 }
 
 type Resource struct {

@@ -6,20 +6,25 @@ import (
 )
 
 type Scope struct {
-	DisabledTools []string `json:"disabled_tools,omitempty"`
-	Accounts      []string `json:"accounts,omitempty"`
-	Directories   []string `json:"directories,omitempty"`
+	AutomaticDirectories bool                `json:"automatic_directories,omitempty"`
+	DisabledTools        []string            `json:"disabled_tools,omitempty"`
+	Accounts             []string            `json:"accounts,omitempty"`
+	Directories          []string            `json:"directories,omitempty"`
+	AccountDirectories   map[string][]string `json:"account_directories"`
+	AccountDirectoryIDs  map[string][]string `json:"account_directory_ids,omitempty"`
 }
 type Request struct {
-	TaskID    string         `json:"task_id"`
-	PluginID  string         `json:"plugin_id"`
-	Version   string         `json:"version"`
-	ActionID  string         `json:"action_id"`
-	Input     map[string]any `json:"input,omitempty"`
-	Config    map[string]any `json:"config,omitempty"`
-	Scope     Scope          `json:"scope"`
-	Confirmed bool           `json:"confirmed"`
-	Event     *Event         `json:"event,omitempty"`
+	Storage   *StorageCall     `json:"storage,omitempty"`
+	TaskID    string           `json:"task_id"`
+	PluginID  string           `json:"plugin_id"`
+	Version   string           `json:"version"`
+	ActionID  string           `json:"action_id"`
+	Input     map[string]any   `json:"input,omitempty"`
+	Config    map[string]any   `json:"config,omitempty"`
+	Scope     Scope            `json:"scope"`
+	Confirmed bool             `json:"confirmed"`
+	Schedule  *ScheduleTrigger `json:"schedule,omitempty"`
+	Event     *Event           `json:"event,omitempty"`
 }
 type Event struct {
 	ID            string          `json:"id"`

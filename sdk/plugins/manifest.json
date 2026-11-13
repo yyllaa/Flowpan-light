@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "id": "external-example",
+  "id": "standalone-example",
   "version": "1.0.0",
   "name": "外部插件示例",
   "description": "外部插件接入示例",
@@ -24,7 +24,7 @@
   "definition": {
     "schema_version": 2,
     "api_version": "1",
-    "id": "external-example",
+    "id": "standalone-example",
     "version": "1.0.0",
     "name": "外部插件示例",
     "runtime": "wasm",
@@ -36,6 +36,9 @@
       "data.read",
       "data.write"
     ],
+    "network": {
+      "proxy": "direct"
+    },
     "fields": [
       {
         "key": "message",

@@ -1,0 +1,50 @@
+[
+  {
+    "path": "client.go",
+    "sha256": "c16e9a18913c4077341ff4d6741ab2cfeaa033e2686bb150f6dca3ffd11d7327"
+  },
+  {
+    "path": "crypto.go",
+    "sha256": "142b16b204b5f97595eae382b7777f81fbe53922a3706a2784fcd8514d4ab77e"
+  },
+  {
+    "path": "crypto_test.go",
+    "sha256": "07a42938feb7b9a8670d2c14ac39583d183ec157479631f8bdc2fb20c03f3d13"
+  },
+  {
+    "path": "errors_test.go",
+    "sha256": "5700be54f6aff3757e68b66a734c4b1b9520bf6a409400a465cfe0c768ead1fb"
+  },
+  {
+    "path": "files.go",
+    "sha256": "dfe1168678992eee800a641c1b710b8cd56fd558827888d6adf507b5f9563356"
+  },
+  {
+    "path": "files_test.go",
+    "sha256": "ad5c85cd22cbc0117b92be5c2c69ba583260c535d7566ba95b88420923d9f55e"
+  },
+  {
+    "path": "filetype_test.go",
+    "sha256": "0d43ac02ea23778954a1b8f2833eaf7f30c9556eedad6d789647a444d6b77899"
+  },
+  {
+    "path": "login_code_test.go",
+    "sha256": "e4dc90f790d0d3fb24019482f6f7701686d752b9265e5c46d3968598e09c27c2"
+  },
+  {
+    "path": "qr.go",
+    "sha256": "8ec8c4cfad1adbf89f6c41ba37afa0c9b16b3ed7c2a2478005939314ac39ab5e"
+  },
+  {
+    "path": "renew_test.go",
+    "sha256": "6a8e47782b7306520c1aecbb1e7eb3be9643b8bdbe207dc9bccd09897a47b08e"
+  },
+  {
+    "path": "retry9999_test.go",
+    "sha256": "cc8ccddb647f466a59ff9f876bccc9a087b4d731e5861cbdec3ff1bbc96b1cab"
+  },
+  {
+    "path": "throttle_test.go",
+    "sha256": "78245005c28471eba3ffa30d5c3cccd2c2485b46f8b1c68a8906a01ed1060e44"
+  }
+]

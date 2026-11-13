@@ -8,6 +8,16 @@ func Capabilities() (pluginapi.HostCapabilities, error) {
 	return result, err
 }
 
+// ReadSecret is available only with secrets.read and runtime_access on the field.
+// The host restricts it to this plugin and run mode; never log or persist its value.
+func ReadSecret(key string) (string, error) {
+	var result struct {
+		Value string `json:"value"`
+	}
+	err := Call("secrets.read", map[string]any{"key": key}, &result)
+	return result.Value, err
+}
+
 func Get(key string, result any) error { return Call("kv.get", map[string]any{"key": key}, result) }
 func Set(key string, value any) error {
 	return Call("kv.set", map[string]any{"key": key, "value": value}, nil)
@@ -45,10 +55,11 @@ func ParseTransfer(text string, result any) error {
 }
 
 type HTTPRequest struct {
-	URL        string `json:"url"`
-	Method     string `json:"method,omitempty"`
-	Body       string `json:"body,omitempty"`
-	AuthSecret string `json:"auth_secret,omitempty"`
+	URL        string            `json:"url"`
+	Method     string            `json:"method,omitempty"`
+	Body       string            `json:"body,omitempty"`
+	AuthSecret string            `json:"auth_secret,omitempty"`
+	Headers    map[string]string `json:"headers,omitempty"`
 }
 type HTTPResponse struct {
 	Status int    `json:"status"`
@@ -62,4 +73,15 @@ func Fetch(request HTTPRequest) (HTTPResponse, error) {
 }
 func ServiceCall(method, path string, body any, result any) error {
 	return Call("service.call", map[string]any{"method": method, "path": path, "body": body}, result)
+}
+
+// SDKCall returns business data from a host SDK bound to this plugin's key.
+// SDK source, signing material and user credentials stay in the host process.
+func SDKCall(provider, operation string, input map[string]any) (pluginapi.SDKResponse, error) {
+	var result pluginapi.SDKResponse
+	err := Call("sdk.call", pluginapi.SDKRequest{Provider: provider, Operation: operation, Input: input}, &result)
+	if err == nil && result.Failure != nil {
+		err = result.Failure
+	}
+	return result, err
 }

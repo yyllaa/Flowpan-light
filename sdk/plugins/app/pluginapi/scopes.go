@@ -35,5 +35,24 @@ func IntersectScope(frozen, current Scope) Scope {
 			}
 		}
 	}
+	if frozen.AccountDirectories != nil || current.AccountDirectories != nil {
+		out.AccountDirectories = make(map[string][]string)
+		out.Directories = nil
+		for _, account := range out.Accounts {
+			a := Scope{Accounts: []string{account}, Directories: frozen.DirectoryRoots(account)}
+			b := Scope{Accounts: []string{account}, Directories: current.DirectoryRoots(account)}
+			out.AccountDirectories[account] = IntersectScope(a, b).Directories
+		}
+	}
+	if frozen.AccountDirectoryIDs != nil && current.AccountDirectoryIDs != nil {
+		out.AccountDirectoryIDs = map[string][]string{}
+		for _, account := range out.Accounts {
+			for _, id := range frozen.AccountDirectoryIDs[account] {
+				if current.AllowsDirectoryID(account, id) {
+					out.AccountDirectoryIDs[account] = append(out.AccountDirectoryIDs[account], id)
+				}
+			}
+		}
+	}
 	return out
 }

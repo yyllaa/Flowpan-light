@@ -67,7 +67,7 @@ docker compose --env-file .env -f deploy/compose.yaml logs --tail=100
 https://github.com/yyllaa/Flowpan-light/tree/main/plugins
 ```
 
-刷新来源后，在插件市场选择需要的插件。添加来源只读取目录，不会批量安装或自动启用插件。当前提供 [癫影](plugins/dian/README.md)，后续插件会在同一目录独立维护。
+刷新来源后，在插件市场选择需要的插件。添加来源只读取目录，不会批量安装或自动启用插件。当前提供 [癫影浏览器版](plugins/dian/README.md)、[癫影 OpenAPI](plugins/dian-openapi/README.md) 和 [联通云盘](plugins/wopan/README.md)，各插件独立安装与维护。
 
 - [插件安装、更新、卸载与数据](docs/plugins.md)
 - [插件目录](plugins/README.md)

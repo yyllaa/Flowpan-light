@@ -1,46 +1,37 @@
 # Flowpan 外部插件目录
 
-在 Flowpan 的“辅助插件 → 插件管理 → 插件源”手动添加以下目录地址，然后刷新：
+在“辅助插件 → 插件管理 → 插件源”添加：
 
-```text
-https://github.com/yyllaa/Flowpan-light/tree/main/plugins
-```
+    https://github.com/yyllaa/Flowpan-light/tree/main/plugins
 
-在“插件市场”选择需要的插件安装。添加来源和刷新只读取目录，不批量安装或启用插件。后续本目录新增插件后，刷新同一来源即可选择安装。
+刷新后在插件市场选择需要的插件。添加来源不会自动安装或启用插件。
 
-## 目录结构
+| 插件 | 稳定 ID | 版本 | 独立目录 | 网络 |
+| --- | --- | --- | --- | --- |
+| 癫影（浏览器版） | resource-dian | 1.1.1 | [dian](dian) | 沿用项目设置 |
+| 癫影 OpenAPI | resource-dian-openapi | 1.3.7 | [dian-openapi](dian-openapi) | 必须使用项目 HTTP 代理 |
+| 联通云盘 | storage-wopan | 0.2.1 | [wopan](wopan) | 直连 |
 
-```text
-plugins/
-  index.json           # 插件源总索引
-  README.md            # 来源和目录约定
-  build.py             # 当前插件和 SDK 构建入口
-  dian/                # 癫影独立目录
-    README.md          # 使用与构建说明
-    manifest.json      # 插件清单
-    go.mod             # 独立模块，引用共用 SDK
-    main.go            # 插件入口
-    dian_parse.go      # 站点解析
-    dian_web.go        # 浏览器请求
-    results.go         # 资源结果
-    parse_test.go      # 回归测试
-```
+两个癫影版本使用不同 ID，各自安装、配置、定时任务、运行记录和私有数据，互不覆盖。浏览器版需要项目浏览器能力，OpenAPI 版通过宿主 sdk.call 使用私有 SDK，无需浏览器。
 
-每个插件使用自己的目录，保存源码、清单、说明和测试；各自维护版本和发布包。共用 SDK 位于 [`sdk/plugins`](../sdk/plugins)，浏览器和 FFmpeg 由 Flowpan 统一提供。
+联通云盘安装启用后在原生账号中心扫码添加账号，进入文件浏览、STRM、挂载、有声书和上传入口。文件操作范围仍由宿主管理。
 
-## 可安装插件
+新版 OpenAPI 和联通插件需要支持网络声明、SDK 桥接和网盘驱动合同的配套新版宿主。先更新主程序，再安装插件；插件包不包含主程序、浏览器或 FFmpeg。
 
-| 插件 | 版本 | 能力 | 源码与说明 |
-| --- | --- | --- | --- |
-| 癫影 | 1.1.1 | 状态、签到、资源搜索、确认解锁 | [dian](dian) |
+## 目录与构建
 
-[插件与 SDK 下载](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.06)。下载包可直接在 Flowpan 本地导入。
+每个插件在 plugins 下有独立目录、manifest.json 和 go.mod；SDK 位于 [sdk/plugins](../sdk/plugins)。新插件加入 plugins/index.json 后，用户刷新同一插件源即可选择安装。
 
-## 新增或更新插件
+需要 Go 1.25+ 和 Python 3。在仓库根目录运行：
 
-1. 新插件在 `plugins/<插件目录>/` 中管理，清单使用独立、稳定的插件 ID；目录之间不共享账号配置或私有状态。
-2. 构建并测试该插件的 WASM ZIP，将版本包上传到本仓库 Releases，记录包的 SHA-256 和对应源码 commit。
-3. 在 `index.json` 的 `plugins` 数组中新增该插件清单，或只更新它自己的条目。索引包地址、哈希和 commit 必须与实际发布一致。
-4. 用户刷新本目录来源后即可在插件市场查看和选择。已有安装的启用状态、配置和授权由宿主管理。
+    python plugins/build.py --out dist/plugins
 
-索引仅列出可单独安装的外部插件，宿主内置功能不列入本来源。增加插件不会要求用户再添加另一个来源地址。
+只构建部分插件：
+
+    python plugins/build.py --plugin dian-openapi --plugin wopan --out dist/selected
+
+在各插件目录运行 go test ./...。构建器从清单生成独立 WASM ZIP，并输出 SHA-256；可用 --host 指定 Flowpan 可执行文件校验。
+
+索引固定同仓库 Release 下载地址、SHA-256 和源码 commit。插件配置与凭据由用户在宿主中填写，公开源码与发布包不包含运行数据。
+
+[下载插件与 SDK](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.13)。

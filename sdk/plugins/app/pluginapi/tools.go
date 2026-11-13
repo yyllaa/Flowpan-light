@@ -40,6 +40,8 @@ func tool(name, permission, group, description, fields string, write, confirm bo
 func Tools() []Tool {
 	return []Tool{
 		tool("host.capabilities", "host.read", "宿主合同", "查询当前任务可用工具、限制及未就绪原因", "", false, false),
+		tool("sdk.call", "sdk.call", "宿主 SDK", "调用声明的宿主 SDK；密钥、协议实现和网络连接由宿主管理", "provider:string operation:string input?:object", true, false),
+		tool("secrets.read", "secrets.read", "私有数据", "读取本插件明确允许运行时访问的私密配置，用于 SDK 加密签名", "key:string", false, false),
 		tool("kv.get", "data.read", "私有数据", "读取本插件私有值", "key:string", false, false),
 		tool("kv.list", "data.read", "私有数据", "读取本插件私有数据", "", false, false),
 		tool("kv.set", "data.write", "私有数据", "写入本插件缓存或检查点", "key:string value:any", false, false),
@@ -47,7 +49,7 @@ func Tools() []Tool {
 		tool("notify", "notification.send", "任务与通知", "通过项目通知渠道发送消息", "message:string", true, false),
 		tool("task.progress", "task.progress", "任务与通知", "更新当前插件任务进度", "done?:number total?:number percent?:number message?:string checkpoint?:object", false, false),
 		tool("task.status", "task.read", "任务与通知", "读取本插件的任务记录", "id:string", false, false),
-		tool("http.fetch", "http.fetch", "网络", "通过项目代理请求声明的 HTTPS 站点", "url:string method?:string body?:string auth_secret?:string", false, false),
+		tool("http.fetch", "http.fetch", "网络", "通过项目代理请求声明的 HTTPS 站点", "url:string method?:string body?:string headers?:object auth_secret?:string", false, false),
 		tool("service.call", "service.call", "网络", "调用插件显式配置的外部服务", "method:string path:string body?:object", false, false),
 		tool("browser.open", "browser.use", "浏览器", "打开声明的站点，按插件和账号隔离登录状态", "url:string profile?:string", false, false),
 		tool("browser.evaluate", "browser.use", "浏览器", "在当前任务页面运行脚本，支持宿主注入凭据", "session:string script:string args?:object secrets?:object", false, false),
@@ -74,7 +76,7 @@ func FindTool(name string) (Tool, bool) {
 	return Tool{}, false
 }
 func KnownPermission(permission string) bool {
-	if permission == "events.subscribe" {
+	if permission == "events.subscribe" || permission == "schedule" || permission == "storage.provider" {
 		return true
 	}
 	for _, t := range Tools() {

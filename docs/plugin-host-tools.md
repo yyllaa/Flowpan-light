@@ -4,20 +4,37 @@
 
 ## 管理与授权
 
-插件在 manifest 顶层和 `definition.permissions` 声明所需权限。“已安装 → 授权范围”设置账号、目录和工具开关。账号取 `accounts.list` 的 ID（115 主号为 `main`、115 小号为账号 ID、139 为 `src_…`、本机为 `local`），不要用显示名称。目录范围应用于所选账号；本机填写容器实际绝对路径，云盘填写实际云盘路径。
+插件在 manifest 顶层和 `definition.permissions` 声明所需权限。“已安装 → 授权范围”设置账号和工具开关。账号取 `accounts.list` 的 ID（115 主号为 `main`、115 小号为账号 ID、139 为 `src_…`、本机为 `local`），不要用显示名称。目录范围与账号逐个绑定，沿用项目已保存的云端路径、目录 ID 和容器输出路径。不同账号不共用目录清单。界面不要求手填或选择目录，宿主从账号和项目原生业务配置自动确定范围；签到、搜索、扫码登录不要求目录配置。
 
 每次调用检查声明权限、任务提交时授权和当前授权。新增授权不扩大已排队任务，撤销会收紧后续调用。工具开关可单独停用；未声明的工具不会因开关开启而获得权限。文件 ID 一律用字符串；宿主从真实父级链确认目录，插件传入的显示路径不作为授权依据。
 
-插件不直接调用云盘的新建目录、改名、移动、复制、上传、删除接口，也不获取云盘凭据。旧插件声明原文件写入权限或传入 confirmed，也不能启用这些已移除的方法。
+通用宿主工具不提供直接新建目录、改名、移动、复制、上传、删除云盘文件的入口，也不返回云盘凭据。旧插件声明原文件写入权限或传入 confirmed，也不能启用这些已移除的方法。网盘驱动通过独立 storage 合同处理所属账号的供应商协议；该合同只发送对应账号的凭据。
 
 插件可以调用项目已有的转存和整理任务。`transfer.submit` 使用所选账号在项目里保存的目标、去重及自动整理配置；`organize.run` 使用项目已保存的整理规则，不接受插件提供云盘操作或替换配置。两者需要相应权限、账号和目录授权、已确认的 run 动作及幂等键。目标与整理来源、输出均在调用前核对，probe、health、migrate 不执行这些任务。
 
 站点签到和确认解锁由插件自己的站点动作处理。癫影解锁链接交给项目现有“转存下载”页面确认；其他插件也可声明权限后调用上述项目任务能力。probe 不发送业务通知，health/migrate 仅允许私有 KV 和日志。
+## 自动目录范围
+
+授权界面保留账号与工具开关，不设置额外的目录表单。保存时使用 `automatic_directories: true`，清除旧手工目录清单；旧客户端数据仍兼容。`account_directories` 和 `account_directory_ids` 作为执行任务内的账号与目录配对快照，不能由插件参数自行扩大。目录 ID 来自项目已保存的绑定，校验复用原有的真实父级链，不额外请求网盘来生成授权范围。
+
+```json
+{"accounts":["src_wopan_account","local"],"automatic_directories":true,"disabled_tools":[]}
+```
+
+网盘驱动只能申请宿主实际登记给该插件的提供者与来源；联通插件的授权列表和执行范围均不包含 115 或 139。旧记录即使含有其他网盘账号，执行时仍被过滤。普通资源插件按管理员选择的账号，继续跨网盘提交项目转存与整理。
+
+云端范围取所属账号现有 STRM 根目录、转存目标、整理来源与输出、挂载根目录、自动上传目标；未绑定的目录不会因插件自报路径而开放。本机访问限定在所属账号的 STRM 输出目录，并排除其他网盘输出、配置和日志。STRM 写入和清理由宿主管理，使用输出根目录约束和原文件摘要核验；插件不提供任意本机删除入口。
+
+任务提交时冻结自动范围。每次调用重新计算当前绑定再取交集，账号删除、映射移除与工具撤销立即收紧；新增绑定不扩大已排队任务。非空 `account_directories` 仅按对应账号查询，空字典、缺键和空列表均拒绝文件访问。事件载荷中每个账号和目录均须通过校验。
+
+WASM 不挂载宿主文件系统，本机读取额外经 `os.Root` 限制，符号链接或目录联接不能跳到其他输出。供应商原始 HTTP 协议仍由所属驱动持本账号凭据实现；宿主范围校验不等于解密并验证每个云端请求。上述隔离限定宿主工具与本机映射的边界。
+
 ## 工具
 
 | 分类 | 工具 | 权限与行为 |
 | --- | --- | --- |
 | 宿主合同 | `host.capabilities` | `host.read`；返回当前执行的能力状态和资源限制 |
+| 宿主 SDK | `sdk.call` | `sdk.call`；声明 SDK 和私密配置绑定，宿主执行协议并只返回业务结果 |
 | 私有状态 | `kv.get`、`kv.list`、`kv.set` | `data.read` / `data.write`；按插件隔离，宿主回执保留键禁止覆盖 |
 | 任务 | `task.progress`、`task.status` | `task.progress` / `task.read`；当前任务进度、本插件任务状态 |
 | 输出 | `log`、`notify` | `log.write` / `notification.send`；项目日志与已有通知渠道 |
@@ -28,7 +45,7 @@
 | 转存 | `transfer.parse`、`transfer.submit`、`transfer.status` | `transfer.read` / `transfer.write`；解析链接、提交项目任务、查询本插件转存回执和实时任务状态 |
 | 整理 | `organize.run`、`organize.status` | `organize.write` / `organize.read`；执行项目既有规则、查询账号整理状态 |
 
-全部 24 个工具可由其他插件调用。云盘列表分页复用项目缓存；`limit` 为 1–200。`files.list` 的 `id` 为目录 ID，本机则为绝对路径。旧插件的 `root` 主号索引合同仍兼容；新插件使用真实 ID。`files.stat` 返回真实路径。
+全部注册工具可由其他插件按声明调用。云盘列表分页复用项目缓存；`limit` 为 1–200。`files.list` 的 `id` 为目录 ID，本机则为绝对路径。旧插件的 `root` 主号索引合同仍兼容；新插件使用真实 ID。`files.stat` 返回真实路径。
 
 `media.probe` 使用宿主已安装 FFprobe，固定参数、60 秒超时，只接受授权本机媒体；输出超过 768 KiB 时返回错误。`media.search` 不把 TMDB Key 交给插件。整理仅返回任务状态、数量和结果项目，不返回内部配置或密钥。
 
@@ -88,8 +105,40 @@ err = pluginwasm.TransferStatus("main", "resource-123-transfer", &result)
 
 单次宿主调用请求上限 64 KiB、响应 1 MiB，每个 WASM 执行最多 128 次宿主调用，内存 64 MiB。动作超时按定义限制在 60–600 秒。返回错误通过 ABI 的 `error` 字符串传递，SDK 转成 error；取消和任务版本变化沿用现有队列。
 
-声明 `events.subscribe` 后可订阅 `file.changed`、`organize.completed`、`audiobook.changed`、`task.completed`。按授权账号、目录交集投递，现有事件去重及任务检查点继续生效。站点业务放在外部插件，宿主只提供通用能力。
+声明 `events.subscribe` 后可订阅 `file.changed`、`organize.completed`、`audiobook.changed`、`task.completed`。载荷内全部账号与目录均通过配对授权后才投递，现有事件去重及任务检查点继续生效。站点业务放在外部插件，宿主只提供通用能力。
 
 ## 外部插件开发入口
 
 通用 SDK 已封装全部工具，支持 Serve 生命周期入口、能力查询和结构化错误码。`flowpan plugin pack/check` 在本地打包和静态校验；独立开发包由 `tools/plugin-kit.py` 导出，不依赖主项目的服务端依赖。完整步骤见 [外部插件开发与接入](plugin-development.md)。
+
+## 插件网络策略
+
+插件通过 `definition.network.proxy` 声明 `direct`（直连）、`project`（必须使用项目 HTTP 代理）或 `inherit`（跟随项目设置）。未声明的旧插件保持 `inherit`。宿主对 HTTP、SDK、浏览器和网盘传输统一执行，插件不提供或读取代理地址。`project` 未配置代理时返回配置提示。辅助服务连接 `service.call` 保持直连。完整约定见 [插件网络代理声明](plugin-development.md#插件网络代理声明)。
+
+## 宿主 SDK 桥接
+
+私有协议实现留在宿主。插件声明 `sdk.call` 权限，以及 `definition.sdks: [{"provider":"dian115","credential":"openapi_key"}]`；credential 必须指向自己的 secret 字段，无需 `runtime_access` 或 `secrets.read`。
+
+通用开发包使用 `pluginwasm.SDKCall(provider, operation, input)`，返回 SDKResponse 的业务 JSON、匿名账号指纹或结构化 SDKFailure。插件不能指定其他插件、任意 Key、站点或接口路径；宿主决定注册操作和固定出口，遵循插件声明的网络策略，沿用取消、大小限制、授权撤销和防护日志。失败保留站点的业务状态，响应验签后才标记 Verified。写入回执由业务插件按 Verified 和状态处理，结果不明时不自动重放。
+
+`definition.actions[].placement="tools"` 将动作放入统一的扩展功能页；`input_fields` 声明 text、textarea、number、select、boolean、json、string-list、multi-select 参数。必填及格式错误显示在表单中，校验通过后发送 input；danger 动作冻结参数后确认再执行。后台仍独立校验允许的操作和参数。
+
+## 资源筛选与分页
+
+资源插件可在 `definition.resources.filter_action` 指定只读动作；动作必须为非 danger 的 probe，或幂等 run。未声明的插件沿用 `search_action`，无需修改。宿主使用该动作的 `input_fields` 渲染资源页筛选控件，不按插件 ID 判断。
+
+`tmdb_id`、`media_type` 由已选择作品提供，`page`、`size` 由分页控件提供，其余字段按声明渲染。number 支持 `min`、`max`、`step`；`visible_when` 引用同一动作的字段，例如季数仅在 `media_type` 为 `tv` 时显示。隐藏字段不会提交，数字 0 和布尔 false 保留。后台仍负责业务参数校验。
+
+筛选动作返回 `data.resources`，格式与普通搜索一致；分页返回 `data.pagination: {"page":1,"size":50,"has_more":true}`。每次只返回当前页，宿主不会自动遍历；翻页沿用已应用条件，修改或重置表单不自动请求。选择新作品或应用新条件从第一页开始，分页失败保留原页面。解锁和项目转存继续使用 `unlock_action` 及标准 links 结果。
+
+### 扩展动作页面
+
+无参数的顶部动作可用 `choices: [{value:"checkin",label:"普通签到"},{value:"signin-lucky",label:"幸运签到"}]` 声明执行方式。第一项必须指向当前动作，其余项指向本插件 `placement="tools"` 的独立动作；最多 8 项，不允许未知引用、重复或嵌套选项。宿主使用原生选择器，不因切换而发起请求；点击按钮后执行所选动作，沿用该动作的启用检查、确认要求和超时。未声明 choices 的插件保持原按钮，定时任务继续执行 schedules 中声明的动作。
+
+外部插件声明界面，宿主负责渲染，不需要内嵌 HTML 或脚本。动作的 `description` 展示功能说明；`input_groups` 使用 `{id,label,collapsible}`，字段通过 `group` 引用分组。可折叠分组有校验错误时会展开。
+
+`string-list` 在页面使用每行一项的文本框，提交为去重后的字符串数组；`multi-select` 使用声明的 `options`，提交为字符串数组。后台插件仍须校验业务格式和数量，前端校验不能代替后端校验。
+
+影视动作可声明 `media_input: {id_field:"tmdb_id",type_field:"media_type"}`，两者必须分别绑定已声明的 number 和 select 字段。宿主提供现有 TMDB 搜索，选择作品只填入参数；输入数字可直接选择 TMDB ID，仍须点击动作按钮执行。切换扩展页分别保留输入。
+
+动作 `result_fields` 声明本动作的指标。`Result.table` 使用 `{columns:[{key,label}],rows:[{key:"文本"}]}`，宿主以纯文本表格展示并提供内部滚动；不执行单元格 HTML。`Result.items` 展示说明条目，原始业务响应默认折叠。`data.pagination` 为 `{page,size,has_more}`，已有 page 参数的动作可以手动翻页；RSS 的 `data.next_cursor` 与 `data.has_more` 提供“读取下一批”。仅本次已提交的条件未改变时允许继续，修改表单不会自动请求。危险动作确认页使用冻结的输入摘要。

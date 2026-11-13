@@ -1,0 +1,1548 @@
+{
+  "schema_version": 1,
+  "id": "resource-dian-openapi",
+  "version": "1.3.7",
+  "name": "癫影 OpenAPI",
+  "description": "资源查询、解锁与每日签到。",
+  "category": "资源",
+  "config_schema_version": 4,
+  "data_schema_version": 1,
+  "runtime": {
+    "kind": "wasm",
+    "module": "plugin.wasm"
+  },
+  "package": {
+    "local": true
+  },
+  "permissions": [
+    "sdk.call",
+    "data.read",
+    "data.write",
+    "task.progress",
+    "notification.send",
+    "schedule"
+  ],
+  "definition": {
+    "schema_version": 2,
+    "api_version": "1",
+    "id": "resource-dian-openapi",
+    "version": "1.3.7",
+    "name": "癫影 OpenAPI",
+    "description": "资源查询、解锁与每日签到。",
+    "category": "资源",
+    "icon": "search",
+    "runtime": "wasm",
+    "config_version": 4,
+    "network": { "proxy": "project" },
+    "permissions": [
+      "sdk.call",
+      "data.read",
+      "data.write",
+      "task.progress",
+      "notification.send",
+      "schedule"
+    ],
+    "resources": {
+      "search_action": "search",
+      "unlock_action": "unlock",
+      "filter_action": "query"
+    },
+    "fields": [
+      {
+        "key": "openapi_key",
+        "label": "OpenAPI Key",
+        "type": "secret",
+        "hint": "在癫影个人中心获取；留空保留已保存密钥。",
+        "required": true
+      },
+      {
+        "key": "scheduled",
+        "label": "定时签到",
+        "type": "boolean"
+      },
+      {
+        "key": "cron",
+        "label": "签到时间",
+        "type": "cron",
+        "hint": "每天 08:00：0 0 8 * * *",
+        "visible_when": {
+          "field": "scheduled",
+          "equals": true
+        },
+        "required": true
+      },
+      {
+        "key": "notify",
+        "label": "签到通知",
+        "type": "boolean"
+      }
+    ],
+    "actions": [
+      {
+        "id": "checkin",
+        "label": "立即签到",
+        "choices": [
+          { "value": "checkin", "label": "普通签到" },
+          { "value": "signin-lucky", "label": "幸运签到" }
+        ],
+        "kind": "run",
+        "icon": "calendar",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true
+      },
+      {
+        "id": "status",
+        "label": "检查连接",
+        "kind": "run",
+        "icon": "refresh",
+        "requires_enabled": true,
+        "idempotent": true,
+        "timeout_seconds": 120,
+        "cancellable": true
+      },
+      {
+        "id": "search",
+        "label": "查询资源",
+        "kind": "run",
+        "icon": "search",
+        "requires_enabled": true,
+        "idempotent": true,
+        "timeout_seconds": 120,
+        "cancellable": true
+      },
+      {
+        "id": "unlock",
+        "label": "解锁",
+        "kind": "run",
+        "requires_enabled": true,
+        "danger": true,
+        "confirmation": "确认解锁该资源？将按资源标价扣除积分。",
+        "timeout_seconds": 120,
+        "cancellable": true
+      },
+      {
+        "id": "profile",
+        "label": "账号资料与额度",
+        "kind": "run",
+        "placement": "tools",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true,
+        "input_fields": [],
+        "idempotent": true,
+        "description": "查看账号资料、会员状态、积分与接口额度。",
+        "result_fields": [
+          {
+            "key": "points",
+            "label": "积分"
+          },
+          {
+            "key": "membership",
+            "label": "会员状态"
+          },
+          {
+            "key": "quota",
+            "label": "今日接口额度"
+          }
+        ]
+      },
+      {
+        "id": "avatar",
+        "label": "账号头像",
+        "kind": "run",
+        "placement": "tools",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true,
+        "input_fields": [
+          {
+            "key": "avatar_url",
+            "label": "头像地址",
+            "type": "text",
+            "hint": "留空读取当前账号头像。"
+          }
+        ],
+        "idempotent": true,
+        "description": "读取当前账号头像，留空时自动使用账号资料中的头像地址。"
+      },
+      {
+        "id": "query",
+        "label": "筛选资源",
+        "kind": "run",
+        "placement": "tools",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true,
+        "input_fields": [
+          {
+            "key": "tmdb_id",
+            "label": "TMDB ID",
+            "type": "number",
+            "required": true,
+            "min": 1,
+            "step": 1
+          },
+          {
+            "key": "media_type",
+            "label": "作品类型",
+            "type": "select",
+            "default": "movie",
+            "required": true,
+            "options": [
+              {
+                "value": "movie",
+                "label": "电影"
+              },
+              {
+                "value": "tv",
+                "label": "剧集"
+              }
+            ]
+          },
+          {
+            "key": "res",
+            "label": "画质",
+            "type": "select",
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "不限"
+              },
+              {
+                "value": "8K",
+                "label": "8K"
+              },
+              {
+                "value": "4K",
+                "label": "4K"
+              },
+              {
+                "value": "1080P",
+                "label": "1080P"
+              },
+              {
+                "value": "1080I",
+                "label": "1080I"
+              },
+              {
+                "value": "720P",
+                "label": "720P"
+              },
+              {
+                "value": "SD",
+                "label": "SD"
+              }
+            ]
+          },
+          {
+            "key": "codec",
+            "label": "视频编码",
+            "type": "select",
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "不限"
+              },
+              {
+                "value": "HEVC",
+                "label": "HEVC"
+              },
+              {
+                "value": "AVC",
+                "label": "AVC"
+              },
+              {
+                "value": "AV1",
+                "label": "AV1"
+              },
+              {
+                "value": "VP9",
+                "label": "VP9"
+              },
+              {
+                "value": "MPEG2",
+                "label": "MPEG2"
+              },
+              {
+                "value": "VC1",
+                "label": "VC1"
+              },
+              {
+                "value": "XVID",
+                "label": "XVID"
+              },
+              {
+                "value": "DIVX",
+                "label": "DIVX"
+              },
+              {
+                "value": "AVS3",
+                "label": "AVS3"
+              }
+            ]
+          },
+          {
+            "key": "hdr",
+            "label": "HDR",
+            "type": "select",
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "不限"
+              },
+              {
+                "value": "DV",
+                "label": "DV"
+              },
+              {
+                "value": "HDR10+",
+                "label": "HDR10+"
+              },
+              {
+                "value": "HDR10",
+                "label": "HDR10"
+              },
+              {
+                "value": "HDR-VIVID",
+                "label": "HDR-VIVID"
+              },
+              {
+                "value": "HLG",
+                "label": "HLG"
+              },
+              {
+                "value": "SDR",
+                "label": "SDR"
+              },
+              {
+                "value": "EDR",
+                "label": "EDR"
+              },
+              {
+                "value": "3D",
+                "label": "3D"
+              },
+              {
+                "value": "IMAX",
+                "label": "IMAX"
+              },
+              {
+                "value": "REPACK",
+                "label": "REPACK"
+              },
+              {
+                "value": "PROPER",
+                "label": "PROPER"
+              },
+              {
+                "value": "RERIP",
+                "label": "RERIP"
+              },
+              {
+                "value": "DIY",
+                "label": "DIY"
+              },
+              {
+                "value": "HQ",
+                "label": "HQ"
+              }
+            ]
+          },
+          {
+            "key": "chn_sub",
+            "label": "中文字幕",
+            "type": "select",
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "不限"
+              },
+              {
+                "value": "true",
+                "label": "有中文"
+              },
+              {
+                "value": "false",
+                "label": "无中文"
+              }
+            ]
+          },
+          {
+            "key": "source_tag",
+            "label": "片源",
+            "type": "select",
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "不限"
+              },
+              {
+                "value": "UHD-BLURAY",
+                "label": "UHD-BLURAY"
+              },
+              {
+                "value": "BLURAY-REMUX",
+                "label": "BLURAY-REMUX"
+              },
+              {
+                "value": "REMUX",
+                "label": "REMUX"
+              },
+              {
+                "value": "BLURAY",
+                "label": "BLURAY"
+              },
+              {
+                "value": "WEB-DL",
+                "label": "WEB-DL"
+              },
+              {
+                "value": "WEBRIP",
+                "label": "WEBRIP"
+              },
+              {
+                "value": "UHDTV",
+                "label": "UHDTV"
+              },
+              {
+                "value": "HDTV",
+                "label": "HDTV"
+              },
+              {
+                "value": "DVD",
+                "label": "DVD"
+              },
+              {
+                "value": "DVDRIP",
+                "label": "DVDRIP"
+              },
+              {
+                "value": "HDRIP",
+                "label": "HDRIP"
+              },
+              {
+                "value": "BDMV",
+                "label": "BDMV"
+              },
+              {
+                "value": "SCR",
+                "label": "SCR"
+              }
+            ]
+          },
+          {
+            "key": "audio",
+            "label": "音轨",
+            "type": "select",
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "不限"
+              },
+              {
+                "value": "TRUEHD",
+                "label": "TRUEHD"
+              },
+              {
+                "value": "TRUEHD7.1",
+                "label": "TRUEHD7.1"
+              },
+              {
+                "value": "TRUEHD5.1",
+                "label": "TRUEHD5.1"
+              },
+              {
+                "value": "DTS-HD.MA",
+                "label": "DTS-HD.MA"
+              },
+              {
+                "value": "DTS-HD.MA7.1",
+                "label": "DTS-HD.MA7.1"
+              },
+              {
+                "value": "DTS-X",
+                "label": "DTS-X"
+              },
+              {
+                "value": "DTS",
+                "label": "DTS"
+              },
+              {
+                "value": "DDP",
+                "label": "DDP"
+              },
+              {
+                "value": "DDP5.1",
+                "label": "DDP5.1"
+              },
+              {
+                "value": "EAC3",
+                "label": "EAC3"
+              },
+              {
+                "value": "AC3",
+                "label": "AC3"
+              },
+              {
+                "value": "AAC",
+                "label": "AAC"
+              },
+              {
+                "value": "AAC2.0",
+                "label": "AAC2.0"
+              },
+              {
+                "value": "FLAC",
+                "label": "FLAC"
+              },
+              {
+                "value": "LPCM",
+                "label": "LPCM"
+              },
+              {
+                "value": "OPUS",
+                "label": "OPUS"
+              },
+              {
+                "value": "ATMOS",
+                "label": "ATMOS"
+              }
+            ]
+          },
+          {
+            "key": "fps",
+            "label": "帧率",
+            "type": "select",
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "不限"
+              },
+              {
+                "value": "24FPS",
+                "label": "24FPS"
+              },
+              {
+                "value": "30FPS",
+                "label": "30FPS"
+              },
+              {
+                "value": "50FPS",
+                "label": "50FPS"
+              },
+              {
+                "value": "60FPS",
+                "label": "60FPS"
+              },
+              {
+                "value": "120FPS",
+                "label": "120FPS"
+              }
+            ]
+          },
+          {
+            "key": "season",
+            "label": "季数",
+            "type": "number",
+            "min": 0,
+            "max": 10000,
+            "step": 1,
+            "visible_when": {
+              "field": "media_type",
+              "equals": "tv"
+            },
+            "hint": "留空不限；0 为特别篇。"
+          },
+          {
+            "key": "min_size_gb",
+            "label": "最小体积（GB）",
+            "type": "number",
+            "min": 0
+          },
+          {
+            "key": "max_size_gb",
+            "label": "最大体积（GB）",
+            "type": "number",
+            "min": 0
+          },
+          {
+            "key": "page",
+            "label": "页码",
+            "type": "number",
+            "default": 1,
+            "min": 1,
+            "max": 100000,
+            "step": 1
+          },
+          {
+            "key": "size",
+            "label": "每页数量",
+            "type": "number",
+            "default": 50,
+            "min": 1,
+            "max": 50,
+            "step": 1
+          }
+        ],
+        "idempotent": true,
+        "media_input": {
+          "id_field": "tmdb_id",
+          "type_field": "media_type"
+        },
+        "description": "选择作品后按清晰度、编码和剧集范围筛选资源。"
+      },
+      {
+        "id": "virtual-cache",
+        "label": "虚拟缓存",
+        "kind": "run",
+        "placement": "tools",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true,
+        "input_fields": [
+          {
+            "key": "tmdb_id",
+            "label": "TMDB ID",
+            "type": "number",
+            "min": 1,
+            "step": 1,
+            "required": true
+          },
+          {
+            "key": "media_type",
+            "label": "作品类型",
+            "type": "select",
+            "default": "movie",
+            "required": true,
+            "options": [
+              {
+                "value": "movie",
+                "label": "电影"
+              },
+              {
+                "value": "tv",
+                "label": "剧集"
+              }
+            ]
+          },
+          {
+            "key": "page",
+            "label": "页码",
+            "type": "number",
+            "min": 1,
+            "step": 1,
+            "default": 1,
+            "max": 100000
+          },
+          {
+            "key": "size",
+            "label": "每页数量",
+            "type": "number",
+            "min": 1,
+            "step": 1,
+            "default": 50,
+            "max": 200
+          }
+        ],
+        "idempotent": true,
+        "media_input": {
+          "id_field": "tmdb_id",
+          "type_field": "media_type"
+        },
+        "description": "查看作品的虚拟缓存文件、SHA1、大小与状态。"
+      },
+      {
+        "id": "sha1-query",
+        "label": "SHA1 查重",
+        "kind": "run",
+        "placement": "tools",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true,
+        "input_fields": [
+          {
+            "key": "tmdb_id",
+            "label": "TMDB ID",
+            "type": "number",
+            "min": 1,
+            "step": 1,
+            "required": true
+          },
+          {
+            "key": "media_type",
+            "label": "作品类型",
+            "type": "select",
+            "default": "movie",
+            "required": true,
+            "options": [
+              {
+                "value": "movie",
+                "label": "电影"
+              },
+              {
+                "value": "tv",
+                "label": "剧集"
+              }
+            ]
+          },
+          {
+            "key": "sha1s",
+            "label": "文件 SHA1",
+            "type": "string-list",
+            "required": true,
+            "hint": "每行一个 SHA1，自动去重，最多 500 个。"
+          }
+        ],
+        "idempotent": true,
+        "media_input": {
+          "id_field": "tmdb_id",
+          "type_field": "media_type"
+        },
+        "description": "核对文件是否已收录；每行填写一个 40 位 SHA1，不需要数组或引号。"
+      },
+      {
+        "id": "share-check",
+        "label": "分享链接查重",
+        "kind": "run",
+        "placement": "tools",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true,
+        "input_fields": [
+          {
+            "key": "share_code",
+            "label": "115 分享链接或分享码",
+            "type": "text",
+            "required": true
+          }
+        ],
+        "idempotent": true,
+        "description": "输入完整的 115 分享链接或分享码，检查是否已经发布。"
+      },
+      {
+        "id": "rss-options",
+        "label": "RSS 筛选选项",
+        "kind": "run",
+        "placement": "tools",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true,
+        "input_fields": [],
+        "idempotent": true,
+        "description": "读取当前账号可用的 RSS 分类、地区和资源标签。需要站点授予 RSS 权限。"
+      },
+      {
+        "id": "rss",
+        "label": "RSS 更新",
+        "kind": "run",
+        "placement": "tools",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true,
+        "input_fields": [
+          {
+            "key": "media_types",
+            "label": "作品类型",
+            "type": "multi-select",
+            "options": [
+              {
+                "value": "movie",
+                "label": "电影"
+              },
+              {
+                "value": "tv",
+                "label": "剧集"
+              }
+            ],
+            "default": []
+          },
+          {
+            "key": "categories",
+            "label": "分类",
+            "type": "string-list",
+            "hint": "可选，每行一个分类值；可先查看 RSS 筛选选项。"
+          },
+          {
+            "key": "regions",
+            "label": "地区",
+            "type": "string-list",
+            "hint": "可选，每行一个地区值。"
+          },
+          {
+            "key": "resolutions",
+            "label": "清晰度",
+            "type": "multi-select",
+            "default": [],
+            "options": [
+              {
+                "value": "8K",
+                "label": "8K"
+              },
+              {
+                "value": "4K",
+                "label": "4K"
+              },
+              {
+                "value": "1080P",
+                "label": "1080P"
+              },
+              {
+                "value": "1080I",
+                "label": "1080I"
+              },
+              {
+                "value": "720P",
+                "label": "720P"
+              },
+              {
+                "value": "SD",
+                "label": "SD"
+              }
+            ]
+          },
+          {
+            "key": "limit",
+            "label": "每批数量",
+            "type": "number",
+            "min": 1,
+            "step": 1,
+            "default": 50,
+            "max": 50
+          },
+          {
+            "key": "cursor",
+            "label": "继续读取游标",
+            "type": "text",
+            "hint": "首次留空。结果有后续数据时可直接点击“读取下一批”。"
+          }
+        ],
+        "idempotent": true,
+        "description": "读取最近更新。条件之间取交集，同一组选项取并集；“读取下一批”会沿用本次筛选。需要 RSS 权限。",
+        "result_fields": [
+          {
+            "key": "item_count",
+            "label": "本批更新"
+          },
+          {
+            "key": "more_label",
+            "label": "后续更新"
+          }
+        ]
+      },
+      {
+        "id": "share",
+        "label": "发布分享",
+        "kind": "run",
+        "placement": "tools",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true,
+        "input_fields": [
+          {
+            "key": "tmdb_id",
+            "label": "TMDB ID",
+            "type": "number",
+            "min": 1,
+            "step": 1,
+            "required": true
+          },
+          {
+            "key": "media_type",
+            "label": "作品类型",
+            "type": "select",
+            "default": "movie",
+            "required": true,
+            "options": [
+              {
+                "value": "movie",
+                "label": "电影"
+              },
+              {
+                "value": "tv",
+                "label": "剧集"
+              }
+            ]
+          },
+          {
+            "key": "share_kind",
+            "label": "分享方式",
+            "type": "select",
+            "required": true,
+            "default": "115",
+            "options": [
+              {
+                "value": "115",
+                "label": "115 分享链接"
+              },
+              {
+                "value": "offline",
+                "label": "磁力 / ED2K 离线资源"
+              }
+            ],
+            "group": "link"
+          },
+          {
+            "key": "share_url",
+            "label": "115 分享链接",
+            "type": "text",
+            "required": true,
+            "visible_when": {
+              "field": "share_kind",
+              "equals": "115"
+            },
+            "group": "link",
+            "hint": "粘贴完整链接，可包含提取码。"
+          },
+          {
+            "key": "sha1s",
+            "label": "文件 SHA1",
+            "type": "string-list",
+            "required": true,
+            "visible_when": {
+              "field": "share_kind",
+              "equals": "115"
+            },
+            "group": "link",
+            "hint": "每行一个 40 位 SHA1，最多 500 个。"
+          },
+          {
+            "key": "offline_url",
+            "label": "离线链接",
+            "type": "textarea",
+            "required": true,
+            "visible_when": {
+              "field": "share_kind",
+              "equals": "offline"
+            },
+            "group": "link",
+            "hint": "每行一个链接，同批使用磁力或 ED2K，不能混填。"
+          },
+          {
+            "key": "resolution",
+            "label": "清晰度",
+            "type": "select",
+            "required": true,
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "请选择清晰度"
+              },
+              {
+                "value": "8K",
+                "label": "8K"
+              },
+              {
+                "value": "4K",
+                "label": "4K"
+              },
+              {
+                "value": "1080P",
+                "label": "1080P"
+              },
+              {
+                "value": "1080I",
+                "label": "1080I"
+              },
+              {
+                "value": "720P",
+                "label": "720P"
+              },
+              {
+                "value": "SD",
+                "label": "SD"
+              }
+            ],
+            "group": "quality"
+          },
+          {
+            "key": "file_extension",
+            "label": "文件格式",
+            "type": "select",
+            "options": [
+              {
+                "value": "",
+                "label": "请选择文件格式"
+              },
+              {
+                "value": "MKV",
+                "label": "MKV"
+              },
+              {
+                "value": "MP4",
+                "label": "MP4"
+              },
+              {
+                "value": "ISO",
+                "label": "ISO"
+              },
+              {
+                "value": "TS",
+                "label": "TS"
+              },
+              {
+                "value": "M2TS",
+                "label": "M2TS"
+              },
+              {
+                "value": "AVI",
+                "label": "AVI"
+              },
+              {
+                "value": "MOV",
+                "label": "MOV"
+              },
+              {
+                "value": "FLV",
+                "label": "FLV"
+              },
+              {
+                "value": "RMVB",
+                "label": "RMVB"
+              },
+              {
+                "value": "WMV",
+                "label": "WMV"
+              },
+              {
+                "value": "MPG",
+                "label": "MPG"
+              },
+              {
+                "value": "WEBM",
+                "label": "WEBM"
+              }
+            ],
+            "required": true,
+            "default": "",
+            "group": "quality"
+          },
+          {
+            "key": "source_tag",
+            "label": "片源",
+            "type": "select",
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "不限"
+              },
+              {
+                "value": "UHD-BLURAY",
+                "label": "UHD-BLURAY"
+              },
+              {
+                "value": "BLURAY-REMUX",
+                "label": "BLURAY-REMUX"
+              },
+              {
+                "value": "REMUX",
+                "label": "REMUX"
+              },
+              {
+                "value": "BLURAY",
+                "label": "BLURAY"
+              },
+              {
+                "value": "WEB-DL",
+                "label": "WEB-DL"
+              },
+              {
+                "value": "WEBRIP",
+                "label": "WEBRIP"
+              },
+              {
+                "value": "UHDTV",
+                "label": "UHDTV"
+              },
+              {
+                "value": "HDTV",
+                "label": "HDTV"
+              },
+              {
+                "value": "DVD",
+                "label": "DVD"
+              },
+              {
+                "value": "DVDRIP",
+                "label": "DVDRIP"
+              },
+              {
+                "value": "HDRIP",
+                "label": "HDRIP"
+              },
+              {
+                "value": "BDMV",
+                "label": "BDMV"
+              },
+              {
+                "value": "SCR",
+                "label": "SCR"
+              }
+            ],
+            "group": "quality"
+          },
+          {
+            "key": "codec",
+            "label": "视频编码",
+            "type": "select",
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "不限"
+              },
+              {
+                "value": "HEVC",
+                "label": "HEVC"
+              },
+              {
+                "value": "AVC",
+                "label": "AVC"
+              },
+              {
+                "value": "AV1",
+                "label": "AV1"
+              },
+              {
+                "value": "VP9",
+                "label": "VP9"
+              },
+              {
+                "value": "MPEG2",
+                "label": "MPEG2"
+              },
+              {
+                "value": "VC1",
+                "label": "VC1"
+              },
+              {
+                "value": "XVID",
+                "label": "XVID"
+              },
+              {
+                "value": "DIVX",
+                "label": "DIVX"
+              },
+              {
+                "value": "AVS3",
+                "label": "AVS3"
+              }
+            ],
+            "group": "quality"
+          },
+          {
+            "key": "hdr",
+            "label": "HDR",
+            "type": "select",
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "不限"
+              },
+              {
+                "value": "DV",
+                "label": "DV"
+              },
+              {
+                "value": "HDR10+",
+                "label": "HDR10+"
+              },
+              {
+                "value": "HDR10",
+                "label": "HDR10"
+              },
+              {
+                "value": "HDR-VIVID",
+                "label": "HDR-VIVID"
+              },
+              {
+                "value": "HLG",
+                "label": "HLG"
+              },
+              {
+                "value": "SDR",
+                "label": "SDR"
+              },
+              {
+                "value": "EDR",
+                "label": "EDR"
+              },
+              {
+                "value": "3D",
+                "label": "3D"
+              },
+              {
+                "value": "IMAX",
+                "label": "IMAX"
+              },
+              {
+                "value": "REPACK",
+                "label": "REPACK"
+              },
+              {
+                "value": "PROPER",
+                "label": "PROPER"
+              },
+              {
+                "value": "RERIP",
+                "label": "RERIP"
+              },
+              {
+                "value": "DIY",
+                "label": "DIY"
+              },
+              {
+                "value": "HQ",
+                "label": "HQ"
+              }
+            ],
+            "group": "quality"
+          },
+          {
+            "key": "audio",
+            "label": "音轨",
+            "type": "select",
+            "default": "",
+            "options": [
+              {
+                "value": "",
+                "label": "不限"
+              },
+              {
+                "value": "TRUEHD",
+                "label": "TRUEHD"
+              },
+              {
+                "value": "TRUEHD7.1",
+                "label": "TRUEHD7.1"
+              },
+              {
+                "value": "TRUEHD5.1",
+                "label": "TRUEHD5.1"
+              },
+              {
+                "value": "DTS-HD.MA",
+                "label": "DTS-HD.MA"
+              },
+              {
+                "value": "DTS-HD.MA7.1",
+                "label": "DTS-HD.MA7.1"
+              },
+              {
+                "value": "DTS-X",
+                "label": "DTS-X"
+              },
+              {
+                "value": "DTS",
+                "label": "DTS"
+              },
+              {
+                "value": "DDP",
+                "label": "DDP"
+              },
+              {
+                "value": "DDP5.1",
+                "label": "DDP5.1"
+              },
+              {
+                "value": "EAC3",
+                "label": "EAC3"
+              },
+              {
+                "value": "AC3",
+                "label": "AC3"
+              },
+              {
+                "value": "AAC",
+                "label": "AAC"
+              },
+              {
+                "value": "AAC2.0",
+                "label": "AAC2.0"
+              },
+              {
+                "value": "FLAC",
+                "label": "FLAC"
+              },
+              {
+                "value": "LPCM",
+                "label": "LPCM"
+              },
+              {
+                "value": "OPUS",
+                "label": "OPUS"
+              },
+              {
+                "value": "ATMOS",
+                "label": "ATMOS"
+              }
+            ],
+            "group": "quality"
+          },
+          {
+            "key": "subtitle_kind",
+            "label": "字幕",
+            "type": "select",
+            "default": "raw",
+            "required": true,
+            "options": [
+              {
+                "value": "raw",
+                "label": "无中文字幕"
+              },
+              {
+                "value": "hardcoded_chs",
+                "label": "内嵌画面中文字幕"
+              },
+              {
+                "value": "embedded_chs",
+                "label": "封装中文字幕"
+              },
+              {
+                "value": "external_chs",
+                "label": "外挂中文字幕"
+              }
+            ],
+            "group": "quality"
+          },
+          {
+            "key": "season",
+            "label": "季数",
+            "type": "number",
+            "min": 0,
+            "step": 1,
+            "default": 1,
+            "max": 10000,
+            "visible_when": {
+              "field": "media_type",
+              "equals": "tv"
+            },
+            "group": "episodes",
+            "hint": "0 为特别篇。"
+          },
+          {
+            "key": "seasons_csv",
+            "label": "包含的季",
+            "type": "text",
+            "visible_when": {
+              "field": "media_type",
+              "equals": "tv"
+            },
+            "group": "episodes",
+            "hint": "例如：1,2；特别篇填写 0。"
+          },
+          {
+            "key": "episodes_csv",
+            "label": "包含的集",
+            "type": "text",
+            "visible_when": {
+              "field": "media_type",
+              "equals": "tv"
+            },
+            "group": "episodes",
+            "hint": "例如：1-12 或 1,3,5。"
+          },
+          {
+            "key": "episode_count",
+            "label": "集数",
+            "type": "number",
+            "min": 0,
+            "step": 1,
+            "visible_when": {
+              "field": "media_type",
+              "equals": "tv"
+            },
+            "group": "episodes"
+          },
+          {
+            "key": "title_override",
+            "label": "分享标题",
+            "type": "text",
+            "group": "extra",
+            "hint": "可选，留空使用作品标题。"
+          },
+          {
+            "key": "file_name",
+            "label": "文件名",
+            "type": "text",
+            "group": "extra"
+          },
+          {
+            "key": "file_list",
+            "label": "文件列表",
+            "type": "string-list",
+            "group": "extra",
+            "hint": "可选，每行一个文件名，最多 500 个。"
+          },
+          {
+            "key": "total_size_bytes",
+            "label": "总大小（字节）",
+            "type": "number",
+            "min": 0,
+            "step": 1,
+            "group": "extra"
+          },
+          {
+            "key": "unlock_cost_override",
+            "label": "解锁积分",
+            "type": "number",
+            "min": 0,
+            "step": 1,
+            "group": "extra",
+            "hint": "可选，最终以站点校验结果为准。"
+          },
+          {
+            "key": "scraped",
+            "label": "已完成刮削",
+            "type": "boolean",
+            "default": false,
+            "group": "extra"
+          }
+        ],
+        "danger": true,
+        "confirmation": "请核对作品、分享内容及资源信息。确认后会将这条分享发布到癫影。",
+        "media_input": {
+          "id_field": "tmdb_id",
+          "type_field": "media_type"
+        },
+        "description": "选择作品，填写分享内容和资源信息；核对后再发布到癫影。",
+        "input_groups": [
+          {
+            "id": "link",
+            "label": "分享内容",
+            "collapsible": false
+          },
+          {
+            "id": "quality",
+            "label": "资源信息",
+            "collapsible": false
+          },
+          {
+            "id": "episodes",
+            "label": "剧集范围",
+            "collapsible": true
+          },
+          {
+            "id": "extra",
+            "label": "补充信息",
+            "collapsible": true
+          }
+        ],
+        "result_fields": [
+          {
+            "key": "share_id",
+            "label": "分享编号"
+          },
+          {
+            "key": "share_status",
+            "label": "发布状态"
+          }
+        ]
+      },
+      {
+        "id": "developer-usage",
+        "label": "开发者用量",
+        "kind": "run",
+        "placement": "tools",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true,
+        "input_fields": [
+          {
+            "key": "since",
+            "label": "开始时间",
+            "type": "text",
+            "hint": "可选，格式：2026-11-01T00:00:00+08:00"
+          },
+          {
+            "key": "until",
+            "label": "结束时间",
+            "type": "text",
+            "hint": "可选，格式同开始时间"
+          },
+          {
+            "key": "sdk_id",
+            "label": "SDK 编号",
+            "type": "number",
+            "min": 0,
+            "step": 1,
+            "default": 0
+          },
+          {
+            "key": "page",
+            "label": "页码",
+            "type": "number",
+            "min": 1,
+            "step": 1,
+            "default": 1,
+            "max": 100000
+          },
+          {
+            "key": "size",
+            "label": "每页数量",
+            "type": "number",
+            "min": 1,
+            "step": 1,
+            "default": 100,
+            "max": 200
+          }
+        ],
+        "idempotent": true,
+        "description": "查询当前账号名下 SDK 的调用用量。站点限制每 12 小时查询一次；其他条件需等待下一轮。"
+      },
+      {
+        "id": "signin-lucky",
+        "label": "幸运签到",
+        "icon": "calendar",
+        "kind": "run",
+        "placement": "tools",
+        "requires_enabled": true,
+        "timeout_seconds": 120,
+        "cancellable": true,
+        "input_fields": [],
+        "danger": true,
+        "confirmation": "确认进行幸运签到？奖励按站点规则计算；普通签到与幸运签到共用当天次数。",
+        "description": "普通签到与幸运签到共享当天次数。提交后显示站点返回的积分结果。"
+      }
+    ],
+    "result_fields": [
+      {
+        "key": "nickname",
+        "label": "昵称"
+      },
+      {
+        "key": "points",
+        "label": "当前积分"
+      },
+      {
+        "key": "connection",
+        "label": "连接方式"
+      }
+    ],
+    "schedules": [
+      {
+        "id": "default",
+        "label": "定时签到",
+        "action": "checkin",
+        "cron_field": "cron",
+        "enabled_field": "scheduled"
+      }
+    ],
+    "sdks": [
+      {
+        "provider": "dian115",
+        "credential": "openapi_key"
+      }
+    ]
+  }
+}

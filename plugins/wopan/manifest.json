@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "storage-wopan",
+  "version": "0.2.1",
+  "name": "联通云盘",
+  "description": "将联通云盘个人空间接入账号中心、文件浏览、STRM 和上传任务。",
+  "category": "网盘",
+  "config_schema_version": 1,
+  "data_schema_version": 1,
+  "runtime": {
+    "kind": "wasm",
+    "module": "plugin.wasm"
+  },
+  "package": {
+    "local": true
+  },
+  "permissions": [
+    "storage.provider",
+    "http.fetch"
+  ],
+  "definition": {
+    "schema_version": 2,
+    "api_version": "1",
+    "id": "storage-wopan",
+    "version": "0.2.1",
+    "name": "联通云盘",
+    "description": "将联通云盘个人空间接入账号中心、文件浏览、STRM 和上传任务。",
+    "category": "网盘",
+    "icon": "folder",
+    "runtime": "wasm",
+    "config_version": 1,
+    "network": { "proxy": "direct" },
+    "permissions": [
+      "storage.provider",
+      "http.fetch"
+    ],
+    "http_hosts": [
+      "panservice.mail.wo.cn",
+      "pan.wo.cn",
+      "b.smartont.net",
+      "tjupload.pan.wo.cn",
+      "gxupload.pan.wo.cn:8443",
+      "*.pan.wo.cn",
+      "*.wocloud.cn",
+      "*.smartont.net"
+    ],
+    "actions": [],
+    "storage": {
+      "id": "wopan",
+      "name": "联通云盘",
+      "icon": "folder",
+      "login_methods": [
+        "qrcode"
+      ],
+      "share_links": [
+        {"host":"pan.wo.cn","path_pattern":"^/s/[A-Za-z0-9]+/"},
+        {"host":"panservice.mail.wo.cn","path_pattern":"^/h5/wocloudshare/$","query_keys":["clientId","shareId","shareCode"]}
+      ],
+      "fields": [],
+      "capabilities": [
+        "list",
+        "stat",
+        "read",
+        "link",
+        "upload",
+        "mkdir",
+        "rename",
+        "refresh",
+        "share"
+      ]
+    }
+  }
+}
