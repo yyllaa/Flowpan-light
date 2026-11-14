@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--out', required=True)
 parser.add_argument('--id', default='external-example')
 parser.add_argument('--name', default='外部插件示例')
+parser.add_argument('--version', default='1.0.0', help='numeric release version')
 parser.add_argument('--provider-id', default='customdrive', help='native drive ID for --storage')
 parser.add_argument('--storage', action='store_true', help='export a native storage provider adapter')
 parser.add_argument('--schedule', action='store_true', help='include an opt-in daily schedule registration')
@@ -18,6 +19,8 @@ if not re.fullmatch(r'[a-z0-9][a-z0-9._-]{0,63}', args.id):
     parser.error('invalid plugin ID')
 if args.id in {'market', 'tasks', 'contributions', 'resources', 'browser', 'capabilities'}:
     parser.error('reserved plugin ID')
+if not re.fullmatch(r'v?[0-9]+(?:\.[0-9]+)*(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?(?:\+[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?', args.version):
+    parser.error('invalid release version')
 root = Path(__file__).resolve().parents[1] / 'sdk/plugins'
 target = Path(args.out).resolve()
 target.mkdir(parents=True, exist_ok=False)
@@ -32,7 +35,7 @@ for relative in ('app/pluginapi', 'sdk/pluginwasm'):
 shutil.copyfile(root / ('plugins/examples/storage-http/main.go' if args.storage else 'plugins/examples/starter/main.go'), target / 'plugin/main.go')
 (target / 'go.mod').write_text('module flowpan\n\ngo 1.25.0\n', encoding='utf-8')
 permissions = ['host.read', 'task.progress', 'log.write', 'data.read', 'data.write']
-definition = dict(schema_version=2, api_version='1', id=args.id, version='1.0.0', name=args.name, runtime='wasm', config_version=1, permissions=permissions, network=dict(proxy=args.proxy),
+definition = dict(schema_version=2, api_version='1', id=args.id, version=args.version, name=args.name, runtime='wasm', config_version=1, permissions=permissions, network=dict(proxy=args.proxy),
                   fields=[dict(key='message', label='消息', type='text')],
                   actions=[dict(id='run', label='运行', kind='run', requires_enabled=True, cancellable=True)])
 if args.storage:
@@ -51,8 +54,10 @@ if args.schedule:
     permissions.append('schedule')
     definition['fields'].extend([dict(key='scheduled', label='启用定时', type='boolean'), dict(key='cron', label='定时规则', type='cron', hint='0 0 8 * * *', visible_when=dict(field='scheduled', equals=True), required=True)])
     definition['schedules'] = [dict(id='daily', label='每日运行', action='run', cron_field='cron', enabled_field='scheduled')]
-manifest = dict(schema_version=1, id=args.id, version='1.0.0', name=args.name, description='外部插件接入示例', category='示例', config_schema_version=1, data_schema_version=1,
+manifest = dict(schema_version=1, id=args.id, version=args.version, name=args.name, description='外部插件接入示例', category='示例', config_schema_version=1, data_schema_version=1,
                 runtime=dict(kind='wasm', module='bin/plugin.wasm'), package=dict(local=True), permissions=permissions, definition=definition)
+manifest['release'] = dict(title=args.name+' '+args.version, notes='首次发布。')
+(target / 'CHANGELOG.md').write_text('# 更新日志\n\n## '+args.version+'\n\n首次发布。\n', encoding='utf-8')
 (target / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
 (target / 'build.py').write_text('''import argparse, os, subprocess
 from pathlib import Path
@@ -62,8 +67,8 @@ if out.exists(): p.error('plugin.zip already exists; choose a new release direct
 (root/'bin').mkdir(exist_ok=True)
 env=os.environ.copy(); env.update(GOOS='wasip1',GOARCH='wasm',CGO_ENABLED='0')
 subprocess.run([a.go,'build','-trimpath','-buildvcs=false','-ldflags=-s -w','-o',str(root/'bin/plugin.wasm'),'./plugin'],cwd=root,env=env,check=True)
-subprocess.run([host,'plugin','pack','--dir',str(root),'--out',str(out)],cwd=root,check=True)
-subprocess.run([host,'plugin','check',str(out)],cwd=root,check=True)
+subprocess.run([host,'plugin','pack','--release','--dir',str(root),'--out',str(out)],cwd=root,check=True)
+subprocess.run([host,'plugin','check','--release',str(out)],cwd=root,check=True)
 ''', encoding='utf-8')
 (target / 'README.md').write_text('''# Flowpan 外部插件开发包
 
@@ -71,7 +76,7 @@ subprocess.run([host,'plugin','check',str(out)],cwd=root,check=True)
 
 `definition.network.proxy` 声明网络策略：direct 为直连，project 必须使用项目设置中的 HTTP 代理，inherit 跟随项目设置。代理地址由宿主管理。导出时可用 --proxy project 选择需要代理的插件。
 
-1. 编辑 `plugin/main.go` 和 `manifest.json`，同步两层 ID、版本及权限。
+1. 编辑 `plugin/main.go` 和 `manifest.json`，同步两层 ID、版本及权限，并填写 release.notes 与 CHANGELOG.md。
 2. 运行 `go test ./sdk/pluginwasm`。
 3. 运行 `python build.py --host /实际路径/flowpan --go go`，Windows 使用 flowpan.exe。
 4. 将生成的 plugin.zip 在「辅助插件 → 插件管理 → 已安装」导入，启用后运行。

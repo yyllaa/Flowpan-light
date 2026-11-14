@@ -248,3 +248,8 @@ response, err := pluginwasm.Fetch(pluginwasm.HTTPRequest{
 ## 公开仓库构建
 
 通用 SDK 位于 sdk/plugins。每个插件有自己的 go.mod，通过相对路径引用公共合同，不依赖主程序源码。测试时进入插件目录执行 go test ./...；在仓库根目录运行 python plugins/build.py --out dist/plugins 构建全部插件，也可以多次传 --plugin 只选择需要的目录。
+
+
+## 后续插件通用接入
+
+新版开发包随清单生成 release.notes 与 CHANGELOG.md，默认执行 pack --release 和 check --release。宿主从声明自动接入更新提示、仪表盘及 FUSE，SDK 通过 pluginapi.StorageError 保留网盘错误，不增加品牌分支。完整字段、兼容规则与验收方法见 [插件通用接入合同](plugin-integration-contract.md)。发布校验与新元数据需要支持该合同的宿主。

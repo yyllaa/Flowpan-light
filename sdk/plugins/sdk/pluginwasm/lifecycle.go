@@ -2,6 +2,7 @@ package pluginwasm
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -64,6 +65,13 @@ func serve(input io.Reader, output io.Writer, handlers Handlers) error {
 		if err != nil {
 			value.Failed = true
 			value.Message = err.Error()
+			var failure *pluginapi.StorageError
+			if invocation.Mode == "storage" && errors.As(err, &failure) && failure.Validate() == nil {
+				if value.Data == nil {
+					value.Data = map[string]any{}
+				}
+				value.Data["storage_error"] = failure
+			}
 		}
 		return value
 	}()
