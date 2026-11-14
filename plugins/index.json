@@ -1716,7 +1716,7 @@
     {
       "schema_version": 1,
       "id": "storage-wopan",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "name": "联通云盘",
       "description": "将联通云盘个人空间接入账号中心、文件浏览、STRM 和上传任务。",
       "category": "网盘",
@@ -1727,9 +1727,9 @@
         "module": "plugin.wasm"
       },
       "package": {
-        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.13/storage-wopan-0.2.1.zip",
-        "sha256": "fe3b6a7c2bdaa0629bd239c6b9c9100e09c791549fc333ff1846cb79e8ea4619",
-        "commit_sha": "280af864435ac5be01d2fb547bda0da4ea2c2573"
+        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.14-wopan-fuse/storage-wopan-0.2.2.zip",
+        "sha256": "888d9da3704d6321f3cbd206d9420ea9b9d359b42bcbb12ca070a1afc290860f",
+        "commit_sha": "b5b4b7cde60172fdf0046eda8599187e3dafc628"
       },
       "permissions": [
         "storage.provider",
@@ -1739,7 +1739,7 @@
         "schema_version": 2,
         "api_version": "1",
         "id": "storage-wopan",
-        "version": "0.2.1",
+        "version": "0.2.2",
         "name": "联通云盘",
         "description": "将联通云盘个人空间接入账号中心、文件浏览、STRM 和上传任务。",
         "category": "网盘",
@@ -1795,6 +1795,8 @@
             "upload",
             "mkdir",
             "rename",
+            "delete",
+            "move",
             "refresh",
             "share"
           ]
