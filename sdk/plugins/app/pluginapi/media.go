@@ -3,15 +3,20 @@ package pluginapi
 // MediaProcess is a structured local operation, never a command line. Outputs
 // are generated under the calling plugin's private data directory by the host.
 type MediaProcess struct {
-	Key       string        `json:"key"`
-	Path      string        `json:"path"`
-	FileTask  string        `json:"file_task,omitempty"` // completed files.stage input; Path is resolved by the host
-	Operation string        `json:"operation"`           // transcode, remux, frame, cover
-	Format    string        `json:"format,omitempty"`    // mp3, m4a, m4b, flac, wav, mp4, mkv, ogg, opus, jpg, png
-	AtSeconds float64       `json:"at_seconds,omitempty"`
-	Width     int           `json:"width,omitempty"`
-	Bitrate   int           `json:"bitrate_kbps,omitempty"`
-	Metadata  MediaMetadata `json:"metadata,omitempty"`
+	Key             string        `json:"key"`
+	Path            string        `json:"path"`
+	FileTask        string        `json:"file_task,omitempty"` // completed files.stage input; Path is resolved by the host
+	Operation       string        `json:"operation"`           // transcode, remux, frame, cover
+	Format          string        `json:"format,omitempty"`    // mp3, m4a, m4b, flac, wav, mp4, mkv, ogg, opus, jpg, png
+	AtSeconds       float64       `json:"at_seconds,omitempty"`
+	Width           int           `json:"width,omitempty"`
+	Bitrate         int           `json:"bitrate_kbps,omitempty"`
+	Metadata        MediaMetadata `json:"metadata,omitempty"`
+	StartSeconds    float64       `json:"start_seconds,omitempty"`
+	DurationSeconds float64       `json:"duration_seconds,omitempty"`
+	AudioChannels   int           `json:"audio_channels,omitempty"`
+	SampleRate      int           `json:"sample_rate,omitempty"`
+	MapAll          bool          `json:"map_all,omitempty"`
 }
 
 // Only these text tags are accepted; no FFmpeg option or arbitrary metadata

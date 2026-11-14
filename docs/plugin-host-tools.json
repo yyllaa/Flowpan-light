@@ -12,7 +12,13 @@
     "host_calls": 128,
     "memory_mib": 64,
     "min_timeout_seconds": 60,
-    "max_timeout_seconds": 600
+    "max_timeout_seconds": 600,
+    "artifact_bytes": 67108864,
+    "artifact_quota_bytes": 268435456,
+    "artifact_write_bytes": 32768,
+    "service_upload_bytes": 67108864,
+    "file_bytes": 21474836480,
+    "share_max_seconds": 86400
   },
   "tools": [
     {
@@ -411,6 +417,179 @@
       }
     },
     {
+      "name": "files.capabilities",
+      "permission": "files.read",
+      "group": "文件",
+      "description": "查询已授权账号的暂存、回写及冲突处理能力，不发起云盘请求",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "account"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.stage",
+      "permission": "files.read",
+      "group": "文件",
+      "description": "将已授权云盘文件暂存到插件私有任务区，返回任务 ID",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "account",
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.publish",
+      "permission": "files.publish",
+      "group": "文件",
+      "description": "将本插件的媒体结果、通用产物或暂存文件回写；明确选择 skip、keep_both 或 replace",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "artifact": {
+            "type": "string"
+          },
+          "conflict": {
+            "type": "string"
+          },
+          "file_task": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "media_task": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "original_task": {
+            "type": "string"
+          },
+          "parent_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "account",
+          "parent_id",
+          "name",
+          "conflict"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.task",
+      "permission": "files.read",
+      "group": "文件",
+      "description": "查询本插件文件任务、回写阶段及备份引用",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.cancel",
+      "permission": "files.read",
+      "group": "文件",
+      "description": "取消本插件文件任务；未知云盘写入结果保留待核验回执",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.release",
+      "permission": "files.read",
+      "group": "文件",
+      "description": "释放本插件暂存文件，保留任务和原始快照回执",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.restore",
+      "permission": "files.publish",
+      "group": "文件",
+      "description": "恢复本插件替换任务的原文件，并保留已处理文件",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key"
+        ],
+        "type": "object"
+      }
+    },
+    {
       "name": "media.status",
       "permission": "media.read",
       "group": "媒体",
@@ -455,12 +634,154 @@
       "confirmation": false,
       "input_schema": {
         "properties": {
+          "file_task": {
+            "type": "string"
+          },
           "path": {
             "type": "string"
           }
         },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "media.submit",
+      "permission": "media.process",
+      "group": "媒体",
+      "description": "提交分段音视频转码、全部轨道 MKV 封装、标签或图片处理任务",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "at_seconds": {
+            "type": "number"
+          },
+          "audio_channels": {
+            "type": "number"
+          },
+          "bitrate_kbps": {
+            "type": "number"
+          },
+          "duration_seconds": {
+            "type": "number"
+          },
+          "file_task": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "map_all": {
+            "type": "boolean"
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sample_rate": {
+            "type": "number"
+          },
+          "start_seconds": {
+            "type": "number"
+          },
+          "width": {
+            "type": "number"
+          }
+        },
         "required": [
-          "path"
+          "key",
+          "operation"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "media.task",
+      "permission": "media.read",
+      "group": "媒体",
+      "description": "查询本插件媒体任务的进度和结果",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "media.result",
+      "permission": "media.read",
+      "group": "媒体",
+      "description": "分段读取本插件已完成的媒体结果，每段最多 256 KiB",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "media.cancel",
+      "permission": "media.process",
+      "group": "媒体",
+      "description": "取消本插件媒体任务并清理未完成输出",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "media.release",
+      "permission": "media.process",
+      "group": "媒体",
+      "description": "释放本插件已结束的媒体输出；正在回写的结果保留到任务结束",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
         ],
         "type": "object"
       }
@@ -572,6 +893,856 @@
         },
         "required": [
           "account"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "strm.create",
+      "permission": "artifacts.write",
+      "group": "STRM",
+      "description": "将插件提供的播放 URL 写成独立 STRM 产物，与项目 STRM 任务无关联",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "url"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "strm.inspect",
+      "permission": "files.read",
+      "group": "STRM",
+      "description": "读取已授权的外部 STRM 文件并验证其中的播放地址",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "account",
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "organize.preview",
+      "permission": "organize.read",
+      "group": "转存与整理",
+      "description": "为插件选择的外部 STRM、本机视频生成整理预览，复用项目识别和命名规则",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "ai": {
+            "type": "boolean"
+          },
+          "ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "key": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "output_id": {
+            "type": "string"
+          },
+          "tmdb": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "account",
+          "ids",
+          "output_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "organize.apply",
+      "permission": "organize.write",
+      "group": "转存与整理",
+      "description": "执行本插件已预览的本机文件整理计划，保留 STRM 原始链接字节",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "shares.create",
+      "permission": "shares.write",
+      "group": "文件分享",
+      "description": "为本插件的宿主输出创建限时下载链接，支持 Range，停用或更新后失效",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "expires_seconds": {
+            "type": "number"
+          },
+          "input": {
+            "type": "object"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "input"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "shares.revoke",
+      "permission": "shares.write",
+      "group": "文件分享",
+      "description": "撤销本插件创建的下载链接",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "dependencies.status",
+      "permission": "host.read",
+      "group": "运行依赖",
+      "description": "查询宿主管理的 FFmpeg、FFprobe 与浏览器安装状态",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "dependencies.ensure",
+      "permission": "dependencies.install",
+      "group": "运行依赖",
+      "description": "按项目已配置下载源准备 FFmpeg 或浏览器，复用正在执行的安装",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "downloads.list",
+      "permission": "downloads.read",
+      "group": "下载器",
+      "description": "列出已配置的下载器身份，不返回连接地址或凭据",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "downloads.status",
+      "permission": "downloads.read",
+      "group": "下载器",
+      "description": "分页读取下载任务，复用项目下载器连接",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "filter": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "downloads.add",
+      "permission": "downloads.write",
+      "group": "下载器",
+      "description": "按下载器已保存的目录和分类提交下载，保存幂等回执",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "sequential": {
+            "type": "boolean"
+          },
+          "urls": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "urls"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "downloads.action",
+      "permission": "downloads.write",
+      "group": "下载器",
+      "description": "暂停、继续、重新检查或重新通告下载任务",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "hashes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "action",
+          "hashes"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "service.upload",
+      "permission": "service.call",
+      "group": "网络",
+      "description": "将宿主文件流式提交到已配置的外部服务，供识别、字幕及其他处理引擎使用",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "body": {
+            "type": "object"
+          },
+          "field": {
+            "type": "string"
+          },
+          "input": {
+            "type": "object"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "input"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "artifacts.create",
+      "permission": "artifacts.write",
+      "group": "私有产物",
+      "description": "预留本插件通用产物，支持字幕、清单和任意文件内容",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "size"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "artifacts.write",
+      "permission": "artifacts.write",
+      "group": "私有产物",
+      "description": "按偏移写入产物；相同偏移和内容可重试，每段最多 32 KiB",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "base64": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "offset": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "offset",
+          "base64"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "artifacts.seal",
+      "permission": "artifacts.write",
+      "group": "私有产物",
+      "description": "校验大小与 SHA256，将产物封存为不可变输入",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "artifacts.stat",
+      "permission": "artifacts.read",
+      "group": "私有产物",
+      "description": "读取本插件产物状态及摘要",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "artifacts.read",
+      "permission": "artifacts.read",
+      "group": "私有产物",
+      "description": "分段读取已封存的产物",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "artifacts.release",
+      "permission": "artifacts.write",
+      "group": "私有产物",
+      "description": "释放本插件产物；回写正在使用时拒绝释放",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.read",
+      "permission": "files.read",
+      "group": "文件",
+      "description": "按范围读取已授权云盘或本机文件，每段最多 256 KiB",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "account",
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.mkdir",
+      "permission": "files.write",
+      "group": "文件",
+      "description": "在已授权目录创建子目录，保存幂等回执",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "account",
+          "parent_id",
+          "name"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.rename",
+      "permission": "files.write",
+      "group": "文件",
+      "description": "重命名已授权文件或目录，保存幂等回执",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "account",
+          "id",
+          "name"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.move",
+      "permission": "files.write",
+      "group": "文件",
+      "description": "在同一来源的授权目录间移动对象",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "key": {
+            "type": "string"
+          },
+          "parent_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "account",
+          "ids",
+          "parent_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.copy",
+      "permission": "files.write",
+      "group": "文件",
+      "description": "复用来源原生复制；跨来源使用暂存和回写",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "key": {
+            "type": "string"
+          },
+          "parent_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "account",
+          "ids",
+          "parent_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "files.delete",
+      "permission": "files.delete",
+      "group": "文件",
+      "description": "按来源原生删除语义删除已授权对象，保存回执且不重放未知写入",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "account",
+          "ids"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "media.identify",
+      "permission": "media.read",
+      "group": "识别与 AI",
+      "description": "复用项目文件名解析、季集和媒体命名识别；可选择已有 AI 与 TMDB",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "ai": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tmdb": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ai.status",
+      "permission": "ai.use",
+      "group": "识别与 AI",
+      "description": "查询已配置 AI 的模型和协议，不返回地址或凭据",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ai.complete",
+      "permission": "ai.use",
+      "group": "识别与 AI",
+      "description": "通过项目 AI 配置、代理和限流执行通用文本生成",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "input": {
+            "type": "string"
+          },
+          "json": {
+            "type": "boolean"
+          },
+          "max_output_tokens": {
+            "type": "number"
+          },
+          "system": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "input"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "cas.inspect",
+      "permission": "files.read",
+      "group": "CAS",
+      "description": "解析并验证项目兼容的 CAS 描述内容",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "cas.create",
+      "permission": "artifacts.write",
+      "group": "CAS",
+      "description": "根据已验证的文件暂存摘要生成可回写的 CAS 产物",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "file_task": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "file_task"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "strm.tasks",
+      "permission": "strm.read",
+      "group": "STRM",
+      "description": "列出云端和本机范围均已授权的现有 STRM 任务",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "strm.run",
+      "permission": "strm.write",
+      "group": "STRM",
+      "description": "按现有 STRM 配置提交宿主后台任务",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "strm.status",
+      "permission": "strm.read",
+      "group": "STRM",
+      "description": "读取授权 STRM 任务的运行记录",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "organize.stop",
+      "permission": "organize.write",
+      "group": "转存与整理",
+      "description": "请求停止已授权来源的项目整理任务",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "account",
+          "key"
         ],
         "type": "object"
       }

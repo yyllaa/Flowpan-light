@@ -13,7 +13,9 @@ type FilePublish struct {
 	Account      string `json:"account"`
 	ParentID     string `json:"parent_id"`
 	Name         string `json:"name"`
-	MediaTask    string `json:"media_task"`
+	MediaTask    string `json:"media_task,omitempty"`
+	Artifact     string `json:"artifact,omitempty"`
+	FileTask     string `json:"file_task,omitempty"`
 	Conflict     string `json:"conflict"` // skip, keep_both, replace
 	OriginalTask string `json:"original_task,omitempty"`
 }
@@ -47,12 +49,13 @@ type FileTask struct {
 }
 
 type FileCapabilities struct {
-	Account        string   `json:"account"`
-	Stage          bool     `json:"stage"`
-	Publish        bool     `json:"publish"`
-	Conflicts      []string `json:"conflicts"`
-	AtomicReplace  bool     `json:"atomic_replace"`
-	MaxFileBytes   int64    `json:"max_file_bytes"`
-	CacheBytes     int64    `json:"cache_bytes"`
-	MaxActiveTasks int      `json:"max_active_tasks"`
+	Account        string          `json:"account"`
+	Stage          bool            `json:"stage"`
+	Publish        bool            `json:"publish"`
+	Conflicts      []string        `json:"conflicts"`
+	AtomicReplace  bool            `json:"atomic_replace"`
+	MaxFileBytes   int64           `json:"max_file_bytes"`
+	CacheBytes     int64           `json:"cache_bytes"`
+	MaxActiveTasks int             `json:"max_active_tasks"`
+	Operations     map[string]bool `json:"operations"`
 }

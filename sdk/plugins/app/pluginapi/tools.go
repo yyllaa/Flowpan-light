@@ -38,7 +38,7 @@ func tool(name, permission, group, description, fields string, write, confirm bo
 	return Tool{name, permission, group, description, write, confirm, map[string]any{"type": "object", "properties": props, "required": required}}
 }
 func Tools() []Tool {
-	return []Tool{
+	return append([]Tool{
 		tool("host.capabilities", "host.read", "宿主合同", "查询当前任务可用工具、限制及未就绪原因", "", false, false),
 		tool("sdk.call", "sdk.call", "宿主 SDK", "调用声明的宿主 SDK；密钥、协议实现和网络连接由宿主管理", "provider:string operation:string input?:object", true, false),
 		tool("secrets.read", "secrets.read", "私有数据", "读取本插件明确允许运行时访问的私密配置，用于 SDK 加密签名", "key:string", false, false),
@@ -59,7 +59,7 @@ func Tools() []Tool {
 		tool("files.stat", "files.read", "文件", "读取已授权文件或目录详情", "account:string id:string", false, false),
 		tool("files.capabilities", "files.read", "文件", "查询已授权账号的暂存、回写及冲突处理能力，不发起云盘请求", "account:string", false, false),
 		tool("files.stage", "files.read", "文件", "将已授权云盘文件暂存到插件私有任务区，返回任务 ID", "key:string account:string id:string", true, false),
-		tool("files.publish", "files.publish", "文件", "将本插件已完成的媒体结果回写云盘；明确选择 skip、keep_both 或 replace", "key:string account:string parent_id:string name:string media_task:string conflict:string original_task?:string", true, true),
+		tool("files.publish", "files.publish", "文件", "将本插件的媒体结果、通用产物或暂存文件回写；明确选择 skip、keep_both 或 replace", "key:string account:string parent_id:string name:string media_task?:string artifact?:string file_task?:string conflict:string original_task?:string", true, true),
 		tool("files.task", "files.read", "文件", "查询本插件文件任务、回写阶段及备份引用", "id:string", false, false),
 		tool("files.cancel", "files.read", "文件", "取消本插件文件任务；未知云盘写入结果保留待核验回执", "id:string", true, false),
 		tool("files.release", "files.read", "文件", "释放本插件暂存文件，保留任务和原始快照回执", "id:string", true, false),
@@ -67,7 +67,7 @@ func Tools() []Tool {
 		tool("media.status", "media.read", "媒体", "读取 FFmpeg、FFprobe 和浏览器就绪状态", "", false, false),
 		tool("media.search", "media.read", "媒体", "复用项目 TMDB 设置查询电影或剧集", "query:string media_type:string", false, false),
 		tool("media.probe", "media.read", "媒体", "探测已授权本机音频或视频，返回 JSON 元数据", "path?:string file_task?:string", false, false),
-		tool("media.submit", "media.process", "媒体", "提交转码、重新封装、音乐标签写入、抽帧或封面提取任务，结果存入本插件私有目录", "key:string path?:string file_task?:string operation:string format?:string at_seconds?:number width?:number bitrate_kbps?:number metadata?:object", true, false),
+		tool("media.submit", "media.process", "媒体", "提交分段音视频转码、全部轨道 MKV 封装、标签或图片处理任务", "key:string path?:string file_task?:string operation:string format?:string at_seconds?:number width?:number bitrate_kbps?:number metadata?:object start_seconds?:number duration_seconds?:number audio_channels?:number sample_rate?:number map_all?:boolean", true, false),
 		tool("media.task", "media.read", "媒体", "查询本插件媒体任务的进度和结果", "id:string", false, false),
 		tool("media.result", "media.read", "媒体", "分段读取本插件已完成的媒体结果，每段最多 256 KiB", "id:string offset?:number limit?:number", false, false),
 		tool("media.cancel", "media.process", "媒体", "取消本插件媒体任务并清理未完成输出", "id:string", true, false),
@@ -77,7 +77,7 @@ func Tools() []Tool {
 		tool("transfer.status", "transfer.read", "转存与整理", "查询本插件提交的转存任务与执行回执", "account:string key:string", false, false),
 		tool("organize.run", "organize.write", "转存与整理", "按项目已保存的账号规则执行整理", "account:string key:string", true, true),
 		tool("organize.status", "organize.read", "转存与整理", "读取授权账号的整理状态", "account:string", false, false),
-	}
+	}, foundationTools()...)
 }
 func FindTool(name string) (Tool, bool) {
 	for _, t := range Tools() {

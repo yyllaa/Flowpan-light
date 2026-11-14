@@ -118,5 +118,7 @@ SDK 的 Serve 分开处理 run/health/migrate/storage。扩展数据结构时填
 外部插件不依赖项目管理员登录信息，也不需要独立服务镜像。资源插件通过项目任务操作网盘；网盘驱动插件实现自身声明的文件协议。
 
 使用 --files 导出云盘文件处理示例：暂存、探测、写标签、回写、查询、取消、恢复与释放；FFmpeg/FFprobe 仍在宿主依赖下载入口按需安装。skip、keep_both、replace 按 files.capabilities 选择；replace 保留备份并支持恢复，当前为非原子交换。未知回执不重放。合同见 docs/plugin-file-pipeline.md。
+
+SDK 同时包含通用运行基础：PutArtifact、ServiceUpload、CompleteAI、IdentifyMedia、PreviewOrganize/ApplyOrganize、CreateSTRM/InspectSTRM、CreateCAS、下载器与依赖、ShareOutput。先调用 Capabilities 核对宿主，按方法声明权限。独立整理使用插件传入文件清单，保留项目原生流程及配置。完整合同见仓库 docs/plugin-runtime-foundation.md。
 ''', encoding='utf-8')
 print('PLUGIN_KIT_OK id='+args.id+' sdk=standalone output='+str(target))

@@ -72,6 +72,12 @@ SDK 为注册的宿主能力提供调用入口，结果类型仍可按业务使�
 | 媒体 | MediaStatus、SearchMedia、ProbeMedia |
 | 项目转存 | ParseTransfer、SubmitTransfer、TransferStatus |
 | 项目整理 | RunOrganize、OrganizeStatus |
+| 独立文件整理 | IdentifyMedia、PreviewOrganize、ApplyOrganize |
+| 文件读写与产物 | ReadFile、MutateFiles、PutArtifact、ReadArtifact、ReleaseArtifact |
+| AI 与服务文件流 | AIStatus、CompleteAI、ServiceUpload |
+| CAS 与外部 STRM | CreateCAS、InspectCAS、CreateSTRM、InspectSTRM |
+| 依赖及下载器 | DependencyStatus、EnsureDependency、Downloaders、DownloadStatus、AddDownload、DownloadAction |
+| 限时输出分享 | ShareOutput、RevokeShare |
 
 文件 ID 使用字符串。ListFiles 保留 offset/limit/cursor，以宿主返回的分页字段继续读取；不自行对每个文件重新列目录。浏览器、代理和 FFmpeg 复用项目维护入口，插件只声明需要的能力及站点。账号及目录沿用用户授权，提交项目转存和整理仍使用已确认的 run 动作和稳定业务幂等键。
 
@@ -245,16 +251,42 @@ response, err := pluginwasm.Fetch(pluginwasm.HTTPRequest{
 
 配置页将绑定动作放在该字段旁，顶部不重复渲染同一选项；其他标签保留快捷选项。两处共用草稿，切换标签不丢失未保存内容。手机端标签支持横向滑动，动作与选项保持同排和同高。
 
-## 公开仓库构建
+## 浏览器、媒体和网盘事件接入
 
-通用 SDK 位于 sdk/plugins。每个插件有自己的 go.mod，通过相对路径引用公共合同，不依赖主程序源码。测试时进入插件目录执行 go test ./...；在仓库根目录运行 python plugins/build.py --out dist/plugins 构建全部插件，也可以多次传 --plugin 只选择需要的目录。
+导出的 app/pluginapi 与 sdk/pluginwasm 已包含结构化媒体任务类型、SubmitMedia、MediaTask、MediaResult、CancelMedia 以及 StorageChange/StorageChanges。通过 `python tools/plugin-kit.py` 重新导出可获得新合同；旧插件不声明新权限时行为保持不变。浏览器和 FFmpeg 复用项目的按需依赖，插件不携带运行时或私有 SDK。
+
+开发时可使用以下任务说明，替换其中的提供者和实际能力：
+
+```text
+为 PROVIDER 实现独立 Go/WASI 插件。使用导出的 pluginapi/pluginwasm，
+先查询 host.capabilities 与 media.status。只声明实际需要的工具权限；
+通过宿主浏览器或 HTTP 访问清单声明的站点，不自带浏览器/FFmpeg。
+媒体处理调用 SubmitMedia，保存任务 ID，后续用 MediaTask/MediaResult 查询，
+不传命令行、网络媒体地址或输出路径。账号与本机范围由宿主已有配置决定。
+订阅 file.changed 时按 Event.ID 去重，核对 source.provider 与 kind，
+使用宿主结构化工具衔接转存、整理和文件操作；所有账号与本机目录都须处于本次有效授权。独立文件清单使用 organize.preview/apply，已有项目任务继续使用 organize.run/status，不替换原任务配置。
+只有供应商存在真实增量 API 才实现 changes，空 cursor 建立当前基线，
+每页不超过宿主 limit，游标和事件 ID 保持不透明，不回退为递归扫描。
+测试账号隔离、权限撤销、取消、重启、重复事件、错误退避和旧载荷兼容。
+```
+
+方法、参数和生命周期限制见 [插件宿主工具](plugin-host-tools.md)，网盘 changes 协议见 [网盘插件接入](网盘插件接入.md#增量事件与游标)。新合同需更新后的宿主；插件应检查工具清单并展示具体未就绪原因，不持续自动重试失败能力。
+
+## 导航与独立前端
+
+插件可通过 definition.pages 在侧栏增加独立入口，使用宿主原生工作区或自带 ui/ 前端，配置与运行记录仍由项目管理。
+
+开发合同、页面 SDK 和音乐封装示例见 [插件独立页面](plugin-pages.md)。可用 python tools/plugin-kit.py --out ../music-plugin --id music-service --name 音乐服务 --page 导出完整模板。
+
+## 插件更新日志与仪表盘
+
+插件包发布至 GitHub Release 后，应填写该版本的发布标题、更新内容及需要的主程序版本。插件管理按插件目录中的安装包 URL 定位对应 Release，点击“更新日志”在应用内读取正文，使用纯文本显示；读取失败可重试或在 GitHub 查看，不从任意网页或插件动作加载 HTML。检查新版只刷新已启用插件源，不自动安装。
+
+网盘插件通过现有 storage/http.fetch 合同自动接入 API 调用仪表盘；宿主按真实提供者和账号统计，普通动作插件单独分组。新增插件无需为仪表盘编写业务动作、额外网络轮询或品牌前端。字段和计数口径见 [网盘插件接入](网盘插件接入.md#仪表盘与-fuse-日志合同)。
+
+新插件按 [插件通用接入合同](plugin-integration-contract.md) 随包填写 release.notes，支持本地 ZIP 与不同发布站点。导出模板自带更新日志和发布校验；npm run check:plugin-contract 固定验证通用接入。旧 GitHub 发布说明读取继续兼容；SDK 与服务请求和 HTTP 请求一样由宿主自动统计。
 
 
-## 后续插件通用接入
+## 云盘媒体处理插件
 
-新版开发包随清单生成 release.notes 与 CHANGELOG.md，默认执行 pack --release 和 check --release。宿主从声明自动接入更新提示、仪表盘及 FUSE，SDK 通过 pluginapi.StorageError 保留网盘错误，不增加品牌分支。完整字段、兼容规则与验收方法见 [插件通用接入合同](plugin-integration-contract.md)。发布校验与新元数据需要支持该合同的宿主。
-
-
-## 云盘文件处理插件
-
-使用 `tools/plugin-kit.py --files` 导出独立 SDK 工作流：`files.stage` → `media.submit(file_task)` → `files.publish`，包含能力探测、校验、备份替换、恢复和清理。依赖通过宿主按需安装，未知写回执不重放。完整合同见 [云盘文件处理合同](plugin-file-pipeline.md)。需要包含该合同的新版宿主。
+使用 `tools/plugin-kit.py --files` 导出可独立构建的云盘文件处理示例。宿主提供暂存、媒体处理、校验回写、恢复与清理任务；依赖仍通过项目设置按需安装，元数据匹配由插件实现。完整 SDK 与策略见 [云盘文件处理合同](plugin-file-pipeline.md)。
