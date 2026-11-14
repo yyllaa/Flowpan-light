@@ -12,32 +12,34 @@ const SchemaVersion = 2
 const APIVersion = "1"
 
 type Definition struct {
-	SchemaVersion int                `json:"schema_version"`
-	APIVersion    string             `json:"api_version"`
-	ID            string             `json:"id"`
-	Version       string             `json:"version"`
-	Name          string             `json:"name"`
-	Description   string             `json:"description"`
-	Category      string             `json:"category"`
-	Icon          string             `json:"icon"`
-	Runtime       string             `json:"runtime"`
-	ConfigVersion int                `json:"config_version"`
-	ToggleField   string             `json:"toggle_field,omitempty"`
-	Permissions   []string           `json:"permissions,omitempty"`
-	Fields        []Field            `json:"fields,omitempty"`
-	Actions       []Action           `json:"actions"`
-	ResultFields  []ResultField      `json:"result_fields,omitempty"`
-	LegacyUI      bool               `json:"legacy_ui,omitempty"`
-	HTTPHosts     []string           `json:"http_hosts,omitempty"`
-	Network       *NetworkPolicy     `json:"network,omitempty"`
-	Schedules     []Schedule         `json:"schedules,omitempty"`
-	Subscriptions []Subscription     `json:"subscriptions,omitempty"`
-	Contributions []Contribution     `json:"contributions,omitempty"`
-	Service       *ServiceConnection `json:"service,omitempty"`
-	Resources     *ResourceProvider  `json:"resources,omitempty"`
-	SDKs          []SDKAccess        `json:"sdks,omitempty"`
-	Browser       *BrowserAccess     `json:"browser,omitempty"`
-	Storage       *StorageDefinition `json:"storage,omitempty"`
+	Interaction   *InteractionDefinition `json:"interaction,omitempty"`
+	SchemaVersion int                    `json:"schema_version"`
+	APIVersion    string                 `json:"api_version"`
+	ID            string                 `json:"id"`
+	Version       string                 `json:"version"`
+	Name          string                 `json:"name"`
+	Description   string                 `json:"description"`
+	Category      string                 `json:"category"`
+	Icon          string                 `json:"icon"`
+	Runtime       string                 `json:"runtime"`
+	ConfigVersion int                    `json:"config_version"`
+	ToggleField   string                 `json:"toggle_field,omitempty"`
+	Permissions   []string               `json:"permissions,omitempty"`
+	Fields        []Field                `json:"fields,omitempty"`
+	Actions       []Action               `json:"actions"`
+	ResultFields  []ResultField          `json:"result_fields,omitempty"`
+	LegacyUI      bool                   `json:"legacy_ui,omitempty"`
+	HTTPHosts     []string               `json:"http_hosts,omitempty"`
+	Network       *NetworkPolicy         `json:"network,omitempty"`
+	Schedules     []Schedule             `json:"schedules,omitempty"`
+	Subscriptions []Subscription         `json:"subscriptions,omitempty"`
+	Contributions []Contribution         `json:"contributions,omitempty"`
+	Service       *ServiceConnection     `json:"service,omitempty"`
+	Resources     *ResourceProvider      `json:"resources,omitempty"`
+	SDKs          []SDKAccess            `json:"sdks,omitempty"`
+	Browser       *BrowserAccess         `json:"browser,omitempty"`
+	Storage       *StorageDefinition     `json:"storage,omitempty"`
+	Pages         []Page                 `json:"pages,omitempty"`
 }
 
 type Field struct {
@@ -161,6 +163,12 @@ func (d Definition) Validate() error {
 		return fmt.Errorf("插件定义不完整")
 	}
 	if err := d.validateNetwork(); err != nil {
+		return err
+	}
+	if err := d.validatePages(); err != nil {
+		return err
+	}
+	if err := d.validateInteraction(); err != nil {
 		return err
 	}
 	fields := map[string]Field{}

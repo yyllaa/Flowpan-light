@@ -14,6 +14,7 @@ parser.add_argument('--provider-id', default='customdrive', help='native drive I
 parser.add_argument('--storage', action='store_true', help='export a native storage provider adapter')
 parser.add_argument('--files', action='store_true', help='include cloud staging, media processing, publication and recovery actions')
 parser.add_argument('--schedule', action='store_true', help='include an opt-in daily schedule registration')
+parser.add_argument('--interaction', action='store_true', help='include bot commands, conversation replies, sessions, buttons and attachments')
 parser.add_argument('--proxy', choices=('direct', 'project', 'inherit'), default='direct', help='declare direct access or require the project HTTP proxy')
 args = parser.parse_args()
 if args.files and args.storage:
@@ -22,6 +23,8 @@ if not re.fullmatch(r'[a-z0-9][a-z0-9._-]{0,63}', args.id):
     parser.error('invalid plugin ID')
 if args.id in {'market', 'tasks', 'contributions', 'resources', 'browser', 'capabilities'}:
     parser.error('reserved plugin ID')
+if args.interaction and (args.storage or args.files or args.schedule):
+    parser.error('--interaction exports a standalone interaction scaffold; other modes can declare the contract manually')
 if not re.fullmatch(r'v?[0-9]+(?:\.[0-9]+)*(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?(?:\+[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?', args.version):
     parser.error('invalid release version')
 root = Path(__file__).resolve().parents[1] / 'sdk/plugins'
@@ -41,6 +44,11 @@ permissions = ['host.read', 'task.progress', 'log.write', 'data.read', 'data.wri
 definition = dict(schema_version=2, api_version='1', id=args.id, version=args.version, name=args.name, runtime='wasm', config_version=1, permissions=permissions, network=dict(proxy=args.proxy),
                   fields=[dict(key='message', label='消息', type='text')],
                   actions=[dict(id='run', label='运行', kind='run', requires_enabled=True, cancellable=True)])
+if args.interaction:
+    shutil.copyfile(root / 'plugins/examples/interaction/main.go', target / 'plugin/main.go')
+    permissions.extend(['interaction.receive','interaction.read','interaction.reply','interaction.session','interaction.attachments','artifacts.read','artifacts.write'])
+    definition['interaction'] = dict(commands=[dict(name='interact',description='开始插件交互',action='run')],message_action='run',attachment_action='message')
+    definition['actions'].extend([dict(id='message',label='接收输入',kind='run',requires_enabled=True),dict(id='done',label='结束交互',kind='run',requires_enabled=True)])
 if args.files:
     shutil.copyfile(root / 'plugins/examples/file-pipeline/main.go', target / 'plugin/main.go')
     permissions.extend(['files.read', 'files.publish', 'media.read', 'media.process'])
@@ -120,5 +128,6 @@ SDK 的 Serve 分开处理 run/health/migrate/storage。扩展数据结构时填
 使用 --files 导出云盘文件处理示例：暂存、探测、写标签、回写、查询、取消、恢复与释放；FFmpeg/FFprobe 仍在宿主依赖下载入口按需安装。skip、keep_both、replace 按 files.capabilities 选择；replace 保留备份并支持恢复，当前为非原子交换。未知回执不重放。合同见 docs/plugin-file-pipeline.md。
 
 SDK 同时包含通用运行基础：PutArtifact、ServiceUpload、CompleteAI、IdentifyMedia、PreviewOrganize/ApplyOrganize、CreateSTRM/InspectSTRM、CreateCAS、下载器与依赖、ShareOutput。先调用 Capabilities 核对宿主，按方法声明权限。独立整理使用插件传入文件清单，保留项目原生流程及配置。完整合同见仓库 docs/plugin-runtime-foundation.md。
+使用 --interaction 导出通用机器人交互骨架。启用后发送 /plugins 查看入口；/plugin 插件ID 命令 始终定位当前插件，唯一命令也可直接用 /命令。SDK 提供 InteractionContext、ReplyInteraction、WaitInteraction、EndInteraction、StageInteractionAttachment、SendInteractionFile。附件为插件私有产物，可交给 media.probe/submit 的 artifact 输入；Telegram 使用原生按钮，企业微信使用 /reply 回调入口。会话按通道、用户、聊天和话题隔离，危险动作由宿主再次确认。合同见 docs/plugin-interaction.md。
 ''', encoding='utf-8')
 print('PLUGIN_KIT_OK id='+args.id+' sdk=standalone output='+str(target))

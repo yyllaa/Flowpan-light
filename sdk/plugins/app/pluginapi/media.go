@@ -3,6 +3,7 @@ package pluginapi
 // MediaProcess is a structured local operation, never a command line. Outputs
 // are generated under the calling plugin's private data directory by the host.
 type MediaProcess struct {
+	Artifact        string        `json:"artifact,omitempty"`
 	Key             string        `json:"key"`
 	Path            string        `json:"path"`
 	FileTask        string        `json:"file_task,omitempty"` // completed files.stage input; Path is resolved by the host

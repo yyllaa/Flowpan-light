@@ -18,7 +18,11 @@
     "artifact_write_bytes": 32768,
     "service_upload_bytes": 67108864,
     "file_bytes": 21474836480,
-    "share_max_seconds": 86400
+    "share_max_seconds": 86400,
+    "interaction_attachment_bytes": 20971520,
+    "interaction_session_seconds": 1800,
+    "interaction_reply_bytes": 16384,
+    "interaction_buttons": 8
   },
   "tools": [
     {
@@ -634,6 +638,9 @@
       "confirmation": false,
       "input_schema": {
         "properties": {
+          "artifact": {
+            "type": "string"
+          },
           "file_task": {
             "type": "string"
           },
@@ -654,6 +661,9 @@
       "confirmation": false,
       "input_schema": {
         "properties": {
+          "artifact": {
+            "type": "string"
+          },
           "at_seconds": {
             "type": "number"
           },
@@ -1743,6 +1753,173 @@
         "required": [
           "account",
           "key"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "interaction.context",
+      "permission": "interaction.read",
+      "group": "交互",
+      "description": "读取宿主投递的当前会话、输入和附件元数据",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "interaction.reply",
+      "permission": "interaction.reply",
+      "group": "交互",
+      "description": "向当前会话回复文字和按钮；按键保存发送回执",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "buttons": {
+            "items": {
+              "properties": {
+                "action": {
+                  "type": "string"
+                },
+                "data": {},
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "label",
+                "action"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "delivery": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "ttl_seconds": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "key",
+          "text"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "interaction.session.set",
+      "permission": "interaction.session",
+      "group": "交互",
+      "description": "等待当前用户下一条输入并绑定已声明动作",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "delivery": {
+            "type": "string"
+          },
+          "state": {},
+          "ttl_seconds": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "interaction.session.end",
+      "permission": "interaction.session",
+      "group": "交互",
+      "description": "结束当前插件的多轮输入和按钮等待",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "interaction.attachment",
+      "permission": "interaction.attachments",
+      "group": "交互",
+      "description": "将当前消息附件流式导入插件私有产物",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "interaction.send_file",
+      "permission": "interaction.reply",
+      "group": "交互",
+      "description": "将本插件产物、暂存或媒体结果发送到当前会话",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "caption": {
+            "type": "string"
+          },
+          "delivery": {
+            "type": "string"
+          },
+          "input": {
+            "type": "object"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "input"
         ],
         "type": "object"
       }

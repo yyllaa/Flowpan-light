@@ -124,6 +124,8 @@ pack 只收集 manifest.json 和清单指定的 WASM，生成 ZIP 前复用正�
 
 ## 资源类插件与交互
 
+通用机器人交互使用可选 `definition.interaction`，提供命令、当前会话回复、多轮输入、按钮和附件。SDK 与模板支持 `tools/plugin-kit.py --interaction`；完整合同见 [插件交互](plugin-interaction.md)。下述资源搜索桥接继续保留。
+
 在 definition.resources 指定搜索和解锁动作，搜索使用 probe，解锁使用需要确认的 run。搜索输入为 `media_type` 和 `tmdb_id`，结果的 data.resources 为 `[]pluginapi.Resource`；解锁输入为 resource_id，结果的 data.links/password 可交给项目转存入口。
 
 启用的资源插件自动加入项目现有资源工作区和交互搜索，沿用片名候选、序号选择、来源隔离和转存整理交接；无需增加项目专属插件分支。各插件站点登录、签名和解锁实现仍放在插件内。完整参数及权限见 [宿主工具](plugin-host-tools.md)。

@@ -1,5 +1,7 @@
 # 插件宿主工具 API v1
 
+通用机器人交互新增 `interaction.context/reply/session.set/session.end/attachment/send_file` 六项工具；声明、权限、回执和 SDK 见 [插件交互合同](plugin-interaction.md)。媒体输入支持本插件私有 artifact，与 path/file_task 三选一。
+
 所有外部 WASM 插件复用同一工具层。工具清单、权限、输入 JSON Schema 的唯一来源为 `app/pluginapi` 的工具目录。管理接口 `GET /api/plugins/v1/capabilities` 与“插件管理 → 宿主能力”读取同一清单；完整机器可读副本见 `plugin-host-tools.json`。
 
 ## 管理与授权

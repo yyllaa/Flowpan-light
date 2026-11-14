@@ -41,7 +41,7 @@ func (d StorageDefinition) Validate() error {
 	seen := map[string]bool{}
 	for _, c := range d.Capabilities {
 		switch c {
-		case "list", "stat", "read", "link", "upload", "mkdir", "rename", "delete", "copy", "move", "refresh", "share":
+		case "list", "stat", "read", "link", "upload", "mkdir", "rename", "delete", "copy", "move", "refresh", "share", "changes":
 		default:
 			return fmt.Errorf("网盘能力未注册：%s", c)
 		}

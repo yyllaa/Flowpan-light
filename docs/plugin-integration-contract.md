@@ -2,6 +2,8 @@
 
 新增插件通过清单和 SDK 接入共用宿主。插件维护供应商协议，宿主负责新版提示、发布说明、仪表盘、账号、权限和 FUSE；新增品牌不增加共享页面分支，也不自行上报调用次数。
 
+机器人入口使用可选 `definition.interaction` 及六项 `interaction.*` 工具，复用现有 Telegram、企业微信配置。命令、会话、按钮、附件、宿主确认和生命周期合同见 [插件交互](plugin-interaction.md)，独立开发包使用 `--interaction` 导出。
+
 | 声明或调用 | 宿主自动行为 | 固定验证 |
 | --- | --- | --- |
 | `id`、数字 `version`、已启用的原插件源 | 刷新源并比较版本，显示更新数量与入口 | 两个新插件、不同版本格式、源隔离、失败重试 |
@@ -63,8 +65,6 @@ SDK 的 `Serve(Handlers{Storage: ...})` 自动将错误放入 `storage_error`，
 
 ## 项目回归入口
 
-以下检查在宿主开发仓库运行。公开 SDK 开发包执行自身的 SDK 测试及 build.py 发布校验。
-
 ```sh
 npm run check:plugin-contract
 npm run check:frontend
@@ -86,6 +86,6 @@ npm run check:frontend
 ```
 
 
-## 云盘文件处理插件
+## 云盘文件处理
 
-使用 `tools/plugin-kit.py --files` 导出独立 SDK 工作流：`files.stage` → `media.submit(file_task)` → `files.publish`，包含能力探测、校验、备份替换、恢复和清理。依赖通过宿主按需安装，未知写回执不重放。完整合同见 [云盘文件处理合同](plugin-file-pipeline.md)。需要包含该合同的新版宿主。
+音乐、字幕等插件通过通用 `files.stage`、媒体 `file_task` 输入和 `files.publish` 衔接网盘文件。账号与目录沿用当前授权，上传与恢复使用明确冲突策略，未知回执不自动重放；能力按每个驱动实际支持情况返回。SDK 开发包使用 `--files` 导出示例，字段与恢复流程见 [云盘文件处理合同](plugin-file-pipeline.md)。
