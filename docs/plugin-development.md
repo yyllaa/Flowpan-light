@@ -253,3 +253,8 @@ response, err := pluginwasm.Fetch(pluginwasm.HTTPRequest{
 ## 后续插件通用接入
 
 新版开发包随清单生成 release.notes 与 CHANGELOG.md，默认执行 pack --release 和 check --release。宿主从声明自动接入更新提示、仪表盘及 FUSE，SDK 通过 pluginapi.StorageError 保留网盘错误，不增加品牌分支。完整字段、兼容规则与验收方法见 [插件通用接入合同](plugin-integration-contract.md)。发布校验与新元数据需要支持该合同的宿主。
+
+
+## 云盘文件处理插件
+
+使用 `tools/plugin-kit.py --files` 导出独立 SDK 工作流：`files.stage` → `media.submit(file_task)` → `files.publish`，包含能力探测、校验、备份替换、恢复和清理。依赖通过宿主按需安装，未知写回执不重放。完整合同见 [云盘文件处理合同](plugin-file-pipeline.md)。需要包含该合同的新版宿主。

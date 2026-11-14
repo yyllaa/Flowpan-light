@@ -84,3 +84,8 @@ npm run check:frontend
 运行 check:plugin-contract、完整前端检查及对应桌面和手机浏览器用例。
 同时验证另一提供者及普通动作插件，保留旧包兼容与来源、账号隔离。
 ```
+
+
+## 云盘文件处理插件
+
+使用 `tools/plugin-kit.py --files` 导出独立 SDK 工作流：`files.stage` → `media.submit(file_task)` → `files.publish`，包含能力探测、校验、备份替换、恢复和清理。依赖通过宿主按需安装，未知写回执不重放。完整合同见 [云盘文件处理合同](plugin-file-pipeline.md)。需要包含该合同的新版宿主。

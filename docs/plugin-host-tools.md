@@ -142,3 +142,8 @@ err = pluginwasm.TransferStatus("main", "resource-123-transfer", &result)
 影视动作可声明 `media_input: {id_field:"tmdb_id",type_field:"media_type"}`，两者必须分别绑定已声明的 number 和 select 字段。宿主提供现有 TMDB 搜索，选择作品只填入参数；输入数字可直接选择 TMDB ID，仍须点击动作按钮执行。切换扩展页分别保留输入。
 
 动作 `result_fields` 声明本动作的指标。`Result.table` 使用 `{columns:[{key,label}],rows:[{key:"文本"}]}`，宿主以纯文本表格展示并提供内部滚动；不执行单元格 HTML。`Result.items` 展示说明条目，原始业务响应默认折叠。`data.pagination` 为 `{page,size,has_more}`，已有 page 参数的动作可以手动翻页；RSS 的 `data.next_cursor` 与 `data.has_more` 提供“读取下一批”。仅本次已提交的条件未改变时允许继续，修改表单不会自动请求。危险动作确认页使用冻结的输入摘要。
+
+
+## 云盘文件处理插件
+
+使用 `tools/plugin-kit.py --files` 导出独立 SDK 工作流：`files.stage` → `media.submit(file_task)` → `files.publish`，包含能力探测、校验、备份替换、恢复和清理。依赖通过宿主按需安装，未知写回执不重放。完整合同见 [云盘文件处理合同](plugin-file-pipeline.md)。需要包含该合同的新版宿主。

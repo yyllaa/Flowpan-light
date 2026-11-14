@@ -50,6 +50,30 @@ func SearchMedia(query, mediaType string, result any) error {
 func ProbeMedia(path string, result any) error {
 	return Call("media.probe", map[string]any{"path": path}, result)
 }
+
+func SubmitMedia(request pluginapi.MediaProcess) (pluginapi.MediaTask, error) {
+	var result pluginapi.MediaTask
+	err := Call("media.submit", request, &result)
+	return result, err
+}
+
+func MediaTask(id string) (pluginapi.MediaTask, error) {
+	var result pluginapi.MediaTask
+	err := Call("media.task", map[string]any{"id": id}, &result)
+	return result, err
+}
+
+func CancelMedia(id string) (pluginapi.MediaTask, error) {
+	var result pluginapi.MediaTask
+	err := Call("media.cancel", map[string]any{"id": id}, &result)
+	return result, err
+}
+
+func MediaResult(id string, offset int64, limit int) (pluginapi.MediaChunk, error) {
+	var result pluginapi.MediaChunk
+	err := Call("media.result", map[string]any{"id": id, "offset": offset, "limit": limit}, &result)
+	return result, err
+}
 func ParseTransfer(text string, result any) error {
 	return Call("transfer.parse", map[string]any{"text": text}, result)
 }
