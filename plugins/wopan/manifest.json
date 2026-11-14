@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "storage-wopan",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "name": "联通云盘",
   "description": "将联通云盘个人空间接入账号中心、文件浏览、STRM 和上传任务。",
   "category": "网盘",
@@ -22,7 +22,7 @@
     "schema_version": 2,
     "api_version": "1",
     "id": "storage-wopan",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "name": "联通云盘",
     "description": "将联通云盘个人空间接入账号中心、文件浏览、STRM 和上传任务。",
     "category": "网盘",
@@ -65,6 +65,8 @@
         "upload",
         "mkdir",
         "rename",
+        "delete",
+        "move",
         "refresh",
         "share"
       ]

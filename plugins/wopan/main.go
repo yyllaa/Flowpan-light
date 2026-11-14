@@ -333,6 +333,8 @@ func (a *adapter) dispatch(ctx context.Context) (any, error) {
 		}
 		_, err = a.client.Rename(ctx, wopan.SpacePersonal, ref.ID, p.Name, ref.Dir, "", "", current.FileVersion)
 		return nil, err
+	case "delete", "move":
+		return nil, a.mutate(ctx, c.Operation, p)
 	case "upload":
 		return a.upload(ctx, p)
 	default:

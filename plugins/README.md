@@ -10,7 +10,7 @@
 | --- | --- | --- | --- | --- |
 | 癫影（浏览器版） | resource-dian | 1.1.1 | [dian](dian) | 沿用项目设置 |
 | 癫影 OpenAPI | resource-dian-openapi | 1.3.8 | [dian-openapi](dian-openapi) | 必须使用项目 HTTP 代理 |
-| 联通云盘 | storage-wopan | 0.2.1 | [wopan](wopan) | 直连 |
+| 联通云盘 | storage-wopan | 0.2.2 | [wopan](wopan) | 直连 |
 
 两个癫影版本使用不同 ID，各自安装、配置、定时任务、运行记录和私有数据，互不覆盖。浏览器版需要项目浏览器能力，OpenAPI 版通过宿主 sdk.call 使用私有 SDK，无需浏览器。
 
@@ -35,3 +35,7 @@
 索引固定同仓库 Release 下载地址、SHA-256 和源码 commit。插件配置与凭据由用户在宿主中填写，公开源码与发布包不包含运行数据。
 
 [下载插件与 SDK](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.13-signin)。
+
+联通云盘 0.2.2 修复可写 FUSE 的删除与移动，需要包含移动后引用及 inode 同步修复的主程序。
+
+[下载联通云盘 0.2.2 修复包](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.14-wopan-fuse)。

@@ -293,7 +293,7 @@ func (c *Client) batch(ctx context.Context, req batchReq) error {
 		if err != nil {
 			lastErr = err
 			var ae *APIError
-			if errors.As(err, &ae) && (ae.Code == "500010006" || ae.Code == "9999") {
+			if errors.As(err, &ae) && ae.Code == "500010006" {
 				select {
 				case <-ctx.Done():
 					return ctx.Err()
@@ -309,8 +309,10 @@ func (c *Client) batch(ctx context.Context, req batchReq) error {
 			Finish      bool   `json:"finish"`
 			FailMessage string `json:"failMessage"`
 		}
-		_ = json.Unmarshal(data, &r)
-		if r.Success != nil && !*r.Success {
+		if json.Unmarshal(data, &r) != nil || r.Success == nil {
+			return errors.New("联通云盘写入回执未确认，请检查远端后重试")
+		}
+		if !*r.Success {
 			if r.FailMessage == "" {
 				r.FailMessage = "服务端返回 success=false"
 			}
