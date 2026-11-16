@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>音乐工具</title><link rel="stylesheet" href="./style.css"></head>
+<body>
+  <main>
+    <header><div><h2>音乐封装</h2><p>调用项目的媒体工具，原文件保持不变。</p></div><button id="connect" type="button">检查依赖</button></header>
+    <form id="media-form" novalidate>
+      <label class="full">本机音乐文件<input name="path" placeholder="已授权目录下的完整文件路径" required></label>
+      <label>输出格式<select name="format"><option value="flac">FLAC</option><option value="m4a">M4A</option><option value="m4b">M4B</option><option value="mp3">MP3</option></select></label>
+      <label>标题<input name="title" autocomplete="off"></label>
+      <label>艺术家<input name="artist" autocomplete="off"></label>
+      <label>专辑<input name="album" autocomplete="off"></label>
+      <div class="full controls"><button type="submit" class="primary">提交封装</button><button id="status" type="button" disabled>刷新进度</button><button id="settings" type="button">插件设置</button></div>
+    </form>
+    <p id="message" role="status" aria-live="polite">正在连接项目</p>
+    <progress id="progress" max="100" value="0" hidden></progress>
+    <pre id="result" hidden></pre>
+  </main>
+  <script src="./flowpan-page-sdk.js"></script><script type="module" src="./app.js"></script>
+</body></html>

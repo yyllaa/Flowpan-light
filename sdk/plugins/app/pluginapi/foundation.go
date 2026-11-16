@@ -58,13 +58,15 @@ type OrganizeIdentity struct {
 	Episode int    `json:"episode,omitempty"`
 }
 type OrganizePreview struct {
-	Key      string                      `json:"key"`
-	Account  string                      `json:"account"`
-	IDs      []string                    `json:"ids"`
-	OutputID string                      `json:"output_id"`
-	AI       bool                        `json:"ai,omitempty"`
-	TMDB     bool                        `json:"tmdb,omitempty"`
-	Metadata map[string]OrganizeIdentity `json:"metadata,omitempty"`
+	Recognition *RecognitionRoute           `json:"recognition,omitempty"`
+	InputRoot   string                      `json:"input_root,omitempty"`
+	Key         string                      `json:"key"`
+	Account     string                      `json:"account"`
+	IDs         []string                    `json:"ids"`
+	OutputID    string                      `json:"output_id"`
+	AI          bool                        `json:"ai,omitempty"`
+	TMDB        bool                        `json:"tmdb,omitempty"`
+	Metadata    map[string]OrganizeIdentity `json:"metadata,omitempty"`
 }
 type OrganizeNames struct {
 	Directories []string `json:"directories"`
@@ -73,11 +75,14 @@ type OrganizeNames struct {
 	Type        string   `json:"type"`
 }
 type OrganizePlanItem struct {
-	ID           string        `json:"id"`
-	OriginalName string        `json:"original_name"`
-	Names        OrganizeNames `json:"names"`
-	TargetID     string        `json:"target_id"`
-	Conflict     bool          `json:"conflict"`
+	Status       string             `json:"status,omitempty"`
+	Message      string             `json:"message,omitempty"`
+	Recognition  *RecognitionResult `json:"recognition,omitempty"`
+	ID           string             `json:"id"`
+	OriginalName string             `json:"original_name"`
+	Names        OrganizeNames      `json:"names"`
+	TargetID     string             `json:"target_id"`
+	Conflict     bool               `json:"conflict"`
 }
 type OrganizePreviewResult struct {
 	ID       string             `json:"id"`
@@ -91,7 +96,7 @@ func foundationTools() []Tool {
 	return []Tool{
 		tool("strm.create", "artifacts.write", "STRM", "将插件提供的播放 URL 写成独立 STRM 产物，与项目 STRM 任务无关联", "key:string name:string url:string", true, false),
 		tool("strm.inspect", "files.read", "STRM", "读取已授权的外部 STRM 文件并验证其中的播放地址", "account:string id:string", false, false),
-		tool("organize.preview", "organize.read", "转存与整理", "为插件选择的外部 STRM、本机视频生成整理预览，复用项目识别和命名规则", "key:string account:string ids:array output_id:string ai?:boolean tmdb?:boolean metadata?:object", false, false),
+		tool("organize.preview", "organize.read", "转存与整理", "为插件选择的外部 STRM、本机视频生成整理预览，复用项目识别和命名规则", "key:string account:string ids:array output_id:string ai?:boolean tmdb?:boolean metadata?:object recognition?:object input_root?:string", false, false),
 		tool("organize.apply", "organize.write", "转存与整理", "执行本插件已预览的本机文件整理计划，保留 STRM 原始链接字节", "id:string key:string", true, true),
 		tool("shares.create", "shares.write", "文件分享", "为本插件的宿主输出创建限时下载链接，支持 Range，停用或更新后失效", "key:string input:object expires_seconds?:number", true, true),
 		tool("shares.revoke", "shares.write", "文件分享", "撤销本插件创建的下载链接", "id:string", true, false),

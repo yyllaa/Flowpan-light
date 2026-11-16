@@ -207,3 +207,10 @@ err = pluginwasm.TransferStatus("main", "resource-123-transfer", &result)
 ## 通用插件运行基础
 
 私有产物、宿主文件流、外部服务、AI、独立文件整理、下载器、依赖、CAS 和限时输出分享的完整合同见 [插件运行基础](plugin-runtime-foundation.md)。这些接口复用宿主实现，不修改已有整理、STRM、下载、识别的入口、配置和自动触发条件。`strm.create/inspect` 与 `organize.preview/apply` 处理插件选定的外部文件；已有 `strm.tasks/run/status`、`organize.run/status/stop` 继续服务项目原生任务。
+
+
+Emby 新增 19 项宿主工具（当前共 97 项）；实例授权、分页、人物与元数据、原图、写回执、库刷新及 Webhook 见 [Emby 调用合同](plugin-emby.md)。独立开发包使用 `tools/plugin-kit.py --emby` 导出。
+
+## ED2K
+
+新增 `ed2k.submit/list/task/retry/cancel/remove`；权限分别为 `ed2k.generate`, `ed2k.read`, `ed2k.manage`。生成在宿主后台串行执行，结果库按当前账号和目录授权共享给其他插件。具体状态、流量、断点与 SDK 见 [ED2K 合同](plugin-ed2k.md)。

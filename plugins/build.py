@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import zipfile
@@ -39,17 +40,27 @@ for name in selected:
     if destination.exists():
         p.error('release already exists; select a new output directory: '+destination.name)
     with tempfile.TemporaryDirectory(prefix='flowpan-plugin-build-') as temporary:
-        wasm = Path(temporary)/'plugin.wasm'
+        stage = Path(temporary)
+        wasm = stage/manifest['runtime']['module']
+        wasm.parent.mkdir(parents=True,exist_ok=True)
         subprocess.run([a.go,'build','-trimpath','-buildvcs=false','-ldflags=-s -w','-o',str(wasm),'.'],cwd=folder,env=env,check=True)
         module = wasm.read_bytes()
         if module[:8] != b'\0asm\x01\0\0\0':
             raise RuntimeError('invalid WASM output')
-        with zipfile.ZipFile(destination,'w') as archive:
-            entry(archive,'manifest.json',json.dumps(manifest,ensure_ascii=False,indent=2).encode('utf-8'))
-            entry(archive,manifest['runtime']['module'],module)
+        (stage/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
+        if manifest.get('definition',{}).get('pages') and (folder/'ui').is_dir():
+            if any(path.is_symlink() for path in (folder/'ui').rglob('*')):
+                raise RuntimeError('page assets cannot contain symlinks')
+            shutil.copytree(folder/'ui',stage/'ui')
+        if a.host:
+            subprocess.run([str(Path(a.host).resolve()),'plugin','pack','--release','--dir',str(stage),'--out',str(destination)],check=True)
+        else:
+            with zipfile.ZipFile(destination,'w') as archive:
+                for path in sorted(stage.rglob('*')):
+                    if path.is_file():entry(archive,path.relative_to(stage).as_posix(),path.read_bytes())
     artifacts.append(destination)
     if a.host:
-        subprocess.run([str(Path(a.host).resolve()),'plugin','check',str(destination)],check=True)
+        subprocess.run([str(Path(a.host).resolve()),'plugin','check','--release',str(destination)],check=True)
 
 sdkzip = out/'Flowpan-Plugin-SDK.zip'
 if sdkzip.exists():

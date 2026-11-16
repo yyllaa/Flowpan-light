@@ -292,3 +292,28 @@ response, err := pluginwasm.Fetch(pluginwasm.HTTPRequest{
 ## 云盘媒体处理插件
 
 使用 `tools/plugin-kit.py --files` 导出可独立构建的云盘文件处理示例。宿主提供暂存、媒体处理、校验回写、恢复与清理任务；依赖仍通过项目设置按需安装，元数据匹配由插件实现。完整 SDK 与策略见 [云盘文件处理合同](plugin-file-pipeline.md)。
+
+
+Emby 宿主工具与实例授权见 [plugin-emby.md](plugin-emby.md)；`tools/plugin-kit.py --emby` 导出独立只读合同骨架，后续写入复用同一 SDK 与持久回执。
+
+
+## 新识别来源
+
+插件通过 definition.recognition 与独立 Recognition 生命周期注册来源；关键词自动认领、插件分类绑定、独立媒体身份和待确认处理见 [插件识别来源合同](plugin-recognition.md)。使用 tools/plugin-kit.py --recognition 导出独立骨架。
+
+
+### 任务中心的待处理提示
+
+任务只在实际提交后进入任务中心，动作声明本身不产生待办。`probe` 动作，以及声明 `history_only: true` 的查询动作，在结束或中断后保留到最近记录，不升级为待处理。正在运行时仍显示真实进度。
+
+`history_only` 仅控制提示，不改变动作的 `kind`、SDK 权限、确认要求、幂等性或重启恢复方式。需要调用宿主 SDK 的用量、状态、搜索等读取动作可以保留 `kind: "run"` 并声明该字段；业务执行动作沿用默认值。幂等写入同样需要核验未知结果，因此宿主不会根据 `idempotent` 自动推断只读查询。
+
+```json
+{"id":"usage","label":"查询用量","kind":"run","history_only":true,"idempotent":true}
+```
+
+宿主在提交时冻结 `history_only`，任务 API 同名返回；旧任务从已存动作读取，未声明时保留原核验提示。插件升级不回写既有任务的冻结声明。历史失败、主动暂停和已被重试替代的旧任务均不按失败次数堆积待处理角标。可操作的识别项、结果待核验的业务任务和当前下载异常继续提示。
+
+## ED2K 结果与批量文件扩展
+
+通过 `ed2k.*` 和 `pluginwasm.GenerateED2K/ListED2K/ED2KTask` 使用宿主计算与结果库；声明式动态多选可让发布插件筛选已生成记录。通用文件勾选入口和 `placement: "context"` 见 [ED2K 合同](plugin-ed2k.md)。

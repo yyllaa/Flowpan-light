@@ -38,6 +38,7 @@ func executeTool(h host, r pluginapi.Request) (pluginapi.Result, error) {
 		return pluginapi.Result{}, fmt.Errorf("缺少后台任务编号")
 	}
 	action := r.ActionID
+	if action == "ed2k-library" { return ed2kOptions(h, r.Input) }
 	op, ok := map[string]string{"profile": "me", "avatar": "avatar", "query": "list-shares", "virtual-cache": "virtual-cache", "sha1-query": "tmdb-sha1", "share-check": "check-sharecode", "rss-options": "rss-options", "rss": "rss", "share": "share", "developer-usage": "developer-usage"}[action]
 	if !ok {
 		return pluginapi.Result{}, fmt.Errorf("插件动作不存在")
@@ -75,6 +76,7 @@ func executeTool(h host, r pluginapi.Request) (pluginapi.Result, error) {
 			return pluginapi.Result{}, err
 		}
 	}
+	if action == "share" { if err := attachED2K(h,input); err != nil { return pluginapi.Result{},err } }
 	if err := normalizeExtension(action, input); err != nil {
 		return pluginapi.Result{}, err
 	}

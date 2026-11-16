@@ -6,6 +6,7 @@ import (
 )
 
 type Scope struct {
+	EmbyInstances        []string            `json:"emby_instances,omitempty"`
 	AutomaticDirectories bool                `json:"automatic_directories,omitempty"`
 	DisabledTools        []string            `json:"disabled_tools,omitempty"`
 	Accounts             []string            `json:"accounts,omitempty"`
@@ -14,6 +15,7 @@ type Scope struct {
 	AccountDirectoryIDs  map[string][]string `json:"account_directory_ids,omitempty"`
 }
 type Request struct {
+	Recognition *RecognitionCall  `json:"recognition,omitempty"`
 	Interaction *InteractionInput `json:"interaction,omitempty"`
 	Storage     *StorageCall      `json:"storage,omitempty"`
 	TaskID      string            `json:"task_id"`
@@ -45,11 +47,12 @@ type Contribution struct {
 	Label     string   `json:"label"`
 	Action    string   `json:"action"`
 	FileTypes []string `json:"file_types,omitempty"`
+	SourceTypes []string `json:"source_types,omitempty"`
 }
 
 func ValidEventType(t string) bool {
 	switch t {
-	case "file.changed", "organize.completed", "audiobook.changed", "task.completed":
+	case "file.changed", "organize.completed", "audiobook.changed", "task.completed", "emby.library.changed", "emby.playback.changed":
 		return true
 	}
 	return false

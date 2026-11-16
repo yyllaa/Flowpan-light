@@ -9,8 +9,9 @@
 | 插件 | 稳定 ID | 版本 | 独立目录 | 网络 |
 | --- | --- | --- | --- | --- |
 | 癫影（浏览器版） | resource-dian | 1.1.1 | [dian](dian) | 沿用项目设置 |
-| 癫影 OpenAPI | resource-dian-openapi | 1.3.8 | [dian-openapi](dian-openapi) | 必须使用项目 HTTP 代理 |
+| 癫影 OpenAPI | resource-dian-openapi | 1.3.9 | [dian-openapi](dian-openapi) | 必须使用项目 HTTP 代理 |
 | 联通云盘 | storage-wopan | 0.2.2 | [wopan](wopan) | 直连 |
+| 115 ED2K | ed2k | 1.0.0 | [ed2k](ed2k) | 由宿主读取授权文件 |
 
 两个癫影版本使用不同 ID，各自安装、配置、定时任务、运行记录和私有数据，互不覆盖。浏览器版需要项目浏览器能力，OpenAPI 版通过宿主 sdk.call 使用私有 SDK，无需浏览器。
 
@@ -34,8 +35,10 @@
 
 索引固定同仓库 Release 下载地址、SHA-256 和源码 commit。插件配置与凭据由用户在宿主中填写，公开源码与发布包不包含运行数据。
 
-[下载插件与 SDK](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.13-signin)。
+[下载插件与 SDK](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.16-ed2k)。
 
 联通云盘 0.2.2 修复可写 FUSE 的删除与移动，需要包含移动后引用及 inode 同步修复的主程序。
 
 [下载联通云盘 0.2.2 修复包](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.14-wopan-fuse)。
+
+115 ED2K 1.0.0 与癫影 OpenAPI 1.3.9 需要 `2026.11.16-ed2k` 或包含同等合同的主程序。ED2K 从文件浏览勾选生成，在导航集中管理；癫影离线发布可筛选已生成结果。首次生成读取完整文件，默认串行，重复结果复用缓存。详见 [ED2K 工具与扩展合同](../docs/plugin-ed2k.md)。

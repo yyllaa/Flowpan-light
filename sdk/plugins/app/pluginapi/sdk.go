@@ -46,7 +46,7 @@ func (d Definition) validateSDKs(fields map[string]Field) error {
 }
 
 func validateActionInputs(a Action) error {
-	if a.Placement != "" && a.Placement != "tools" {
+	if a.Placement != "" && a.Placement != "tools" && a.Placement != "context" {
 		return fmt.Errorf("插件动作位置无效：%s", a.ID)
 	}
 	seen := map[string]bool{}
@@ -59,6 +59,7 @@ func validateActionInputs(a Action) error {
 		default:
 			return fmt.Errorf("插件动作参数类型无效：%s", f.Key)
 		}
+		if f.OptionsSource != "" && (f.Type != "multi-select" || !identifier.MatchString(f.OptionsSource) || len(f.Options)>0) { return fmt.Errorf("插件动态选项无效：%s", f.Key) }
 		seen[f.Key] = true
 	}
 	groups := map[string]bool{}

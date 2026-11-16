@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "id": "ed2k",
+  "version": "1.0.0",
+  "min_host_version": "1",
+  "name": "115 ED2K",
+  "description": "从文件浏览生成 ED2K，集中管理并供其他插件调用。",
+  "category": "文件工具",
+  "config_schema_version": 1,
+  "data_schema_version": 1,
+  "runtime": {
+    "kind": "wasm",
+    "module": "plugin.wasm"
+  },
+  "package": {
+    "local": true
+  },
+  "permissions": [
+    "ed2k.generate",
+    "ed2k.read",
+    "ed2k.manage",
+    "accounts.read"
+  ],
+  "definition": {
+    "schema_version": 2,
+    "api_version": "1",
+    "id": "ed2k",
+    "version": "1.0.0",
+    "name": "115 ED2K",
+    "description": "从文件浏览生成 ED2K，集中管理并供其他插件调用。",
+    "category": "文件工具",
+    "icon": "link",
+    "runtime": "wasm",
+    "config_version": 1,
+    "permissions": [
+      "ed2k.generate",
+      "ed2k.read",
+      "ed2k.manage",
+      "accounts.read"
+    ],
+    "actions": [
+      {
+        "id": "generate",
+        "label": "生成 ED2K",
+        "kind": "run",
+        "idempotent": true,
+        "placement": "context"
+      },
+      {
+        "id": "list",
+        "label": "查询 ED2K",
+        "kind": "probe",
+        "idempotent": true,
+        "placement": "context",
+        "history_only": true
+      },
+      {
+        "id": "task",
+        "label": "任务状态",
+        "kind": "probe",
+        "idempotent": true,
+        "placement": "context",
+        "history_only": true
+      },
+      {
+        "id": "retry",
+        "label": "继续生成",
+        "kind": "run",
+        "idempotent": true,
+        "placement": "context"
+      },
+      {
+        "id": "cancel",
+        "label": "停止生成",
+        "kind": "run",
+        "idempotent": true,
+        "placement": "context"
+      },
+      {
+        "id": "remove",
+        "label": "删除记录",
+        "kind": "run",
+        "idempotent": true,
+        "placement": "context",
+        "danger": true,
+        "confirmation": "删除所选 ED2K 记录，保留源文件。"
+      }
+    ],
+    "pages": [
+      {
+        "id": "manager",
+        "label": "ED2K 管理",
+        "icon": "link",
+        "navigation": true,
+        "entry": "ui/index.html"
+      }
+    ],
+    "contributions": [
+      {
+        "point": "file-menu",
+        "label": "生成 ED2K",
+        "action": "generate",
+        "file_types": [
+          "file"
+        ],
+        "source_types": [
+          "p115"
+        ]
+      },
+      {
+        "point": "file-selection",
+        "label": "生成 ED2K",
+        "action": "generate",
+        "file_types": [
+          "file"
+        ],
+        "source_types": [
+          "p115"
+        ]
+      }
+    ]
+  },
+  "release": {
+    "title": "115 ED2K 1.0.0",
+    "notes": "首次发布：文件浏览单选和批量生成；导航管理、筛选、复制及导出；后台串行读取、断点续算和缓存；开放授权范围内的结果查询。"
+  }
+}

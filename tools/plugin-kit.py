@@ -12,22 +12,32 @@ parser.add_argument('--name', default='外部插件示例')
 parser.add_argument('--version', default='1.0.0', help='numeric release version')
 parser.add_argument('--provider-id', default='customdrive', help='native drive ID for --storage')
 parser.add_argument('--storage', action='store_true', help='export a native storage provider adapter')
-parser.add_argument('--files', action='store_true', help='include cloud staging, media processing, publication and recovery actions')
 parser.add_argument('--schedule', action='store_true', help='include an opt-in daily schedule registration')
+parser.add_argument('--page', action='store_true', help='include a navigation page with its own frontend and a media example')
+parser.add_argument('--files', action='store_true', help='include cloud staging, media processing, publication and recovery actions')
+parser.add_argument('--recognition', action='store_true', help='export a recognition provider contract scaffold')
+parser.add_argument('--emby', action='store_true', help='export a read-only Emby host contract scaffold')
 parser.add_argument('--interaction', action='store_true', help='include bot commands, conversation replies, sessions, buttons and attachments')
 parser.add_argument('--proxy', choices=('direct', 'project', 'inherit'), default='direct', help='declare direct access or require the project HTTP proxy')
 args = parser.parse_args()
-if args.files and args.storage:
-    parser.error('--files and --storage export different plugin types')
 if not re.fullmatch(r'[a-z0-9][a-z0-9._-]{0,63}', args.id):
     parser.error('invalid plugin ID')
-if args.id in {'market', 'tasks', 'contributions', 'resources', 'browser', 'capabilities'}:
+if args.id in {'market', 'tasks', 'contributions', 'resources', 'browser', 'capabilities', 'navigation'}:
     parser.error('reserved plugin ID')
-if args.interaction and (args.storage or args.files or args.schedule):
+if args.recognition and (args.emby or args.storage or args.page or args.files or args.interaction or args.schedule):
+    parser.error('--recognition exports a standalone provider contract scaffold')
+if args.emby and (args.storage or args.page or args.files or args.interaction or args.schedule):
+    parser.error('--emby exports a standalone host contract scaffold')
+if args.storage and args.page:
+    parser.error('--page exports a service template; storage plugins can declare definition.pages manually')
+if args.files and (args.storage or args.page):
+    parser.error('--files exports a resource workflow; use it separately from --storage or --page')
+if args.interaction and (args.storage or args.page or args.files or args.schedule):
     parser.error('--interaction exports a standalone interaction scaffold; other modes can declare the contract manually')
 if not re.fullmatch(r'v?[0-9]+(?:\.[0-9]+)*(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?(?:\+[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?', args.version):
     parser.error('invalid release version')
-root = Path(__file__).resolve().parents[1] / 'sdk/plugins'
+repository = Path(__file__).resolve().parents[1]
+root = repository / "sdk/plugins"
 target = Path(args.out).resolve()
 target.mkdir(parents=True, exist_ok=False)
 for relative in ('app/pluginapi', 'sdk/pluginwasm'):
@@ -38,12 +48,35 @@ for relative in ('app/pluginapi', 'sdk/pluginwasm'):
             continue
         shutil.copyfile(source, destination / source.name)
 (target / 'plugin').mkdir()
-shutil.copyfile(root / ('plugins/examples/storage-http/main.go' if args.storage else 'plugins/examples/starter/main.go'), target / 'plugin/main.go')
+shutil.copyfile(root / ('plugins/examples/storage-http/main.go' if args.storage else 'plugins/examples/independent-page/main.go' if args.page else 'plugins/examples/starter/main.go'), target / 'plugin/main.go')
 (target / 'go.mod').write_text('module flowpan\n\ngo 1.25.0\n', encoding='utf-8')
 permissions = ['host.read', 'task.progress', 'log.write', 'data.read', 'data.write']
 definition = dict(schema_version=2, api_version='1', id=args.id, version=args.version, name=args.name, runtime='wasm', config_version=1, permissions=permissions, network=dict(proxy=args.proxy),
                   fields=[dict(key='message', label='消息', type='text')],
                   actions=[dict(id='run', label='运行', kind='run', requires_enabled=True, cancellable=True)])
+if args.recognition:
+    shutil.copyfile(root / 'plugins/examples/recognition/main.go', target / 'plugin/main.go')
+    definition['fields'] = []
+    definition['actions'] = []
+    definition['recognition'] = dict(categories=[dict(id='special',name='专用分类')], providers=[dict(id='catalog', name=args.name, extensions=['.mkv','.mp4','.strm'], keywords=['sample-key'], patterns=[r'(?i)\bNX-[0-9]+\b'], category='special')])
+    shutil.copyfile(repository / 'docs/plugin-recognition.md', target / 'RECOGNITION.md')
+if args.emby:
+    shutil.copyfile(root / 'plugins/examples/emby-tools/main.go', target / 'plugin/main.go')
+    permissions.extend(['emby.read'])
+    definition['fields'] = []
+    definition['actions'][0]['input_fields'] = [dict(key='instance_id', label='Emby 实例 ID', type='text'), dict(key='item_id', label='媒体条目 ID', type='text')]
+    shutil.copyfile(repository / 'docs/plugin-emby.md', target / 'EMBY.md')
+if args.page:
+    shutil.copytree(root / 'plugins/examples/independent-page/ui', target / 'ui')
+    shutil.copyfile(root / 'web/assets/plugin-page-sdk.js', target / 'ui/flowpan-page-sdk.js')
+    permissions.extend(['media.read', 'media.process'])
+    definition['pages'] = [dict(id='music', label=args.name, icon='file', description='音乐标签与封装工具', navigation=True, entry='ui/index.html')]
+    definition['actions'].extend([
+        dict(id='remux', label='音乐封装', kind='run', placement='tools', requires_enabled=True,
+             input_fields=[dict(key=key,label=label,type='text',required=key in ('key','path','format'))
+                           for key,label in [('key','任务键'),('path','文件路径'),('format','格式'),('title','标题'),('artist','艺术家'),('album','专辑')]]),
+        dict(id='status', label='媒体进度', kind='probe', placement='tools', requires_enabled=True,
+             input_fields=[dict(key='id',label='媒体任务 ID',type='text',required=True)])])
 if args.interaction:
     shutil.copyfile(root / 'plugins/examples/interaction/main.go', target / 'plugin/main.go')
     permissions.extend(['interaction.receive','interaction.read','interaction.reply','interaction.session','interaction.attachments','artifacts.read','artifacts.write'])
@@ -118,16 +151,25 @@ subprocess.run([host,'plugin','check','--release',str(out)],cwd=root,check=True)
 3. 运行 `python build.py --host /实际路径/flowpan --go go`，Windows 使用 flowpan.exe。
 4. 将生成的 plugin.zip 在「辅助插件 → 插件管理 → 已安装」导入，启用后运行。
 
-生成的 ZIP 仅包含清单和 WASM，SDK 源码不会进入运行包。构建与校验不执行插件。
+发布版本使用数字版本号，支持 v 前缀、预发布及日期版本；新版本同时更新清单的两层 version、release.notes 与 CHANGELOG.md。build.py 自动运行 pack --release 和 check --release，缺少更新日志或版本不可比较时终止发布；普通 check 继续兼容旧包。
+release 可声明 title、notes、published_at（RFC3339）和 url（HTTPS），notes 随安装包保存，本地导入和任意发布站点均可阅读。旧 GitHub 包继续自动定位 Release。
+HTTP、SDK 和服务请求由宿主自动计入仪表盘；网盘提供者与账号从运行上下文绑定，不需要新增仪表盘页面或为品牌注册计数。
+网盘返回 pluginapi.StorageError 时，SDK 自动保留业务码和 HTTP 状态，FUSE 使用实际提供者标签；只读与可写功能按 storage.capabilities 自动适配。
+
+生成的 ZIP 包含清单、WASM 和可选的 ui/ 静态前端；宿主私有 SDK 不会进入运行包。构建与校验不执行插件。
+使用 --page 导出独立页面示例，包含可分别维护的 HTML、CSS、ES 模块和页面桥接 SDK。
+页面通过 FlowpanPage.connect() 调用自己声明的动作和任务；凭据与媒体工具保留在 WASM/宿主一侧。
+音乐示例使用 media.submit 的 remux 操作保留编码并写入常用标签，输入路径必须处于授权目录，输出进入插件私有媒体目录。
+使用 --files 导出云盘文件处理示例：files.stage → media.probe / media.submit(file_task) → files.publish，包含进度、取消、释放和恢复动作。每次动作只提交或查询一步，大文件通过宿主传输。
+files.capabilities 返回账号支持的冲突策略。replace 为备份后替换，非原子操作；原文件保留为备份，可用 files.restore 恢复。attention 表示回执待核验，同一任务键不会自动重复写入。此示例填写标签，不包含音乐网站的匹配协议；FFmpeg/FFprobe 仍从项目依赖下载入口安装。
 调用浏览器、FFmpeg、转存和整理时使用 SDK 的宿主工具，账号及目录授权在项目中管理。
+SDK 同时包含通用运行基础：PutArtifact、ServiceUpload、CompleteAI、IdentifyMedia、PreviewOrganize/ApplyOrganize、CreateSTRM/InspectSTRM、CreateCAS、下载器与依赖、ShareOutput。先调用 Capabilities 核对实际宿主；按方法声明权限。独立整理只使用插件传入的文件清单，不修改项目原生整理或 STRM 配置。files.publish 的 media_task/artifact/file_task 三选一；使用返回的 result.id 定位实际输出。
+使用 --emby 导出 Emby 实例与条目查询的只读宿主合同骨架；授权在插件管理中选择实例。EMBY.md 包含分页、元数据、图片、回执、事件和外部 API 合同。
+使用 --interaction 导出通用机器人交互骨架。启用后发送 /plugins 查看入口；/plugin 插件ID 命令 始终定位当前插件，唯一命令也可直接用 /命令。SDK 提供 InteractionContext、ReplyInteraction、WaitInteraction、EndInteraction、StageInteractionAttachment、SendInteractionFile。附件为插件私有产物，可交给 media.probe/submit 的 artifact 输入；Telegram 使用原生按钮，企业微信使用 /reply 回调入口。会话按通道、用户、聊天和话题隔离，危险动作由宿主再次确认。合同见 docs/plugin-interaction.md。
 使用 --storage 导出网盘驱动模板：安装启用后在项目账号设置、文件浏览、STRM、上传、整理、挂载和有声书中使用。
 网盘模板通过独立的 Storage 处理函数接收账号上下文；按目标网盘改写协议与 http_hosts。模板的 HTTPS JSON 接口只是示例，默认没有配置任何账号。
-SDK 的 Serve 分开处理 run/health/migrate/storage。扩展数据结构时填写自己的 Migrate 处理函数。
+使用 --recognition 导出新识别来源的合同骨架；实现 Recognition 处理函数，通过 RecognitionReply 返回身份或待确认状态。RECOGNITION.md 说明关键词自动接入原整理链路与分类目录绑定。
+SDK 的 Serve 分开处理 run/health/migrate/storage/recognition。扩展数据结构时填写自己的 Migrate 处理函数。
 外部插件不依赖项目管理员登录信息，也不需要独立服务镜像。资源插件通过项目任务操作网盘；网盘驱动插件实现自身声明的文件协议。
-
-使用 --files 导出云盘文件处理示例：暂存、探测、写标签、回写、查询、取消、恢复与释放；FFmpeg/FFprobe 仍在宿主依赖下载入口按需安装。skip、keep_both、replace 按 files.capabilities 选择；replace 保留备份并支持恢复，当前为非原子交换。未知回执不重放。合同见 docs/plugin-file-pipeline.md。
-
-SDK 同时包含通用运行基础：PutArtifact、ServiceUpload、CompleteAI、IdentifyMedia、PreviewOrganize/ApplyOrganize、CreateSTRM/InspectSTRM、CreateCAS、下载器与依赖、ShareOutput。先调用 Capabilities 核对宿主，按方法声明权限。独立整理使用插件传入文件清单，保留项目原生流程及配置。完整合同见仓库 docs/plugin-runtime-foundation.md。
-使用 --interaction 导出通用机器人交互骨架。启用后发送 /plugins 查看入口；/plugin 插件ID 命令 始终定位当前插件，唯一命令也可直接用 /命令。SDK 提供 InteractionContext、ReplyInteraction、WaitInteraction、EndInteraction、StageInteractionAttachment、SendInteractionFile。附件为插件私有产物，可交给 media.probe/submit 的 artifact 输入；Telegram 使用原生按钮，企业微信使用 /reply 回调入口。会话按通道、用户、聊天和话题隔离，危险动作由宿主再次确认。合同见 docs/plugin-interaction.md。
 ''', encoding='utf-8')
 print('PLUGIN_KIT_OK id='+args.id+' sdk=standalone output='+str(target))

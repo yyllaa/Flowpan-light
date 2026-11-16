@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ED2K 管理</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header class="heading"><div><h1>生成记录</h1><p>从文件浏览中选择 115 文件，生成后可在这里复制和管理。</p></div></header>
+  <form id="filters" novalidate class="filters">
+    <label class="search"><span class="visually-hidden">搜索名称、路径或哈希</span><input id="query" type="search" placeholder="搜索名称、路径或哈希" maxlength="200"></label>
+    <label><span class="visually-hidden">网盘账号</span><select id="account"><option value="">全部账号</option></select></label>
+    <label><span class="visually-hidden">生成状态</span><select id="status"><option value="">全部状态</option><option value="success">已生成</option><option value="running">生成中</option><option value="queued">排队中</option><option value="paused">已暂停</option><option value="cancelled">已停止</option></select></label>
+    <button type="submit">搜索</button>
+  </form>
+  <p id="notice" role="status" class="notice" hidden></p>
+  <section class="records" aria-label="ED2K 生成记录">
+    <div class="selection"><label><input id="select-page" type="checkbox">本页</label><span id="selection-count">已选 0 项</span><div class="actions"><button id="copy" type="button" disabled>复制链接</button><button id="export" type="button" disabled>导出 TXT</button><button id="clear" type="button" disabled>清除</button></div></div>
+    <div id="list" aria-live="polite"><div class="empty">正在读取生成记录…</div></div>
+    <footer class="pagination"><span id="total">0 条记录</span><div class="actions"><button id="previous" type="button" disabled>上一页</button><span id="page">1</span><button id="next" type="button" disabled>下一页</button></div></footer>
+  </section>
+  <section id="link-output" hidden><label for="links">已选链接</label><textarea id="links" readonly rows="4" spellcheck="false"></textarea></section>
+</main>
+<script src="flowpan-page-sdk.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

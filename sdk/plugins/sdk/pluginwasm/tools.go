@@ -32,3 +32,9 @@ func RunOrganize(account, key string, result any) error {
 func OrganizeStatus(account string, result any) error {
 	return Call("organize.status", map[string]any{"account": account}, result)
 }
+
+// SubmitTransferTo keeps saved targets unchanged and disables native automatic
+// organization for this invocation. Continue with recognition after completion.
+func SubmitTransferTo(account, text, key, targetID string, result any) error {
+	return Call("transfer.submit", map[string]any{"account": account, "text": text, "key": key, "target_id": targetID, "auto_organize": false}, result)
+}

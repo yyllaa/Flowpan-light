@@ -8,7 +8,12 @@ import (
 // IntersectScope freezes submission-time grants and applies current revocations.
 // New grants cannot widen a task that was already queued.
 func IntersectScope(frozen, current Scope) Scope {
-	out := Scope{DisabledTools: frozen.DisabledTools}
+	out := Scope{DisabledTools: append(append([]string{}, frozen.DisabledTools...), current.DisabledTools...)}
+	for _, id := range frozen.EmbyInstances {
+		if current.HasEmbyInstance(id) {
+			out.EmbyInstances = append(out.EmbyInstances, id)
+		}
+	}
 	for _, a := range frozen.Accounts {
 		for _, b := range current.Accounts {
 			if strings.TrimPrefix(a, "pool:") == strings.TrimPrefix(b, "pool:") {

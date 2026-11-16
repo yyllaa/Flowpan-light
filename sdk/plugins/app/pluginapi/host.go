@@ -16,6 +16,9 @@ type HostError struct {
 func (e *HostError) Error() string { return e.Message }
 
 type HostLimits struct {
+	EmbyPageSize               int   `json:"emby_page_size"`
+	EmbyResponseBytes          int   `json:"emby_response_bytes"`
+	EmbyImageBytes             int64 `json:"emby_image_bytes"`
 	RequestBytes               int   `json:"request_bytes"`
 	ResponseBytes              int   `json:"response_bytes"`
 	HostCalls                  int   `json:"host_calls"`
@@ -35,7 +38,7 @@ type HostLimits struct {
 }
 
 func RuntimeLimits() HostLimits {
-	return HostLimits{RequestBytes: MaxHostRequest, ResponseBytes: MaxHostResponse, HostCalls: MaxHostCalls, MemoryMiB: 64, MinTimeoutSeconds: 60, MaxTimeoutSeconds: 600, ArtifactBytes: 64 << 20, ArtifactQuotaBytes: 256 << 20, ArtifactWriteBytes: 32 << 10, ServiceUploadBytes: 64 << 20, FileBytes: 20 << 30, ShareMaxSeconds: 86400, InteractionAttachmentBytes: 20 << 20, InteractionSessionSeconds: 1800, InteractionReplyBytes: 16 << 10, InteractionButtons: 8}
+	return HostLimits{EmbyPageSize: EmbyMaxPageSize, EmbyResponseBytes: EmbyMaxResponseBytes, EmbyImageBytes: EmbyMaxImageBytes, RequestBytes: MaxHostRequest, ResponseBytes: MaxHostResponse, HostCalls: MaxHostCalls, MemoryMiB: 64, MinTimeoutSeconds: 60, MaxTimeoutSeconds: 600, ArtifactBytes: 64 << 20, ArtifactQuotaBytes: 256 << 20, ArtifactWriteBytes: 32 << 10, ServiceUploadBytes: 64 << 20, FileBytes: 20 << 30, ShareMaxSeconds: 86400, InteractionAttachmentBytes: 20 << 20, InteractionSessionSeconds: 1800, InteractionReplyBytes: 16 << 10, InteractionButtons: 8}
 }
 
 type ToolAvailability struct {

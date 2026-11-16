@@ -4,9 +4,14 @@
     "file.changed",
     "organize.completed",
     "audiobook.changed",
-    "task.completed"
+    "task.completed",
+    "emby.library.changed",
+    "emby.playback.changed"
   ],
   "limits": {
+    "emby_page_size": 200,
+    "emby_response_bytes": 921600,
+    "emby_image_bytes": 16777216,
     "request_bytes": 65536,
     "response_bytes": 1048576,
     "host_calls": 128,
@@ -819,7 +824,7 @@
       "name": "transfer.submit",
       "permission": "transfer.write",
       "group": "转存与整理",
-      "description": "按项目已保存的账号目标和整理设置提交转存任务",
+      "description": "提交转存任务，可为本次指定目标并关闭自动整理",
       "business_write": true,
       "confirmation": true,
       "input_schema": {
@@ -827,7 +832,13 @@
           "account": {
             "type": "string"
           },
+          "auto_organize": {
+            "type": "boolean"
+          },
           "key": {
+            "type": "string"
+          },
+          "target_id": {
             "type": "string"
           },
           "text": {
@@ -978,6 +989,9 @@
             },
             "type": "array"
           },
+          "input_root": {
+            "type": "string"
+          },
           "key": {
             "type": "string"
           },
@@ -986,6 +1000,9 @@
           },
           "output_id": {
             "type": "string"
+          },
+          "recognition": {
+            "type": "object"
           },
           "tmdb": {
             "type": "boolean"
@@ -1920,6 +1937,681 @@
         "required": [
           "key",
           "input"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.instances.list",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "列出已授权的 Emby 实例及连接就绪状态，不返回凭据",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.capabilities",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "查询实例连接、服务版本与公开工具；远端操作按当前 Emby 权限执行",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "instance_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.users.list",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "读取实例用户 ID、名称及禁用状态",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "instance_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.libraries.list",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "读取媒体库或指定用户的媒体视图",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "instance_id": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.items.list",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "分页搜索媒体条目、媒体源与逐用户状态；query 使用 Emby 参数名",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "instance_id": {
+            "type": "string"
+          },
+          "query": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.items.get",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "读取完整条目及版本摘要，供选择性更新复核",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "instance_id": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id",
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.persons.list",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "分页搜索人物及人物供应商标识",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "instance_id": {
+            "type": "string"
+          },
+          "query": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "instance_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.persons.get",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "按名称读取人物资料及版本摘要",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "instance_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id",
+          "name"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.persons.credits",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "分页读取人物作品关联",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "instance_id": {
+            "type": "string"
+          },
+          "query": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "instance_id",
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.sessions.list",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "读取完整会话列表，保留同一媒体的多个会话",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "instance_id": {
+            "type": "string"
+          },
+          "query": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "instance_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.images.list",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "读取条目或人物的图片类型、索引与标签",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "instance_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id",
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.images.download",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "将实例原图保存为本插件私有产物；需 artifacts.write/read 权限",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "image_type": {
+            "type": "string"
+          },
+          "index": {
+            "type": "number"
+          },
+          "instance_id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id",
+          "id",
+          "image_type",
+          "key"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.metadata.update",
+      "permission": "emby.metadata.write",
+      "group": "Emby",
+      "description": "复核版本后合并指定元数据字段，保存前值并回读验证；People 保留插件提供的角色关系",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "expected_version": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "instance_id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id",
+          "id",
+          "key",
+          "expected_version",
+          "fields"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.images.upload",
+      "permission": "emby.images.write",
+      "group": "Emby",
+      "description": "将本插件封存图片产物上传到指定条目或人物，保存操作回执",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "artifact": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "image_type": {
+            "type": "string"
+          },
+          "index": {
+            "type": "number"
+          },
+          "instance_id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id",
+          "id",
+          "image_type",
+          "artifact",
+          "key"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.items.refresh",
+      "permission": "emby.refresh",
+      "group": "Emby",
+      "description": "提交单条目刷新并返回接受回执；不代表扫描完成",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "instance_id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "query": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "instance_id",
+          "id",
+          "key"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.library.scan",
+      "permission": "emby.refresh",
+      "group": "Emby",
+      "description": "提交实例媒体库扫描并返回接受回执",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "instance_id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id",
+          "key"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.media.updated",
+      "permission": "emby.refresh",
+      "group": "Emby",
+      "description": "通知 Emby 其服务器内的媒体路径已变更",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "instance_id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "updates": {
+            "items": {
+              "properties": {
+                "Path": {
+                  "type": "string"
+                },
+                "UpdateType": {
+                  "enum": [
+                    "Created",
+                    "Modified",
+                    "Deleted"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "Path",
+                "UpdateType"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "instance_id",
+          "key",
+          "updates"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.tasks.list",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "读取 Emby 计划任务状态、扫描进度和最后结果",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "instance_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "emby.operations.get",
+      "permission": "emby.read",
+      "group": "Emby",
+      "description": "读取本插件的 Emby 写入回执；待核验结果不自动重放",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "instance_id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instance_id",
+          "operation",
+          "key"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "recognition.providers",
+      "permission": "media.read",
+      "group": "识别与 AI",
+      "description": "列出已安装插件声明的识别来源及可用状态",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "recognition.identify",
+      "permission": "media.read",
+      "group": "识别与 AI",
+      "description": "按任务路由调用新识别来源，返回独立媒体身份和待确认原因，不移动文件",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "route": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "account",
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ed2k.submit",
+      "permission": "ed2k.generate",
+      "group": "ED2K",
+      "description": "连续读取已授权文件生成 ED2K，复用已有结果并返回后台任务",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "account",
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ed2k.list",
+      "permission": "ed2k.read",
+      "group": "ED2K",
+      "description": "查询授权账号和目录内的 ED2K 结果库，不读取文件内容",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          },
+          "query": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ed2k.task",
+      "permission": "ed2k.read",
+      "group": "ED2K",
+      "description": "读取授权范围内的 ED2K 任务或已生成链接，其他插件可复用",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ed2k.retry",
+      "permission": "ed2k.generate",
+      "group": "ED2K",
+      "description": "明确重试已暂停任务，从完整分块检查点继续；冷却期间保持暂停",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ed2k.cancel",
+      "permission": "ed2k.manage",
+      "group": "ED2K",
+      "description": "停止授权范围内的 ED2K 读取，保留可继续的分块检查点",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ed2k.remove",
+      "permission": "ed2k.manage",
+      "group": "ED2K",
+      "description": "删除已结束的 ED2K 任务及链接记录，保留源文件",
+      "business_write": true,
+      "confirmation": true,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
         ],
         "type": "object"
       }

@@ -55,5 +55,9 @@
         "cancellable": true
       }
     ]
+  },
+  "release": {
+    "title": "外部插件示例 1.0.0",
+    "notes": "独立 SDK 示例，支持通用宿主工具与发布校验。"
   }
 }

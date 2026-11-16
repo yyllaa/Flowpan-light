@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "resource-dian-openapi",
-  "version": "1.3.8",
+  "version": "1.3.9",
   "name": "癫影 OpenAPI",
   "description": "资源查询、解锁与每日签到。",
   "category": "资源",
@@ -20,27 +20,31 @@
     "data.write",
     "task.progress",
     "notification.send",
-    "schedule"
+    "schedule",
+    "ed2k.read"
   ],
   "definition": {
     "schema_version": 2,
     "api_version": "1",
     "id": "resource-dian-openapi",
-    "version": "1.3.8",
+    "version": "1.3.9",
     "name": "癫影 OpenAPI",
     "description": "资源查询、解锁与每日签到。",
     "category": "资源",
     "icon": "search",
     "runtime": "wasm",
     "config_version": 5,
-    "network": { "proxy": "project" },
+    "network": {
+      "proxy": "project"
+    },
     "permissions": [
       "sdk.call",
       "data.read",
       "data.write",
       "task.progress",
       "notification.send",
-      "schedule"
+      "schedule",
+      "ed2k.read"
     ],
     "resources": {
       "search_action": "search",
@@ -62,8 +66,14 @@
         "default": "checkin",
         "required": true,
         "options": [
-          { "value": "checkin", "label": "普通签到" },
-          { "value": "signin-lucky", "label": "幸运签到" }
+          {
+            "value": "checkin",
+            "label": "普通签到"
+          },
+          {
+            "value": "signin-lucky",
+            "label": "幸运签到"
+          }
         ]
       },
       {
@@ -94,8 +104,14 @@
         "label": "立即签到",
         "choice_field": "signin_action",
         "choices": [
-          { "value": "checkin", "label": "普通签到" },
-          { "value": "signin-lucky", "label": "幸运签到" }
+          {
+            "value": "checkin",
+            "label": "普通签到"
+          },
+          {
+            "value": "signin-lucky",
+            "label": "幸运签到"
+          }
         ],
         "kind": "run",
         "icon": "calendar",
@@ -107,6 +123,7 @@
         "id": "status",
         "label": "检查连接",
         "kind": "run",
+        "history_only": true,
         "icon": "refresh",
         "requires_enabled": true,
         "idempotent": true,
@@ -117,6 +134,7 @@
         "id": "search",
         "label": "查询资源",
         "kind": "run",
+        "history_only": true,
         "icon": "search",
         "requires_enabled": true,
         "idempotent": true,
@@ -137,6 +155,7 @@
         "id": "profile",
         "label": "账号资料与额度",
         "kind": "run",
+        "history_only": true,
         "placement": "tools",
         "requires_enabled": true,
         "timeout_seconds": 120,
@@ -163,6 +182,7 @@
         "id": "avatar",
         "label": "账号头像",
         "kind": "run",
+        "history_only": true,
         "placement": "tools",
         "requires_enabled": true,
         "timeout_seconds": 120,
@@ -182,6 +202,7 @@
         "id": "query",
         "label": "筛选资源",
         "kind": "run",
+        "history_only": true,
         "placement": "tools",
         "requires_enabled": true,
         "timeout_seconds": 120,
@@ -615,6 +636,7 @@
         "id": "virtual-cache",
         "label": "虚拟缓存",
         "kind": "run",
+        "history_only": true,
         "placement": "tools",
         "requires_enabled": true,
         "timeout_seconds": 120,
@@ -675,6 +697,7 @@
         "id": "sha1-query",
         "label": "SHA1 查重",
         "kind": "run",
+        "history_only": true,
         "placement": "tools",
         "requires_enabled": true,
         "timeout_seconds": 120,
@@ -724,6 +747,7 @@
         "id": "share-check",
         "label": "分享链接查重",
         "kind": "run",
+        "history_only": true,
         "placement": "tools",
         "requires_enabled": true,
         "timeout_seconds": 120,
@@ -743,6 +767,7 @@
         "id": "rss-options",
         "label": "RSS 筛选选项",
         "kind": "run",
+        "history_only": true,
         "placement": "tools",
         "requires_enabled": true,
         "timeout_seconds": 120,
@@ -755,6 +780,7 @@
         "id": "rss",
         "label": "RSS 更新",
         "kind": "run",
+        "history_only": true,
         "placement": "tools",
         "requires_enabled": true,
         "timeout_seconds": 120,
@@ -926,10 +952,22 @@
             "hint": "每行一个 40 位 SHA1，最多 500 个。"
           },
           {
+            "key": "ed2k_ids",
+            "label": "选择已生成的 ED2K",
+            "type": "multi-select",
+            "options_source": "ed2k-library",
+            "visible_when": {
+              "field": "share_kind",
+              "equals": "offline"
+            },
+            "group": "link",
+            "hint": "可从 ED2K 结果库筛选，或在下方手动填写离线链接。请先在插件授权中选择对应账号。"
+          },
+          {
             "key": "offline_url",
             "label": "离线链接",
             "type": "textarea",
-            "required": true,
+            "required": false,
             "visible_when": {
               "field": "share_kind",
               "equals": "offline"
@@ -1465,6 +1503,7 @@
         "id": "developer-usage",
         "label": "开发者用量",
         "kind": "run",
+        "history_only": true,
         "placement": "tools",
         "requires_enabled": true,
         "timeout_seconds": 120,
@@ -1525,6 +1564,14 @@
         "danger": true,
         "confirmation": "确认进行幸运签到？奖励按站点规则计算；普通签到与幸运签到共用当天次数。",
         "description": "普通签到与幸运签到共享当天次数。提交后显示站点返回的积分结果。"
+      },
+      {
+        "id": "ed2k-library",
+        "label": "查询 ED2K 结果库",
+        "kind": "probe",
+        "placement": "context",
+        "history_only": true,
+        "idempotent": true
       }
     ],
     "result_fields": [
@@ -1556,5 +1603,9 @@
         "credential": "openapi_key"
       }
     ]
+  },
+  "release": {
+    "title": "癫影 OpenAPI 1.3.9",
+    "notes": "发布离线资源时，可搜索并选择已生成的 ED2K 记录；宿主按账号和目录授权校验选择结果，继续沿用发布确认。"
   }
 }

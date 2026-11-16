@@ -73,11 +73,11 @@ func Tools() []Tool {
 		tool("media.cancel", "media.process", "媒体", "取消本插件媒体任务并清理未完成输出", "id:string", true, false),
 		tool("media.release", "media.process", "媒体", "释放本插件已结束的媒体输出；正在回写的结果保留到任务结束", "id:string", true, false),
 		tool("transfer.parse", "transfer.read", "转存与整理", "本地识别 115、139、磁力等链接，不提交任务", "text:string", false, false),
-		tool("transfer.submit", "transfer.write", "转存与整理", "按项目已保存的账号目标和整理设置提交转存任务", "account:string text:string key:string", true, true),
+		tool("transfer.submit", "transfer.write", "转存与整理", "提交转存任务，可为本次指定目标并关闭自动整理", "account:string text:string key:string target_id?:string auto_organize?:boolean", true, true),
 		tool("transfer.status", "transfer.read", "转存与整理", "查询本插件提交的转存任务与执行回执", "account:string key:string", false, false),
 		tool("organize.run", "organize.write", "转存与整理", "按项目已保存的账号规则执行整理", "account:string key:string", true, true),
 		tool("organize.status", "organize.read", "转存与整理", "读取授权账号的整理状态", "account:string", false, false),
-	}, append(foundationTools(), interactionTools()...)...)
+	}, append(append(append(append(foundationTools(), interactionTools()...), embyTools()...), recognitionTools()...), ed2kTools()...)...)
 }
 func FindTool(name string) (Tool, bool) {
 	for _, t := range Tools() {

@@ -89,3 +89,7 @@ npm run check:frontend
 ## 云盘文件处理
 
 音乐、字幕等插件通过通用 `files.stage`、媒体 `file_task` 输入和 `files.publish` 衔接网盘文件。账号与目录沿用当前授权，上传与恢复使用明确冲突策略，未知回执不自动重放；能力按每个驱动实际支持情况返回。SDK 开发包使用 `--files` 导出示例，字段与恢复流程见 [云盘文件处理合同](plugin-file-pipeline.md)。
+
+## ED2K 与文件批量扩展
+
+文件浏览的通用 `file-selection` 扩展点、提供者过滤、上下文动作、动态多选及共享结果库见 [ED2K 合同](plugin-ed2k.md)。宿主、SDK 和选取组件不按插件 ID 分支。

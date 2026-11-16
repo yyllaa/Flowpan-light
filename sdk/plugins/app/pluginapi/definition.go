@@ -12,6 +12,7 @@ const SchemaVersion = 2
 const APIVersion = "1"
 
 type Definition struct {
+	Recognition   *RecognitionDefinition `json:"recognition,omitempty"`
 	Interaction   *InteractionDefinition `json:"interaction,omitempty"`
 	SchemaVersion int                    `json:"schema_version"`
 	APIVersion    string                 `json:"api_version"`
@@ -99,6 +100,7 @@ type Action struct {
 	ID              string           `json:"id"`
 	Label           string           `json:"label"`
 	Kind            string           `json:"kind"`
+	HistoryOnly     bool             `json:"history_only,omitempty"`
 	Icon            string           `json:"icon"`
 	RequiresEnabled bool             `json:"requires_enabled,omitempty"`
 	Danger          bool             `json:"danger,omitempty"`
@@ -208,7 +210,7 @@ func (d Definition) Validate() error {
 		return err
 	}
 	actions := map[string]bool{}
-	if len(d.Actions) == 0 && d.Storage == nil {
+	if len(d.Actions) == 0 && d.Storage == nil && d.Recognition == nil {
 		return fmt.Errorf("插件缺少动作")
 	}
 	for _, action := range d.Actions {
@@ -225,6 +227,14 @@ func (d Definition) Validate() error {
 			return err
 		}
 		actions[action.ID] = true
+	}
+	for _, action := range d.Actions {
+		for _, field := range action.InputFields {
+			if field.OptionsSource == "" { continue }
+			found := false
+			for _, source := range d.Actions { if source.ID == field.OptionsSource && source.ID != action.ID && source.Kind == "probe" && !source.Danger { found = true } }
+			if !found { return fmt.Errorf("插件动态选项来源无效：%s", field.Key) }
+		}
 	}
 	choiceFields := map[string]bool{}
 	for _, action := range d.Actions {
@@ -278,7 +288,9 @@ func (d Definition) Validate() error {
 		}
 	}
 	for _, c := range d.Contributions {
-		if c.Label == "" || (c.Point != "dashboard" && c.Point != "file-menu") || !actions[c.Action] {
+		for _, provider := range c.SourceTypes { if !identifier.MatchString(provider) { return fmt.Errorf("插件扩展来源无效") } }
+		for _, kind := range c.FileTypes { if kind != "file" && kind != "directory" { return fmt.Errorf("插件扩展文件类型无效") } }
+		if c.Label == "" || (c.Point != "dashboard" && c.Point != "file-menu" && c.Point != "file-selection") || !actions[c.Action] {
 			return fmt.Errorf("插件扩展位置无效")
 		}
 	}
@@ -319,6 +331,11 @@ func (d Definition) Validate() error {
 			if fields[key].Type != "secret" {
 				return fmt.Errorf("插件浏览器凭据字段无效")
 			}
+		}
+	}
+	if d.Recognition != nil {
+		if err := d.Recognition.Validate(); err != nil {
+			return err
 		}
 	}
 	if d.Storage != nil {
