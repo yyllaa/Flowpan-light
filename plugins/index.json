@@ -140,7 +140,7 @@
     {
       "schema_version": 1,
       "id": "resource-dian-openapi",
-      "version": "1.3.9",
+      "version": "1.3.10",
       "name": "癫影 OpenAPI",
       "description": "资源查询、解锁与每日签到。",
       "category": "资源",
@@ -151,9 +151,9 @@
         "module": "plugin.wasm"
       },
       "package": {
-        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.16-ed2k/resource-dian-openapi-1.3.9.zip",
-        "sha256": "63b744f7d6978b0239222e958d595bd8c54d0f1e2e7215326755cbe8dcf669e5",
-        "commit_sha": "fa00c3b0d145c232293ad2a79f6a416614dccafc"
+        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.16-mobile-tmdb/resource-dian-openapi-1.3.10.zip",
+        "sha256": "38695dc9317e5c51e9839daca73a7a2265473b501a8758289349c23fdb1d5573",
+        "commit_sha": "c615fccb303be79d12c283b48c3239b8409469ae"
       },
       "permissions": [
         "sdk.call",
@@ -168,7 +168,7 @@
         "schema_version": 2,
         "api_version": "1",
         "id": "resource-dian-openapi",
-        "version": "1.3.9",
+        "version": "1.3.10",
         "name": "癫影 OpenAPI",
         "description": "资源查询、解锁与每日签到。",
         "category": "资源",
@@ -1746,8 +1746,8 @@
         ]
       },
       "release": {
-        "title": "癫影 OpenAPI 1.3.9",
-        "notes": "发布离线资源时，可搜索并选择已生成的 ED2K 记录；宿主按账号和目录授权校验选择结果，继续沿用发布确认。"
+        "title": "癫影 OpenAPI 1.3.10",
+        "notes": "修复发布分享结果中 TMDB 编号显示为科学计数法的问题；首次结果与缓存回执均显示完整编号。"
       }
     },
     {
@@ -1843,7 +1843,7 @@
     {
       "schema_version": 1,
       "id": "ed2k",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "min_host_version": "1",
       "name": "115 ED2K",
       "description": "从文件浏览生成 ED2K，集中管理并供其他插件调用。",
@@ -1855,9 +1855,9 @@
         "module": "plugin.wasm"
       },
       "package": {
-        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.16-ed2k-ui/ed2k-1.0.1.zip",
-        "sha256": "2ba53edfb29be36041301c5a9f34cb6c0b2e5644521da1428a96530670cc5da2",
-        "commit_sha": "18d1b8e3b1cbf030db375a9c74cfab59fe97831d"
+        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.16-mobile-tmdb/ed2k-1.0.2.zip",
+        "sha256": "ce2fc8d96f38faac6e696f1a7f55334509161276b0c714c441d991cae7e5f855",
+        "commit_sha": "c615fccb303be79d12c283b48c3239b8409469ae"
       },
       "permissions": [
         "ed2k.generate",
@@ -1869,7 +1869,7 @@
         "schema_version": 2,
         "api_version": "1",
         "id": "ed2k",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "name": "115 ED2K",
         "description": "从文件浏览生成 ED2K，集中管理并供其他插件调用。",
         "category": "文件工具",
@@ -1965,8 +1965,8 @@
         ]
       },
       "release": {
-        "title": "115 ED2K 1.0.1",
-        "notes": "优化管理页布局和手机操作：状态并入文件信息，统一按钮对齐；记录列表独立滚动，筛选和分页保持可见；已选链接按需展开。生成、授权及断点续算流程保持不变。"
+        "title": "115 ED2K 1.0.2",
+        "notes": "管理页按内容自适应高度，少量记录不再撑出空白，分页紧跟记录；较多记录在列表内滚动。接入公共页面尺寸合同，手机页头说明与操作同排；生成进度由宿主任务中心同步展示，查询记录不再刷屏。"
       }
     }
   ]
