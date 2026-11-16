@@ -1843,7 +1843,7 @@
     {
       "schema_version": 1,
       "id": "ed2k",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "min_host_version": "1",
       "name": "115 ED2K",
       "description": "从文件浏览生成 ED2K，集中管理并供其他插件调用。",
@@ -1855,9 +1855,9 @@
         "module": "plugin.wasm"
       },
       "package": {
-        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.16-ed2k/ed2k-1.0.0.zip",
-        "sha256": "bbab17720c9cebf568e97cd695a8c9f92565ae134917d21b8e1222d4c6b87b57",
-        "commit_sha": "fa00c3b0d145c232293ad2a79f6a416614dccafc"
+        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.16-ed2k-ui/ed2k-1.0.1.zip",
+        "sha256": "2ba53edfb29be36041301c5a9f34cb6c0b2e5644521da1428a96530670cc5da2",
+        "commit_sha": "18d1b8e3b1cbf030db375a9c74cfab59fe97831d"
       },
       "permissions": [
         "ed2k.generate",
@@ -1869,7 +1869,7 @@
         "schema_version": 2,
         "api_version": "1",
         "id": "ed2k",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "name": "115 ED2K",
         "description": "从文件浏览生成 ED2K，集中管理并供其他插件调用。",
         "category": "文件工具",
@@ -1965,8 +1965,8 @@
         ]
       },
       "release": {
-        "title": "115 ED2K 1.0.0",
-        "notes": "首次发布：文件浏览单选和批量生成；导航管理、筛选、复制及导出；后台串行读取、断点续算和缓存；开放授权范围内的结果查询。"
+        "title": "115 ED2K 1.0.1",
+        "notes": "优化管理页布局和手机操作：状态并入文件信息，统一按钮对齐；记录列表独立滚动，筛选和分页保持可见；已选链接按需展开。生成、授权及断点续算流程保持不变。"
       }
     }
   ]
