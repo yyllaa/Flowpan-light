@@ -16,6 +16,7 @@
   function updateSelection() {
     const text=links(); $("links").value=text; $("link-output").hidden=!text;
     $("selection-count").textContent="已选 "+state.selected.size+" 项";
+    $("selection-actions").hidden=!state.selected.size;
     $("copy").disabled=$("export").disabled=!text; $("clear").disabled=!state.selected.size;
     $("select-page").checked=state.items.length>0 && state.items.every(item=>state.selected.has(item.id));
     $("select-page").indeterminate=!$("select-page").checked && state.items.some(item=>state.selected.has(item.id));
@@ -25,7 +26,7 @@
     if(navigator.clipboard && policy?.allowsFeature("clipboard-write")) {
       try { await navigator.clipboard.writeText(text); notice("链接已复制");return; } catch { /* Use the selected text when clipboard permission is unavailable. */ }
     }
-    const output=$("links"); output.value=text; $("link-output").hidden=false; output.focus(); output.select(); notice(document.execCommand("copy") ? "链接已复制" : "链接已选中，可手动复制");
+    const output=$("links"); output.value=text; $("link-output").hidden=false; $("link-output").open=true; output.focus(); output.select(); notice(document.execCommand("copy") ? "链接已复制" : "链接已选中，可手动复制");
   }
   async function act(action,item) {
     if(state.busy) return; state.busy=item.id; render();
@@ -39,13 +40,15 @@
     for(const item of state.items) {
       if(state.selected.has(item.id)) state.selected.set(item.id,item);
       const row=node("article",undefined,"record"); row.classList.toggle("checked",state.selected.has(item.id));
+      const selection=node("label",undefined,"record-select");
       const check=node("input"); check.type="checkbox";check.checked=state.selected.has(item.id);check.setAttribute("aria-label","选择 "+item.name);
       check.addEventListener("change",()=>{if(check.checked) state.selected.set(item.id,item);else state.selected.delete(item.id);row.classList.toggle("checked",check.checked);updateSelection();});
-      const description=node("div"); description.append(node("strong",item.name));const path=node("small",item.path,"path");path.title=item.path;description.append(path);
+      selection.append(check);
+      const description=node("div",undefined,"record-details"); const name=node("strong",item.name);name.title=item.name;description.append(name);const path=node("small",item.path,"path");path.title=item.path;description.append(path);
       const meta=node("div",undefined,"metadata");meta.append(node("span",bytes(item.size),"size"),node("span",state.accounts.find(a=>a.id===item.account)?.name || item.account,"size"));description.append(meta);
-      const progress=node("div",undefined,"state");progress.append(state.ui.status(item.status,item.status==="success" ? "已生成" : item.status==="cancelled" ? "已停止" : undefined));
-      if(active(item)) progress.append(state.ui.progress(item.size ? Math.min(100,item.done/item.size*100) : 0,bytes(item.done)+" / "+bytes(item.size)));
-      if(["paused","cancelled"].includes(item.status)) description.append(node("small",item.message));
+      meta.append(state.ui.status(item.status,item.status==="success" ? "已生成" : item.status==="cancelled" ? "已停止" : undefined));
+      if(active(item) || (item.status==="paused" && item.done>0)) description.append(state.ui.progress(item.size ? Math.min(100,item.done/item.size*100) : 0,bytes(item.done)+" / "+bytes(item.size)));
+      if(["paused","cancelled"].includes(item.status)) description.append(node("small",item.message,"record-message"));
       if(item.retry_at) description.append(node("small","冷却至 "+new Date(item.retry_at*1000).toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"})));
       const actions=node("div",undefined,"actions");
       const button=(label,handler,danger=false)=>{const control=node("button",label,danger ? "danger" : "");control.type="button";control.disabled=!!state.busy;control.addEventListener("click",handler);actions.append(control);};
@@ -53,14 +56,14 @@
       if(["paused","cancelled"].includes(item.status)) button("继续",()=>act("retry",item));
       if(["queued","running"].includes(item.status)) button("停止",()=>act("cancel",item));
       if(!active(item)) button("删除",()=>act("remove",item),true);
-      row.append(check,description,progress,actions);list.append(row);
+      row.append(selection,description,actions);list.append(row);
     }
-    $("total").textContent=state.total+" 条记录";$("page").textContent=String(Math.floor(state.offset/state.limit)+1);
+    $("total").textContent=state.total+" 条记录";$("page").textContent=String(Math.floor(state.offset/state.limit)+1)+" / "+Math.max(1,Math.ceil(state.total/state.limit));
     $("previous").disabled=state.offset===0||state.loading;$("next").disabled=state.offset+state.limit>=state.total||state.loading;
     updateSelection();
   }
   async function refresh(background=false) {
-    if(!state.api || state.disposed) return; if(state.loading) { if(!background) { state.pending=true; state.generation++; } return; } state.loading=true;clearTimeout(state.timer);const generation=++state.generation;
+    if(!state.api || state.disposed) return; if(state.loading) { if(!background) { state.pending=true; state.generation++; } return; } state.loading=true;$("list").setAttribute("aria-busy","true");clearTimeout(state.timer);const generation=++state.generation;
     try {
       const data=await run("list",{account:$("account").value,status:$("status").value,query:$("query").value.trim(),offset:state.offset,limit:state.limit});
       if(state.disposed || generation!==state.generation) return;
@@ -68,7 +71,7 @@
       if(data.accounts) { state.accounts=data.accounts;const selected=$("account").value;$("account").replaceChildren(new Option("全部账号",""),...data.accounts.map(account=>new Option(account.name,account.id)));$("account").value=selected; }
       if(!background) notice("");render();
     } catch(error) { if(!state.disposed && generation===state.generation) notice(error.message,true); }
-    finally { state.loading=false;$("previous").disabled=state.offset===0;$("next").disabled=state.offset+state.limit>=state.total;if(state.pending && !state.disposed) { state.pending=false;refresh(); } else if(!state.disposed && state.items.some(active)) state.timer=setTimeout(()=>{if(!document.hidden) refresh(true);},5000); }
+    finally { state.loading=false;$("list").setAttribute("aria-busy","false");$("previous").disabled=state.offset===0;$("next").disabled=state.offset+state.limit>=state.total;if(state.pending && !state.disposed) { state.pending=false;refresh(); } else if(!state.disposed && state.items.some(active)) state.timer=setTimeout(()=>{if(!document.hidden) refresh(true);},5000); }
   }
   $("filters").addEventListener("submit",event=>{event.preventDefault();state.offset=0;refresh();});
   for(const id of ["account","status"]) $(id).addEventListener("change",()=>{state.offset=0;refresh();});

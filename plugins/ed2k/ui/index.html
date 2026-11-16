@@ -17,11 +17,11 @@
   </form>
   <p id="notice" role="status" class="notice" hidden></p>
   <section class="records" aria-label="ED2K 生成记录">
-    <div class="selection"><label><input id="select-page" type="checkbox">本页</label><span id="selection-count">已选 0 项</span><div class="actions"><button id="copy" type="button" disabled>复制链接</button><button id="export" type="button" disabled>导出 TXT</button><button id="clear" type="button" disabled>清除</button></div></div>
-    <div id="list" aria-live="polite"><div class="empty">正在读取生成记录…</div></div>
+    <div class="selection"><label class="select-page"><input id="select-page" type="checkbox">本页</label><span id="selection-count">已选 0 项</span><div id="selection-actions" class="actions" hidden><button id="copy" type="button" disabled>复制链接</button><button id="export" type="button" disabled>导出 TXT</button><button id="clear" type="button" disabled>清除</button></div></div>
+    <div id="list" aria-live="polite" aria-label="ED2K 生成记录列表" tabindex="0"><div class="empty">正在读取生成记录…</div></div>
     <footer class="pagination"><span id="total">0 条记录</span><div class="actions"><button id="previous" type="button" disabled>上一页</button><span id="page">1</span><button id="next" type="button" disabled>下一页</button></div></footer>
   </section>
-  <section id="link-output" hidden><label for="links">已选链接</label><textarea id="links" readonly rows="4" spellcheck="false"></textarea></section>
+  <details id="link-output" hidden><summary>已选链接</summary><label for="links" class="visually-hidden">已选链接</label><textarea id="links" readonly rows="3" spellcheck="false"></textarea></details>
 </main>
 <script src="flowpan-page-sdk.js"></script>
 <script src="app.js"></script>
