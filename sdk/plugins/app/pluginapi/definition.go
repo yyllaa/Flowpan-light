@@ -86,6 +86,7 @@ type InputGroup struct {
 }
 
 type Action struct {
+	Continuable     bool             `json:"continuable,omitempty"` // opt-in bounded invocations of the same durable job
 	ChoiceField     string           `json:"choice_field,omitempty"`
 	Choices         []Option         `json:"choices,omitempty"`
 	Description     string           `json:"description,omitempty"`
@@ -136,12 +137,19 @@ type ResultTable struct {
 	Rows    []map[string]string `json:"rows"`
 }
 
+// Continuation yields the worker after a checkpoint has been persisted. It
+// never changes the action, input, confirmation, config or authorization scope.
+type Continuation struct {
+	DelaySeconds int `json:"delay_seconds"`
+}
+
 type Result struct {
-	Table   *ResultTable   `json:"table,omitempty"`
-	Message string         `json:"message"`
-	Data    map[string]any `json:"data,omitempty"`
-	Items   []ResultItem   `json:"items,omitempty"`
-	Failed  bool           `json:"failed,omitempty"`
+	Continuation *Continuation  `json:"continuation,omitempty"`
+	Table        *ResultTable   `json:"table,omitempty"`
+	Message      string         `json:"message"`
+	Data         map[string]any `json:"data,omitempty"`
+	Items        []ResultItem   `json:"items,omitempty"`
+	Failed       bool           `json:"failed,omitempty"`
 }
 
 type Snapshot struct {
@@ -230,10 +238,18 @@ func (d Definition) Validate() error {
 	}
 	for _, action := range d.Actions {
 		for _, field := range action.InputFields {
-			if field.OptionsSource == "" { continue }
+			if field.OptionsSource == "" {
+				continue
+			}
 			found := false
-			for _, source := range d.Actions { if source.ID == field.OptionsSource && source.ID != action.ID && source.Kind == "probe" && !source.Danger { found = true } }
-			if !found { return fmt.Errorf("插件动态选项来源无效：%s", field.Key) }
+			for _, source := range d.Actions {
+				if source.ID == field.OptionsSource && source.ID != action.ID && source.Kind == "probe" && !source.Danger {
+					found = true
+				}
+			}
+			if !found {
+				return fmt.Errorf("插件动态选项来源无效：%s", field.Key)
+			}
 		}
 	}
 	choiceFields := map[string]bool{}
@@ -288,8 +304,16 @@ func (d Definition) Validate() error {
 		}
 	}
 	for _, c := range d.Contributions {
-		for _, provider := range c.SourceTypes { if !identifier.MatchString(provider) { return fmt.Errorf("插件扩展来源无效") } }
-		for _, kind := range c.FileTypes { if kind != "file" && kind != "directory" { return fmt.Errorf("插件扩展文件类型无效") } }
+		for _, provider := range c.SourceTypes {
+			if !identifier.MatchString(provider) {
+				return fmt.Errorf("插件扩展来源无效")
+			}
+		}
+		for _, kind := range c.FileTypes {
+			if kind != "file" && kind != "directory" {
+				return fmt.Errorf("插件扩展文件类型无效")
+			}
+		}
 		if c.Label == "" || (c.Point != "dashboard" && c.Point != "file-menu" && c.Point != "file-selection") || !actions[c.Action] {
 			return fmt.Errorf("插件扩展位置无效")
 		}

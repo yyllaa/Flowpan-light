@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>音乐刮削</title><link rel="stylesheet" href="style.css"></head>
+<body><main>
+<header><div><h1>音乐库</h1><p id="location">配置音乐来源后开始，已处理文件会自动跳过。</p></div><div class="actions"><button id="resume" type="button" hidden>继续</button><button id="stop" type="button" hidden>停止</button><button id="start" class="primary" type="button">开始刮削</button></div></header>
+<p id="notice" role="status" hidden></p>
+<section id="batch" aria-label="刮削进度" hidden><div class="status-line"><strong id="state"></strong><span id="count"></span></div><div id="progress"></div><p id="current"></p><div class="statistics"><span>已写入 <b id="written">0</b></span><span>已跳过 <b id="skipped">0</b></span><span>待确认 <b id="review">0</b></span></div></section>
+<section class="records" aria-label="本轮记录"><div class="records-heading"><h2>本轮记录</h2><button id="refresh" type="button">刷新</button></div><div id="list" aria-live="polite"></div><footer><span id="total"></span><div class="actions"><button id="previous" type="button" disabled>上一页</button><button id="next" type="button" disabled>下一页</button></div></footer></section>
+</main><script src="flowpan-page-sdk.js"></script><script src="app.js"></script></body></html>

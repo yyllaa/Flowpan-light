@@ -79,15 +79,18 @@ func ParseTransfer(text string, result any) error {
 }
 
 type HTTPRequest struct {
-	URL        string            `json:"url"`
-	Method     string            `json:"method,omitempty"`
-	Body       string            `json:"body,omitempty"`
-	AuthSecret string            `json:"auth_secret,omitempty"`
-	Headers    map[string]string `json:"headers,omitempty"`
+	ResponseEncoding string            `json:"response_encoding,omitempty"`
+	URL              string            `json:"url"`
+	Method           string            `json:"method,omitempty"`
+	Body             string            `json:"body,omitempty"`
+	AuthSecret       string            `json:"auth_secret,omitempty"`
+	Headers          map[string]string `json:"headers,omitempty"`
 }
 type HTTPResponse struct {
-	Status int    `json:"status"`
-	Body   string `json:"body"`
+	Encoding string            `json:"encoding,omitempty"`
+	Headers  map[string]string `json:"headers,omitempty"`
+	Status   int               `json:"status"`
+	Body     string            `json:"body"`
 }
 
 func Fetch(request HTTPRequest) (HTTPResponse, error) {

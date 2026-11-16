@@ -3,6 +3,7 @@ package pluginapi
 // MediaProcess is a structured local operation, never a command line. Outputs
 // are generated under the calling plugin's private data directory by the host.
 type MediaProcess struct {
+	CoverArtifact   string        `json:"cover_artifact,omitempty"` // sealed JPEG/PNG owned by this plugin
 	Artifact        string        `json:"artifact,omitempty"`
 	Key             string        `json:"key"`
 	Path            string        `json:"path"`
@@ -23,6 +24,7 @@ type MediaProcess struct {
 // Only these text tags are accepted; no FFmpeg option or arbitrary metadata
 // key is interpreted from caller input. Values are compared for idempotency.
 type MediaMetadata struct {
+	Lyrics      string `json:"lyrics,omitempty"`
 	Title       string `json:"title,omitempty"`
 	Artist      string `json:"artist,omitempty"`
 	Album       string `json:"album,omitempty"`
