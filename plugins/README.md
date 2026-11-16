@@ -9,9 +9,9 @@
 | 插件 | 稳定 ID | 版本 | 独立目录 | 网络 |
 | --- | --- | --- | --- | --- |
 | 癫影（浏览器版） | resource-dian | 1.1.1 | [dian](dian) | 沿用项目设置 |
-| 癫影 OpenAPI | resource-dian-openapi | 1.3.9 | [dian-openapi](dian-openapi) | 必须使用项目 HTTP 代理 |
+| 癫影 OpenAPI | resource-dian-openapi | 1.3.10 | [dian-openapi](dian-openapi) | 必须使用项目 HTTP 代理 |
 | 联通云盘 | storage-wopan | 0.2.2 | [wopan](wopan) | 直连 |
-| 115 ED2K | ed2k | 1.0.1 | [ed2k](ed2k) | 由宿主读取授权文件 |
+| 115 ED2K | ed2k | 1.0.2 | [ed2k](ed2k) | 由宿主读取授权文件 |
 
 两个癫影版本使用不同 ID，各自安装、配置、定时任务、运行记录和私有数据，互不覆盖。浏览器版需要项目浏览器能力，OpenAPI 版通过宿主 sdk.call 使用私有 SDK，无需浏览器。
 
@@ -44,3 +44,5 @@
 115 ED2K 1.0.0 与癫影 OpenAPI 1.3.9 需要 `2026.11.16-ed2k` 或包含同等合同的主程序。ED2K 从文件浏览勾选生成，在导航集中管理；癫影离线发布可筛选已生成结果。首次生成读取完整文件，默认串行，重复结果复用缓存。详见 [ED2K 工具与扩展合同](../docs/plugin-ed2k.md)。
 
 115 ED2K 1.0.1 优化手机布局、按钮和记录密度，配套主程序 `2026.11.16-ed2k-ui`。安装与本版说明见 [ED2K](ed2k/README.md) 和 [更新日志](ed2k/CHANGELOG.md)。
+
+癫影 OpenAPI 1.3.10 修复分享结果中的 TMDB 编号显示；115 ED2K 1.0.2 收紧管理页留白并接入任务中心。配套主程序为 `2026.11.16-plugins-mobile-tmdb`，先更新主程序，再刷新已有插件源并检查更新。详见各插件更新日志。

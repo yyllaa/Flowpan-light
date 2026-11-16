@@ -91,3 +91,20 @@ root.replaceChildren(ui.state({
 ## 文件导出
 
 独立页面 iframe 允许脚本、表单交互事件及文件下载，继续隔离宿主源；CSP 的 `form-action none` 禁止页面发起原生表单导航。公共 `/assets/ui/` 组件允许无凭据跨源加载，业务 API 仍经父页面 RPC 授权。插件可将已授权 RPC 结果用 Blob 导出为 TXT 等本地文件。宿主确认及账号权限仍由父页面和服务端校验，页面无法读取宿主会话或本地配置。
+
+## 按内容自适应页面高度
+
+独立页面的标题、刷新与插件设置由宿主统一布局，窄屏说明和操作保持同排。页面 SDK 支持按内容适配 iframe 高度；少量内容不再撑满视口，既有页面未启用时维持原来的高度。
+
+```javascript
+const api = await FlowpanPage.connect();
+api.fitContent(document.querySelector("main"));
+```
+
+```css
+main { display:flex; flex-direction:column; height:auto; max-height:var(--flowpan-page-max-height,100dvh); min-height:0; }
+.records { display:flex; flex-direction:column; flex:1 1 auto; min-height:0; }
+.list { flex:1 1 auto; min-height:0; overflow:auto; }
+```
+
+宿主通过已建立的 MessageChannel 提供内容区可用高度，SDK 通过 ResizeObserver 上报实际内容高度。此消息不执行任务、不请求业务 API、不扩大权限；宿主只接受当前页面通道内的有限数值。根元素应按自然内容排版，避免 height:100% 依赖 iframe 高度。多记录页面在可用高度内滚动列表，筛选与分页放在列表外；短屏可纵向滚动整个宿主页面。

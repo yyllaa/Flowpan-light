@@ -10,9 +10,26 @@
         if (event.source !== window.parent || event.data?.type !== "flowpan.page.connected" || event.data?.version !== 1 || !event.ports[0]) return;
         clearTimeout(timeout); window.removeEventListener("message", ready);
         const port = event.ports[0], pending = new Map();
-        let sequence = 0;
+        let sequence = 0, fitObserver, fitRoot, fitFrame, lastHeight;
+        const measure = () => {
+          cancelAnimationFrame(fitFrame);
+          fitFrame = requestAnimationFrame(() => {
+            const height = Math.ceil(fitRoot.getBoundingClientRect().height);
+            if (height >= 32 && height !== lastHeight) { lastHeight = height; port.postMessage({ type: "flowpan.page.resize", height }); }
+          });
+        };
+        const fitContent = element => {
+          if (!(element instanceof Element)) throw Error("请选择页面内容元素");
+          fitObserver?.disconnect(); fitRoot = element; lastHeight = null;
+          fitObserver = new ResizeObserver(measure); fitObserver.observe(element); measure();
+        };
         port.onmessage = event => {
-          const message = event.data, item = pending.get(message?.id);
+          const message = event.data;
+          if (message?.type === "flowpan.page.viewport") {
+            if (Number.isFinite(message.height) && message.height >= 260 && message.height <= 50000) document.documentElement.style.setProperty("--flowpan-page-max-height", message.height + "px");
+            return;
+          }
+          const item = pending.get(message?.id);
           if (!item) return;
           pending.delete(message.id); clearTimeout(item.timeout);
           if (message.error) item.reject(Error(message.error)); else item.resolve(message.data);
@@ -26,8 +43,9 @@
           const timeout = setTimeout(() => { pending.delete(id); reject(Error("插件页面请求超时")); }, 120000);
           pending.set(id, { resolve, reject, timeout }); port.postMessage(message);
         });
-        window.addEventListener("pagehide", () => { port.close(); for (const item of pending.values()) { clearTimeout(item.timeout); item.reject(Error("插件页面已关闭")); } pending.clear(); }, { once: true });
+        window.addEventListener("pagehide", () => { fitObserver?.disconnect(); cancelAnimationFrame(fitFrame); port.close(); for (const item of pending.values()) { clearTimeout(item.timeout); item.reject(Error("插件页面已关闭")); } pending.clear(); }, { once: true });
         resolve(Object.freeze({
+          fitContent,
           context: () => call("context"),
           run: (action, input = {}) => call("actions.run", { action, input }),
           tasks: (limit = 20, offset = 0) => call("tasks.list", { limit, offset }),

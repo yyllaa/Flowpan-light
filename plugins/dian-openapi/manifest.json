@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "resource-dian-openapi",
-  "version": "1.3.9",
+  "version": "1.3.10",
   "name": "癫影 OpenAPI",
   "description": "资源查询、解锁与每日签到。",
   "category": "资源",
@@ -27,7 +27,7 @@
     "schema_version": 2,
     "api_version": "1",
     "id": "resource-dian-openapi",
-    "version": "1.3.9",
+    "version": "1.3.10",
     "name": "癫影 OpenAPI",
     "description": "资源查询、解锁与每日签到。",
     "category": "资源",
@@ -1605,7 +1605,7 @@
     ]
   },
   "release": {
-    "title": "癫影 OpenAPI 1.3.9",
-    "notes": "发布离线资源时，可搜索并选择已生成的 ED2K 记录；宿主按账号和目录授权校验选择结果，继续沿用发布确认。"
+    "title": "癫影 OpenAPI 1.3.10",
+    "notes": "修复发布分享结果中 TMDB 编号显示为科学计数法的问题；首次结果与缓存回执均显示完整编号。"
   }
 }

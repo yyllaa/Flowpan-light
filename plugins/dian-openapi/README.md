@@ -2,7 +2,7 @@
 
 插件 ID：`resource-dian-openapi`。与浏览器版 `resource-dian` 分开安装，配置、密钥、运行记录和定时任务按插件 ID 独立保存；不会作为浏览器版的更新覆盖安装。
 
-版本 1.3.8，仅使用 OpenAPI V2。在项目中导入插件，填写个人中心生成的 OpenAPI Key，保存并启用。此版本要求宿主提供 `sdk.call`、动作选项配置绑定、动作分组、作品选择器和表格结果界面，请与对应新版 Flowpan 一起使用。
+版本 1.3.10，仅使用 OpenAPI V2。在项目中导入插件，填写个人中心生成的 OpenAPI Key，保存并启用。此版本要求宿主提供 `sdk.call`、动作选项配置绑定、动作分组、作品选择器和表格结果界面，请与对应新版 Flowpan 一起使用。
 
 清单声明 `definition.network.proxy="project"`，请求统一使用项目设置中的 HTTP 代理；未配置代理时显示配置提示。请与支持网络策略声明的新版宿主配套使用。
 
@@ -49,14 +49,8 @@
 $env:GOOS='wasip1'
 $env:GOARCH='wasm'
 $env:CGO_ENABLED='0'
-go build -buildvcs=false -trimpath -ldflags='-s -w' -o bin/plugin.wasm ./plugins/resources/dian
+go build -buildvcs=false -trimpath -ldflags='-s -w' -o bin/plugin.wasm .
 # 清单与 bin/plugin.wasm 放入打包目录，执行 Flowpan plugin pack/check。
 ```
 
 运行包只包含 manifest.json 和 WASM。修改清单权限、版本和 SDK 声明时，需要同步宿主能力要求。
-
-## 从本仓库安装与构建
-
-添加统一插件源后选择“癫影 OpenAPI”，不要使用浏览器版的“更新”入口。支持本版能力的宿主需先配置 HTTP 代理，再填写自己的 OpenAPI Key。浏览器版的账号、密码、会话与签到记录不会自动迁移。
-
-在本目录运行 go test ./...；在仓库根目录运行 python plugins/build.py --plugin dian-openapi --out dist/openapi。公开构建仅引用通用 SDK，私有癫影 SDK 不随源码和 WASM 分发。

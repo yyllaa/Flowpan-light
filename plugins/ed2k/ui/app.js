@@ -81,5 +81,5 @@
   $("export").addEventListener("click",()=>{const url=URL.createObjectURL(new Blob(["\ufeff"+links()+"\n"],{type:"text/plain;charset=utf-8"}));const anchor=node("a");anchor.href=url;anchor.download="ED2K-"+new Date().toLocaleDateString("sv-SE")+".txt";document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
   document.addEventListener("visibilitychange",()=>{if(!document.hidden) refresh(true);});
   window.addEventListener("pagehide",()=>{state.disposed=true;state.generation++;clearTimeout(state.timer);},{once:true});
-  Promise.all([FlowpanPage.connect(),FlowpanPage.loadUI()]).then(([api,ui])=>{state.api=api;state.ui=ui;refresh();}).catch(error=>notice(error.message,true));
+  Promise.all([FlowpanPage.connect(),FlowpanPage.loadUI()]).then(([api,ui])=>{state.api=api;state.ui=ui;api.fitContent(document.querySelector("main"));refresh();}).catch(error=>notice(error.message,true));
 })();

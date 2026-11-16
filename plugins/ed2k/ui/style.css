@@ -1,8 +1,8 @@
 :root { color-scheme:light; --text:#0f172a; --muted:#52657d; --line:#dbe4ef; --surface:#fff; --soft:#f6f8fc; --primary:#2563eb; }
 * { box-sizing:border-box; }
-html, body { height:100%; }
+html, body { min-height:0; }
 body { overflow:hidden; margin:0; color:var(--text); background:var(--surface); font:14px/1.55 "Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Segoe UI",sans-serif; }
-main { height:100%; min-height:0; display:flex; flex-direction:column; gap:12px; padding:16px; }
+main { height:auto; max-height:var(--flowpan-page-max-height,100dvh); min-height:0; display:flex; flex-direction:column; gap:12px; padding:16px; }
 h1 { margin:0 0 3px; font-size:16px; line-height:1.4; }
 p { margin:0; }
 .heading { flex:0 0 auto; }
@@ -47,7 +47,7 @@ input[type="search"]::placeholder { color:var(--muted); opacity:1; }
 .record .record-message { margin-top:7px; color:#92400e; }
 .record .actions { justify-content:flex-end; flex-wrap:nowrap; min-width:104px; }
 .record .actions button { padding:0 9px; }
-.empty { min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:32px 16px; color:var(--muted); text-align:center; }
+.empty { min-height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:32px 16px; color:var(--muted); text-align:center; }
 .empty strong { display:block; color:var(--text); margin-bottom:6px; }
 .pagination { flex:0 0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); }
 .pagination .actions span { min-width:18px; text-align:center; font-variant-numeric:tabular-nums; }

@@ -163,7 +163,7 @@ func extensionResult(result *pluginapi.Result, action string, response, input ma
 		} else {
 			data["share_status"] = "已发布"
 		}
-		add("作品", fmt.Sprintf("TMDB %v · %s", input["tmdb_id"], map[string]string{"movie": "电影", "tv": "剧集"}[stringInput(input["media_type"])]))
+		add("作品", fmt.Sprintf("TMDB %s · %s", resultText(input["tmdb_id"]), map[string]string{"movie": "电影", "tv": "剧集"}[stringInput(input["media_type"])]))
 		add("资源标签", stringInput(input["tag"]))
 	case "query", "rss":
 		columns = []pluginapi.ResultField{{Key: "title", Label: "作品 / 资源"}, {Key: "type", Label: "类型"}, {Key: "tag", Label: "资源标签"}, {Key: "size", Label: "大小"}, {Key: "cost", Label: "积分"}, {Key: "id", Label: "分享编号"}}
