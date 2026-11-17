@@ -1972,7 +1972,7 @@
     {
       "schema_version": 1,
       "id": "music-scraper",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "min_host_version": "1",
       "requires": {
         "api_version": "1",
@@ -2029,9 +2029,9 @@
         "module": "plugin.wasm"
       },
       "package": {
-        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.17-contract/music-scraper-1.0.1.zip",
-        "sha256": "12e15d157dc55decaf499be45faf4ca543e3ada1b612ed5a968516c820b52dc7",
-        "commit_sha": "cb77f3af2a4482070450f8b48529daab5edfdc54"
+        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.17-providers/music-scraper-1.0.2.zip",
+        "sha256": "04bd033b609000b16ed60ec7fac8fe53a3d46cd47ac3b07ce7aac7c6750ff573",
+        "commit_sha": "4c618c7f30300401bbdb285379d12122a22f7429"
       },
       "permissions": [
         "host.read",
@@ -2055,7 +2055,7 @@
         "schema_version": 2,
         "api_version": "1",
         "id": "music-scraper",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "name": "音乐刮削",
         "description": "本地与网盘音乐标签、封面、歌词；增量处理、定时刮削与备份恢复。",
         "category": "媒体工具",
@@ -2335,7 +2335,8 @@
         ]
       },
       "release": {
-        "notes": "声明所需主程序能力，安装前检查工具、媒体及分段任务合同；兼容性提示指出具体缺项。音乐处理与请求间隔保持。\n\n首版：本地/网盘增量刮削，串行暂存与无损封装，封面歌词，低置信度确认，定时、断点继续、云盘备份恢复。需要支持 continuation_seconds 与 media_artwork_bytes 的新版宿主。"
+        "title": "音乐刮削 1.0.2",
+        "notes": "同步新版独立 SDK，与声明式能力层宿主兼容；保留按实际工具和功能合同检查兼容性。\n\n本版不改变音源、匹配、串行请求间隔、缓存、定时和校验回写流程。"
       }
     }
   ]
