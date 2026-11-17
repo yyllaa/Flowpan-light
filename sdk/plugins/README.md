@@ -34,3 +34,7 @@ SDK 的 Serve 分开处理 run/health/migrate/storage/recognition。扩展数据
 ## ED2K 与文件浏览扩展
 
 本 SDK 提供 `GenerateED2K`、`ListED2K`、`ED2KTask`、`RetryED2K`、`CancelED2K` 和 `RemoveED2K`，与 `ed2k.generate/read/manage` 权限配合。文件选择入口、提供者过滤、上下文动作及动态多选见 [ED2K 合同](../../docs/plugin-ed2k.md)。宿主需要 `2026.11.16-ed2k` 或包含同等合同的版本。
+
+## 声明式兼容
+
+使用清单 `requires` / `optional` 声明依赖，`extensions` 保存带命名空间的自定义数据。运行时用 `pluginwasm.CheckRequirements` 查询必需与可选缺项。参见[兼容合同](COMPATIBILITY.md)。

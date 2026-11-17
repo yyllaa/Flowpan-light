@@ -1,8 +1,53 @@
 {
   "schema_version": 1,
   "id": "music-scraper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "min_host_version": "1",
+  "requires": {
+    "api_version": "1",
+    "features": {
+      "manifest.requirements": 1,
+      "jobs.continuation": 1,
+      "http.response.base64": 1,
+      "media.cover-artifact": 1,
+      "media.lyrics": 1,
+      "state.indexed-get": 1,
+      "files.verified-publish": 1,
+      "ui.pages": 1
+    },
+    "tools": [
+      "artifacts.create",
+      "artifacts.release",
+      "artifacts.seal",
+      "artifacts.stat",
+      "artifacts.write",
+      "files.capabilities",
+      "files.list",
+      "files.publish",
+      "files.release",
+      "files.restore",
+      "files.stage",
+      "files.stat",
+      "files.task",
+      "host.capabilities",
+      "http.fetch",
+      "kv.get",
+      "kv.set",
+      "log",
+      "media.probe",
+      "media.release",
+      "media.status",
+      "media.submit",
+      "media.task",
+      "notify",
+      "task.progress",
+      "task.status"
+    ],
+    "limits": {
+      "continuation_seconds": 300,
+      "media_artwork_bytes": 524288
+    }
+  },
   "name": "音乐刮削",
   "description": "本地与网盘音乐标签、封面、歌词；增量处理、定时刮削与备份恢复。",
   "category": "媒体工具",
@@ -27,6 +72,7 @@
     "data.read",
     "data.write",
     "task.progress",
+    "task.read",
     "log.write",
     "notification.send",
     "schedule",
@@ -36,7 +82,7 @@
     "schema_version": 2,
     "api_version": "1",
     "id": "music-scraper",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "name": "音乐刮削",
     "description": "本地与网盘音乐标签、封面、歌词；增量处理、定时刮削与备份恢复。",
     "category": "媒体工具",
@@ -55,6 +101,7 @@
       "data.read",
       "data.write",
       "task.progress",
+      "task.read",
       "log.write",
       "notification.send",
       "schedule",
@@ -315,6 +362,6 @@
     ]
   },
   "release": {
-    "notes": "首版：本地/网盘增量刮削，串行暂存与无损封装，封面歌词，低置信度确认，定时、断点继续、云盘备份恢复。需要支持 continuation_seconds 与 media_artwork_bytes 的新版宿主。"
+    "notes": "声明所需主程序能力，安装前检查工具、媒体及分段任务合同；兼容性提示指出具体缺项。音乐处理与请求间隔保持。\n\n首版：本地/网盘增量刮削，串行暂存与无损封装，封面歌词，低置信度确认，定时、断点继续、云盘备份恢复。需要支持 continuation_seconds 与 media_artwork_bytes 的新版宿主。"
   }
 }

@@ -91,3 +91,7 @@ shares.create 接收 key、input 及 expires_seconds，返回宿主相对 path�
 Emby 实例、媒体与人物元数据、原图、刷新、任务和事件已通过 [Emby 调用合同](plugin-emby.md) 开放；授权绑定整个指定实例，SDK 与外部 HTTP 共用适配器。
 
 音乐批处理使用的通用能力见 [长任务续执行、二进制封面与媒体标签合同](plugin-music-runtime.md)。
+
+## 独立升级与声明式依赖
+
+新版插件通过 `requires`、`optional` 及 `extensions` 声明能力与扩展数据，详见[兼容合同](plugin-compatibility.md)。普通业务更新无需按插件补主程序；新宿主原语需先实现公共能力。

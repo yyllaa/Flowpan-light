@@ -12,6 +12,7 @@ const SchemaVersion = 2
 const APIVersion = "1"
 
 type Definition struct {
+	Extensions    Extensions             `json:"extensions,omitempty"`
 	Recognition   *RecognitionDefinition `json:"recognition,omitempty"`
 	Interaction   *InteractionDefinition `json:"interaction,omitempty"`
 	SchemaVersion int                    `json:"schema_version"`
@@ -44,6 +45,7 @@ type Definition struct {
 }
 
 type Field struct {
+	Extensions    Extensions `json:"extensions,omitempty"`
 	Key           string     `json:"key"`
 	Label         string     `json:"label"`
 	Type          string     `json:"type"`
@@ -86,6 +88,7 @@ type InputGroup struct {
 }
 
 type Action struct {
+	Extensions      Extensions       `json:"extensions,omitempty"`
 	Continuable     bool             `json:"continuable,omitempty"` // opt-in bounded invocations of the same durable job
 	ChoiceField     string           `json:"choice_field,omitempty"`
 	Choices         []Option         `json:"choices,omitempty"`
@@ -171,6 +174,9 @@ func (d Definition) Validate() error {
 	}
 	if !identifier.MatchString(d.ID) || d.Name == "" || d.Version == "" || d.ConfigVersion < 1 || (d.Runtime != "builtin" && d.Runtime != "wasm") {
 		return fmt.Errorf("插件定义不完整")
+	}
+	if err := d.normalizeExtensions(); err != nil {
+		return err
 	}
 	if err := d.validateNetwork(); err != nil {
 		return err

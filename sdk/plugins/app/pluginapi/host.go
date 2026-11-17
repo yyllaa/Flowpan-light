@@ -50,6 +50,7 @@ type ToolAvailability struct {
 }
 
 type HostCapabilities struct {
+	Contract          HostContract       `json:"contract"`
 	APIVersion        string             `json:"api_version"`
 	DefinitionVersion int                `json:"definition_version"`
 	Limits            HostLimits         `json:"limits"`
