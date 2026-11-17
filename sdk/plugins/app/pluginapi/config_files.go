@@ -7,7 +7,8 @@ import (
 )
 
 // FilePickerAccount binds a path field to a declared source field. The data
-// binding changes presentation only; file access still uses the host grants.
+// binding selects a directory for this plugin. The host derives automatic roots
+// from explicitly saved values, within the user's existing account grants.
 func (f Field) FilePickerAccount() (string, error) {
 	raw, ok := f.Extensions["flowpan.files"]
 	if !ok {

@@ -1,7 +1,16 @@
 {
   "schema_version": 1,
   "id": "storage-wopan",
-  "version": "0.2.2",
+  "version": "0.2.3",
+  "requires": {
+    "api_version": "1",
+    "features": {
+      "manifest.requirements": 1
+    },
+    "tools": [
+      "http.fetch"
+    ]
+  },
   "name": "联通云盘",
   "description": "将联通云盘个人空间接入账号中心、文件浏览、STRM 和上传任务。",
   "category": "网盘",
@@ -22,7 +31,7 @@
     "schema_version": 2,
     "api_version": "1",
     "id": "storage-wopan",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "name": "联通云盘",
     "description": "将联通云盘个人空间接入账号中心、文件浏览、STRM 和上传任务。",
     "category": "网盘",
@@ -71,5 +80,9 @@
         "share"
       ]
     }
+  },
+  "release": {
+    "title": "联通云盘 0.2.3",
+    "notes": "补齐 HTTP 工具及 API 依赖，随包提供更新日志；发布使用固定主程序检查，保留原网盘协议与文件流程。"
   }
 }

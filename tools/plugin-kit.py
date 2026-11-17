@@ -4,9 +4,11 @@ import json
 from pathlib import Path
 import re
 import shutil
+from plugin_release import baseline, required_features, sdk_lock, source_report, write_json
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--out', required=True)
+parser.add_argument('--baseline', type=Path, default=Path(__file__).resolve().parents[1]/'plugins/host-baseline.json')
 parser.add_argument('--id', default='external-example')
 parser.add_argument('--name', default='外部插件示例')
 parser.add_argument('--version', default='1.0.0', help='numeric release version')
@@ -46,6 +48,8 @@ if args.interaction and (args.storage or args.page or args.files or args.schedul
 if not re.fullmatch(r'v?[0-9]+(?:\.[0-9]+)*(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?(?:\+[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?', args.version):
     parser.error('invalid release version')
 root = Path(__file__).resolve().parents[1]
+base = baseline(args.baseline)
+sdk_lock(root / 'sdk/plugins', base=base)
 target = Path(args.out).resolve()
 target.mkdir(parents=True, exist_ok=False)
 for relative in ('app/pluginapi', 'sdk/pluginwasm'):
@@ -57,6 +61,13 @@ for relative in ('app/pluginapi', 'sdk/pluginwasm'):
         shutil.copyfile(source, destination / source.name)
 shutil.copyfile(root / 'docs/plugin-compatibility.md', target / 'COMPATIBILITY.md')
 shutil.copyfile(root / 'docs/plugin-capabilities.md', target / 'CAPABILITIES.md')
+shutil.copyfile(root / 'docs/plugin-release.md', target / 'RELEASE.md')
+(target / 'tools/plugin-scan').mkdir(parents=True)
+for name in ('plugin_release.py', 'plugin-scan/main.go', 'plugin-scan/main_test.go'):
+    shutil.copyfile(root / 'tools' / name, target / 'tools' / name)
+(target / 'plugins').mkdir()
+write_json(target / 'plugins/host-baseline.json', base)
+sdk_lock(target, target / 'SDK.lock.json', base)
 (target / 'plugin').mkdir()
 shutil.copyfile(root / ('plugins/examples/storage-http/main.go' if args.storage else 'plugins/examples/independent-page/main.go' if args.page else 'plugins/examples/starter/main.go'), target / 'plugin/main.go')
 (target / 'go.mod').write_text('module flowpan\n\ngo 1.25.0\n', encoding='utf-8')
@@ -148,21 +159,19 @@ if args.capability_provider or args.capability_consumer:
         definition['uses'] = [{'id':'formatter','interface':args.interface,'version':args.interface_version}]
 manifest = dict(schema_version=1, id=args.id, version=args.version, name=args.name, description='外部插件接入示例', category='示例', config_schema_version=1, data_schema_version=1,
                 runtime=dict(kind='wasm', module='bin/plugin.wasm'), package=dict(local=True), permissions=permissions, definition=definition)
-if args.capability_provider or args.capability_consumer:
-    manifest['requires'] = dict(features={'plugins.capabilities':1})
+manifest['requires'] = dict(api_version=base['capabilities']['contract']['api_version'],
+                            features=required_features(manifest), tools=source_report(target, args.baseline)['tools'])
+if 'files.publish' in manifest['requires']['tools']:
+    manifest['requires']['features']['files.verified-publish'] = 1
 manifest['release'] = dict(title=args.name+' '+args.version, notes='首次发布。')
 (target / 'CHANGELOG.md').write_text('# 更新日志\n\n## '+args.version+'\n\n首次发布。\n', encoding='utf-8')
 (target / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
-(target / 'build.py').write_text('''import argparse, os, subprocess
+(target / 'build.py').write_text('''import argparse, sys
 from pathlib import Path
-p=argparse.ArgumentParser(); p.add_argument('--host',required=True); p.add_argument('--go',default='go'); a=p.parse_args()
-root=Path(__file__).resolve().parent; host=str(Path(a.host).resolve()); out=root/'plugin.zip'
-if out.exists(): p.error('plugin.zip already exists; choose a new release directory or rename the previous archive')
-(root/'bin').mkdir(exist_ok=True)
-env=os.environ.copy(); env.update(GOOS='wasip1',GOARCH='wasm',CGO_ENABLED='0')
-subprocess.run([a.go,'build','-trimpath','-buildvcs=false','-ldflags=-s -w','-o',str(root/'bin/plugin.wasm'),'./plugin'],cwd=root,env=env,check=True)
-subprocess.run([host,'plugin','pack','--release','--dir',str(root),'--out',str(out)],cwd=root,check=True)
-subprocess.run([host,'plugin','check','--release',str(out)],cwd=root,check=True)
+root=Path(__file__).resolve().parent
+sys.path.insert(0,str(root/'tools'))
+from plugin_release import main
+main(['build','--plugin',str(root),'--out',str(root/'plugin.zip'),*sys.argv[1:]])
 ''', encoding='utf-8')
 (target / 'README.md').write_text('''# Flowpan 外部插件开发包
 
@@ -172,10 +181,10 @@ subprocess.run([host,'plugin','check','--release',str(out)],cwd=root,check=True)
 
 1. 编辑 `plugin/main.go` 和 `manifest.json`，同步两层 ID、版本及权限，并填写 release.notes 与 CHANGELOG.md。
 2. 运行 `go test ./sdk/pluginwasm`。
-3. 运行 `python build.py --host /实际路径/flowpan --go go`，Windows 使用 flowpan.exe。
+3. 运行 `python build.py`，使用固定的已发布主程序镜像构建候选包，详见 RELEASE.md。
 4. 将生成的 plugin.zip 在「辅助插件 → 插件管理 → 已安装」导入，启用后运行。
 
-发布版本使用数字版本号，支持 v 前缀、预发布及日期版本；新版本同时更新清单的两层 version、release.notes 与 CHANGELOG.md。build.py 自动运行 pack --release 和 check --release，缺少更新日志或版本不可比较时终止发布；普通 check 继续兼容旧包。
+发布版本使用数字版本号，支持 v 前缀、预发布及日期版本；新版本同时更新清单的两层 version、release.notes 与 CHANGELOG.md。build.py 自动核对 SDK.lock.json、依赖声明及固定主程序，再运行 pack --release 和 check --release；真实工作流测试通过后才生成发布索引。普通 check 继续兼容旧包。
 release 可声明 title、notes、published_at（RFC3339）和 url（HTTPS），notes 随安装包保存，本地导入和任意发布站点均可阅读。旧 GitHub 包继续自动定位 Release。
 使用 `requires` / `optional` 声明实际依赖，`extensions` 存放带命名空间的自定义数据。SDK 的 `CheckRequirements` 返回必需和可选缺项；详见 COMPATIBILITY.md。
 使用 --capability-provider / --capability-consumer 导出独立能力提供者与调用方。provides / uses 声明命名接口与版本，唯一提供者自动绑定；多个候选在授权弹窗选择。CallCapability、SubmitCapability、GetCapabilityTask、CancelCapabilityTask 复用宿主运行与任务队列，详见 CAPABILITIES.md。

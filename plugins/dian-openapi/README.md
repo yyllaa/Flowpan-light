@@ -49,7 +49,7 @@
 $env:GOOS='wasip1'
 $env:GOARCH='wasm'
 $env:CGO_ENABLED='0'
-go build -buildvcs=false -trimpath -ldflags='-s -w' -o bin/plugin.wasm .
+go build -buildvcs=false -trimpath -ldflags='-s -w' -o bin/plugin.wasm ./plugins/resources/dian
 # 清单与 bin/plugin.wasm 放入打包目录，执行 Flowpan plugin pack/check。
 ```
 

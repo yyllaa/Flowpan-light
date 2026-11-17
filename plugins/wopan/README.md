@@ -21,7 +21,7 @@
 
 ## 安装
 
-1. 使用包含本版网盘宿主扩展的 Flowpan（`StorageUploadStep.hash_algorithm/save_checkpoint`、multipart 上传及业务续期持久化）。主程序还需包含本次 FUSE 移动后引用与 inode 同步修复；先更新主程序再更新插件。
+1. 使用包含本版网盘宿主扩展的 Flowpan（`StorageUploadStep.hash_algorithm/save_checkpoint`、multipart 上传及业务续期持久化）。旧版主程序需先更新。
 2. 在插件管理导入 `storage-wopan-0.2.2.zip` 并启用。
 3. 在原生账号中心选择“联通云盘”，添加账号后点击“生成二维码”扫码登录。账号名称仅为显示名，可单独保存，无需填写 Token。
 4. 在文件浏览选择该账号；STRM、上传任务按该来源选择目录。
@@ -38,18 +38,18 @@
 
 ## 构建和测试
 
-需要 Go 1.25+ 和 Python 3，无需主程序源码。在本目录执行：
+在 Flowpan 项目根目录运行：
 
-    go test ./...
+```powershell
+go test ./plugins/storage/wopan/...
+go test ./app/pluginstorage ./app/pluginruntime -run '^TestWopan' -count=1 -v
+python plugins/storage/wopan/build.py --go C:/实际位置/go.exe --out D:/输出/storage-wopan-0.2.2.zip
+```
 
-在仓库根目录执行：
-
-    python plugins/build.py --plugin wopan --out dist/wopan
-
-构建包只包含 manifest.json 与 plugin.wasm。共用 SDK 通过本目录 go.mod 的相对引用提供。
+`build.py` 临时构建 WASM，只打包 `manifest.json` 与 `plugin.wasm`；不会把本地配置、源码、浏览器或其他运行文件放进插件包。
 
 ## 协议来源和验证
 
 `internal/wopan` 从用户提供的 `wopan-go-src/wopan` 机械复制，原文件哈希见 `upstream-sha256.json`。适配 Token 续期回调、扫码参数编码、只读重试；建目录和重命名保留错误且不重放未知结果，追加单页/账号/上传元数据桥接；原目录保持不变。
 
-回归测试使用本地 TLS 协议服务，实际加载并执行 WASM，校验签名、AES 请求、二维码、双账号、分页、字节 Range、续期、秒传、分片、配额和未知回执。本轮实际联网分享查询已确认返回用户提供的音频；协议模拟测试与真实账号测试分别记录，不将模拟吞吐当作实际网速。
+回归测试使用本地 TLS 协议服务，实际加载并执行 WASM，校验签名、AES 请求、二维码、双账号、分页、字节 Range、续期、秒传、分片、配额和未知回执。本轮实际联网分享查询已确认返回用户提供的音频；完整验证记录见 `output/plugin-share-protection-20261112/VERIFICATION.txt`，协议模拟测试与真实账号测试分别记录。

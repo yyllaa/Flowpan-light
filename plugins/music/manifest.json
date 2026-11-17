@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "music-scraper",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "min_host_version": "1",
   "requires": {
     "api_version": "1",
@@ -83,7 +83,7 @@
     "schema_version": 2,
     "api_version": "1",
     "id": "music-scraper",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "name": "音乐刮削",
     "description": "本地与网盘音乐标签、封面、歌词；增量处理、定时刮削与备份恢复。",
     "category": "媒体工具",
@@ -369,6 +369,6 @@
     ]
   },
   "release": {
-    "notes": "修复来源选择只显示 115；接入已授权网盘和本机目录，支持浏览目录，切换来源后清空旧目录。"
+    "notes": "补齐实际使用的宿主工具、目录选择和分段任务依赖声明；发布使用固定主程序和最终 ZIP 验证，保留原音源、请求间隔、缓存与校验回写流程。"
   }
 }

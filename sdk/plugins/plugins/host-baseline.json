@@ -1,0 +1,2886 @@
+{
+  "schema_version": 1,
+  "id": "2026.11.17-plugin-direct-drive",
+  "image_id": "sha256:d930e9f7795912bd76224fc2de2753487fd14dff91094ea32da2ff7365bd883d",
+  "platform": "linux/amd64",
+  "sdk_sha256": "6bef28819b4fa15e6ec69f8adb5ec73273aa26f325abf2b666adbc350b4fb510",
+  "capabilities": {
+    "api_version": "1",
+    "contract": {
+      "host_version": "2026.11.17-plugin-direct-drive",
+      "api_version": "1",
+      "features": {
+        "actions.dynamic-options": 1,
+        "files.verified-publish": 1,
+        "http.response.base64": 1,
+        "jobs.continuation": 1,
+        "manifest.extensions": 1,
+        "manifest.requirements": 1,
+        "media.cover-artifact": 1,
+        "media.lyrics": 1,
+        "plugins.capabilities": 1,
+        "state.indexed-get": 1,
+        "tasks.activity": 1,
+        "ui.file-picker": 1,
+        "ui.pages": 1
+      },
+      "tools": [
+        "accounts.list",
+        "ai.complete",
+        "ai.status",
+        "artifacts.create",
+        "artifacts.read",
+        "artifacts.release",
+        "artifacts.seal",
+        "artifacts.stat",
+        "artifacts.write",
+        "browser.close",
+        "browser.evaluate",
+        "browser.open",
+        "capabilities.call",
+        "capabilities.cancel",
+        "capabilities.list",
+        "capabilities.submit",
+        "capabilities.task",
+        "cas.create",
+        "cas.inspect",
+        "dependencies.ensure",
+        "dependencies.status",
+        "downloads.action",
+        "downloads.add",
+        "downloads.list",
+        "downloads.status",
+        "ed2k.cancel",
+        "ed2k.list",
+        "ed2k.remove",
+        "ed2k.retry",
+        "ed2k.submit",
+        "ed2k.task",
+        "emby.capabilities",
+        "emby.images.download",
+        "emby.images.list",
+        "emby.images.upload",
+        "emby.instances.list",
+        "emby.items.get",
+        "emby.items.list",
+        "emby.items.refresh",
+        "emby.libraries.list",
+        "emby.library.scan",
+        "emby.media.updated",
+        "emby.metadata.update",
+        "emby.operations.get",
+        "emby.persons.credits",
+        "emby.persons.get",
+        "emby.persons.list",
+        "emby.sessions.list",
+        "emby.tasks.list",
+        "emby.users.list",
+        "files.cancel",
+        "files.capabilities",
+        "files.copy",
+        "files.delete",
+        "files.list",
+        "files.mkdir",
+        "files.move",
+        "files.publish",
+        "files.read",
+        "files.release",
+        "files.rename",
+        "files.restore",
+        "files.stage",
+        "files.stat",
+        "files.task",
+        "host.capabilities",
+        "http.fetch",
+        "interaction.attachment",
+        "interaction.context",
+        "interaction.reply",
+        "interaction.send_file",
+        "interaction.session.end",
+        "interaction.session.set",
+        "kv.get",
+        "kv.list",
+        "kv.set",
+        "log",
+        "media.cancel",
+        "media.identify",
+        "media.probe",
+        "media.release",
+        "media.result",
+        "media.search",
+        "media.status",
+        "media.submit",
+        "media.task",
+        "notify",
+        "organize.apply",
+        "organize.preview",
+        "organize.run",
+        "organize.status",
+        "organize.stop",
+        "recognition.identify",
+        "recognition.providers",
+        "sdk.call",
+        "secrets.read",
+        "service.call",
+        "service.upload",
+        "shares.create",
+        "shares.revoke",
+        "strm.create",
+        "strm.inspect",
+        "strm.run",
+        "strm.status",
+        "strm.tasks",
+        "task.progress",
+        "task.status",
+        "transfer.parse",
+        "transfer.status",
+        "transfer.submit"
+      ],
+      "limits": {
+        "artifact_bytes": 67108864,
+        "artifact_quota_bytes": 268435456,
+        "artifact_write_bytes": 32768,
+        "continuation_seconds": 86400,
+        "emby_image_bytes": 16777216,
+        "emby_page_size": 200,
+        "emby_response_bytes": 921600,
+        "file_bytes": 21474836480,
+        "host_calls": 128,
+        "interaction_attachment_bytes": 20971520,
+        "interaction_buttons": 8,
+        "interaction_reply_bytes": 16384,
+        "interaction_session_seconds": 1800,
+        "manifest_bytes": 524288,
+        "max_timeout_seconds": 600,
+        "media_artwork_bytes": 524288,
+        "memory_mib": 64,
+        "min_timeout_seconds": 60,
+        "package_bytes": 16777216,
+        "package_extracted_bytes": 33554432,
+        "package_files": 128,
+        "request_bytes": 65536,
+        "response_bytes": 1048576,
+        "service_upload_bytes": 67108864,
+        "share_max_seconds": 86400
+      }
+    },
+    "events": [
+      "file.changed",
+      "organize.completed",
+      "audiobook.changed",
+      "task.completed",
+      "emby.library.changed",
+      "emby.playback.changed"
+    ],
+    "limits": {
+      "continuation_seconds": 86400,
+      "media_artwork_bytes": 524288,
+      "emby_page_size": 200,
+      "emby_response_bytes": 921600,
+      "emby_image_bytes": 16777216,
+      "request_bytes": 65536,
+      "response_bytes": 1048576,
+      "host_calls": 128,
+      "memory_mib": 64,
+      "min_timeout_seconds": 60,
+      "max_timeout_seconds": 600,
+      "artifact_bytes": 67108864,
+      "artifact_quota_bytes": 268435456,
+      "artifact_write_bytes": 32768,
+      "service_upload_bytes": 67108864,
+      "file_bytes": 21474836480,
+      "share_max_seconds": 86400,
+      "interaction_attachment_bytes": 20971520,
+      "interaction_session_seconds": 1800,
+      "interaction_reply_bytes": 16384,
+      "interaction_buttons": 8
+    },
+    "tools": [
+      {
+        "name": "host.capabilities",
+        "permission": "host.read",
+        "group": "宿主合同",
+        "description": "查询当前任务可用工具、限制及未就绪原因",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "sdk.call",
+        "permission": "sdk.call",
+        "group": "宿主 SDK",
+        "description": "调用声明的宿主 SDK；密钥、协议实现和网络连接由宿主管理",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "input": {
+              "type": "object"
+            },
+            "operation": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "provider",
+            "operation"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "secrets.read",
+        "permission": "secrets.read",
+        "group": "私有数据",
+        "description": "读取本插件明确允许运行时访问的私密配置，用于 SDK 加密签名",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "kv.get",
+        "permission": "data.read",
+        "group": "私有数据",
+        "description": "读取本插件私有值",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "kv.list",
+        "permission": "data.read",
+        "group": "私有数据",
+        "description": "读取本插件私有数据",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "kv.set",
+        "permission": "data.write",
+        "group": "私有数据",
+        "description": "写入本插件缓存或检查点",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "value": {}
+          },
+          "required": [
+            "key",
+            "value"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "log",
+        "permission": "log.write",
+        "group": "任务与通知",
+        "description": "记录插件日志",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "notify",
+        "permission": "notification.send",
+        "group": "任务与通知",
+        "description": "通过项目通知渠道发送消息",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "task.progress",
+        "permission": "task.progress",
+        "group": "任务与通知",
+        "description": "更新当前插件任务进度",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "checkpoint": {
+              "type": "object"
+            },
+            "done": {
+              "type": "number"
+            },
+            "message": {
+              "type": "string"
+            },
+            "percent": {
+              "type": "number"
+            },
+            "total": {
+              "type": "number"
+            }
+          },
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "task.status",
+        "permission": "task.read",
+        "group": "任务与通知",
+        "description": "读取本插件的任务记录",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "http.fetch",
+        "permission": "http.fetch",
+        "group": "网络",
+        "description": "通过项目代理请求声明的 HTTPS 站点",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "auth_secret": {
+              "type": "string"
+            },
+            "body": {
+              "type": "string"
+            },
+            "headers": {
+              "type": "object"
+            },
+            "method": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "service.call",
+        "permission": "service.call",
+        "group": "网络",
+        "description": "调用插件显式配置的外部服务",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "body": {
+              "type": "object"
+            },
+            "method": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "method",
+            "path"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "browser.open",
+        "permission": "browser.use",
+        "group": "浏览器",
+        "description": "打开声明的站点，按插件和账号隔离登录状态",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "profile": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "browser.evaluate",
+        "permission": "browser.use",
+        "group": "浏览器",
+        "description": "在当前任务页面运行脚本，支持宿主注入凭据",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "args": {
+              "type": "object"
+            },
+            "script": {
+              "type": "string"
+            },
+            "secrets": {
+              "type": "object"
+            },
+            "session": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "session",
+            "script"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "browser.close",
+        "permission": "browser.use",
+        "group": "浏览器",
+        "description": "释放当前任务的浏览器页面",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "session": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "accounts.list",
+        "permission": "accounts.read",
+        "group": "文件",
+        "description": "列出已授权的网盘及本机来源，不返回凭据",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.list",
+        "permission": "files.read",
+        "group": "文件",
+        "description": "分页读取已授权目录；有 root 时沿用主号索引接口",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "cursor": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            },
+            "offset": {
+              "type": "number"
+            },
+            "path": {
+              "type": "string"
+            },
+            "root": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.stat",
+        "permission": "files.read",
+        "group": "文件",
+        "description": "读取已授权文件或目录详情",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account",
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.capabilities",
+        "permission": "files.read",
+        "group": "文件",
+        "description": "查询已授权账号的暂存、回写及冲突处理能力，不发起云盘请求",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.stage",
+        "permission": "files.read",
+        "group": "文件",
+        "description": "将已授权云盘文件暂存到插件私有任务区，返回任务 ID",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "account",
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.publish",
+        "permission": "files.publish",
+        "group": "文件",
+        "description": "将本插件的媒体结果、通用产物或暂存文件回写；明确选择 skip、keep_both 或 replace",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "artifact": {
+              "type": "string"
+            },
+            "conflict": {
+              "type": "string"
+            },
+            "file_task": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "media_task": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "original_task": {
+              "type": "string"
+            },
+            "parent_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "account",
+            "parent_id",
+            "name",
+            "conflict"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.task",
+        "permission": "files.read",
+        "group": "文件",
+        "description": "查询本插件文件任务、回写阶段及备份引用",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.cancel",
+        "permission": "files.read",
+        "group": "文件",
+        "description": "取消本插件文件任务；未知云盘写入结果保留待核验回执",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.release",
+        "permission": "files.read",
+        "group": "文件",
+        "description": "释放本插件暂存文件，保留任务和原始快照回执",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.restore",
+        "permission": "files.publish",
+        "group": "文件",
+        "description": "恢复本插件替换任务的原文件，并保留已处理文件",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "media.status",
+        "permission": "media.read",
+        "group": "媒体",
+        "description": "读取 FFmpeg、FFprobe 和浏览器就绪状态",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "media.search",
+        "permission": "media.read",
+        "group": "媒体",
+        "description": "复用项目 TMDB 设置查询电影或剧集",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "media_type": {
+              "type": "string"
+            },
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query",
+            "media_type"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "media.probe",
+        "permission": "media.read",
+        "group": "媒体",
+        "description": "探测已授权本机音频或视频，返回 JSON 元数据",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "artifact": {
+              "type": "string"
+            },
+            "file_task": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "media.submit",
+        "permission": "media.process",
+        "group": "媒体",
+        "description": "提交分段音视频转码、全部轨道 MKV 封装、标签或图片处理任务",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "artifact": {
+              "type": "string"
+            },
+            "at_seconds": {
+              "type": "number"
+            },
+            "audio_channels": {
+              "type": "number"
+            },
+            "bitrate_kbps": {
+              "type": "number"
+            },
+            "duration_seconds": {
+              "type": "number"
+            },
+            "file_task": {
+              "type": "string"
+            },
+            "format": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "map_all": {
+              "type": "boolean"
+            },
+            "metadata": {
+              "type": "object"
+            },
+            "operation": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "sample_rate": {
+              "type": "number"
+            },
+            "start_seconds": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "key",
+            "operation"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "media.task",
+        "permission": "media.read",
+        "group": "媒体",
+        "description": "查询本插件媒体任务的进度和结果",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "media.result",
+        "permission": "media.read",
+        "group": "媒体",
+        "description": "分段读取本插件已完成的媒体结果，每段最多 256 KiB",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            },
+            "offset": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "media.cancel",
+        "permission": "media.process",
+        "group": "媒体",
+        "description": "取消本插件媒体任务并清理未完成输出",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "media.release",
+        "permission": "media.process",
+        "group": "媒体",
+        "description": "释放本插件已结束的媒体输出；正在回写的结果保留到任务结束",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "transfer.parse",
+        "permission": "transfer.read",
+        "group": "转存与整理",
+        "description": "本地识别 115、139、磁力等链接，不提交任务",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "transfer.submit",
+        "permission": "transfer.write",
+        "group": "转存与整理",
+        "description": "提交转存任务，可为本次指定目标并关闭自动整理",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "auto_organize": {
+              "type": "boolean"
+            },
+            "key": {
+              "type": "string"
+            },
+            "target_id": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account",
+            "text",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "transfer.status",
+        "permission": "transfer.read",
+        "group": "转存与整理",
+        "description": "查询本插件提交的转存任务与执行回执",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "organize.run",
+        "permission": "organize.write",
+        "group": "转存与整理",
+        "description": "按项目已保存的账号规则执行整理",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "organize.status",
+        "permission": "organize.read",
+        "group": "转存与整理",
+        "description": "读取授权账号的整理状态",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "capabilities.list",
+        "permission": "host.read",
+        "group": "插件能力",
+        "description": "查询本插件声明的能力依赖、绑定与可用提供者，不执行插件",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "capabilities.call",
+        "permission": "capabilities.call",
+        "group": "插件能力",
+        "description": "调用已绑定的插件接口，继承取消、调用预算和授权范围",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "input": {
+              "type": "object"
+            },
+            "use": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "use"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "capabilities.submit",
+        "permission": "capabilities.call",
+        "group": "插件能力",
+        "description": "提交已绑定接口的后台任务，使用稳定幂等键",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "input": {
+              "type": "object"
+            },
+            "key": {
+              "type": "string"
+            },
+            "use": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "use",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "capabilities.task",
+        "permission": "capabilities.call",
+        "group": "插件能力",
+        "description": "查询由本插件提交的能力任务",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "capabilities.cancel",
+        "permission": "capabilities.call",
+        "group": "插件能力",
+        "description": "取消由本插件提交且声明可取消的能力任务",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "strm.create",
+        "permission": "artifacts.write",
+        "group": "STRM",
+        "description": "将插件提供的播放 URL 写成独立 STRM 产物，与项目 STRM 任务无关联",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "name",
+            "url"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "strm.inspect",
+        "permission": "files.read",
+        "group": "STRM",
+        "description": "读取已授权的外部 STRM 文件并验证其中的播放地址",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account",
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "organize.preview",
+        "permission": "organize.read",
+        "group": "转存与整理",
+        "description": "为插件选择的外部 STRM、本机视频生成整理预览，复用项目识别和命名规则",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "ai": {
+              "type": "boolean"
+            },
+            "ids": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "input_root": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "object"
+            },
+            "output_id": {
+              "type": "string"
+            },
+            "recognition": {
+              "type": "object"
+            },
+            "tmdb": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "key",
+            "account",
+            "ids",
+            "output_id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "organize.apply",
+        "permission": "organize.write",
+        "group": "转存与整理",
+        "description": "执行本插件已预览的本机文件整理计划，保留 STRM 原始链接字节",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "shares.create",
+        "permission": "shares.write",
+        "group": "文件分享",
+        "description": "为本插件的宿主输出创建限时下载链接，支持 Range，停用或更新后失效",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "expires_seconds": {
+              "type": "number"
+            },
+            "input": {
+              "type": "object"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "input"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "shares.revoke",
+        "permission": "shares.write",
+        "group": "文件分享",
+        "description": "撤销本插件创建的下载链接",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "dependencies.status",
+        "permission": "host.read",
+        "group": "运行依赖",
+        "description": "查询宿主管理的 FFmpeg、FFprobe 与浏览器安装状态",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "dependencies.ensure",
+        "permission": "dependencies.install",
+        "group": "运行依赖",
+        "description": "按项目已配置下载源准备 FFmpeg 或浏览器，复用正在执行的安装",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "downloads.list",
+        "permission": "downloads.read",
+        "group": "下载器",
+        "description": "列出已配置的下载器身份，不返回连接地址或凭据",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "downloads.status",
+        "permission": "downloads.read",
+        "group": "下载器",
+        "description": "分页读取下载任务，复用项目下载器连接",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "filter": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            },
+            "page": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "downloads.add",
+        "permission": "downloads.write",
+        "group": "下载器",
+        "description": "按下载器已保存的目录和分类提交下载，保存幂等回执",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "paused": {
+              "type": "boolean"
+            },
+            "sequential": {
+              "type": "boolean"
+            },
+            "urls": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "key",
+            "urls"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "downloads.action",
+        "permission": "downloads.write",
+        "group": "下载器",
+        "description": "暂停、继续、重新检查或重新通告下载任务",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "hashes": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "key",
+            "action",
+            "hashes"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "service.upload",
+        "permission": "service.call",
+        "group": "网络",
+        "description": "将宿主文件流式提交到已配置的外部服务，供识别、字幕及其他处理引擎使用",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "body": {
+              "type": "object"
+            },
+            "field": {
+              "type": "string"
+            },
+            "input": {
+              "type": "object"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "input"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "artifacts.create",
+        "permission": "artifacts.write",
+        "group": "私有产物",
+        "description": "预留本插件通用产物，支持字幕、清单和任意文件内容",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            },
+            "size": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "key",
+            "name",
+            "size"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "artifacts.write",
+        "permission": "artifacts.write",
+        "group": "私有产物",
+        "description": "按偏移写入产物；相同偏移和内容可重试，每段最多 32 KiB",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "base64": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "offset": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id",
+            "offset",
+            "base64"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "artifacts.seal",
+        "permission": "artifacts.write",
+        "group": "私有产物",
+        "description": "校验大小与 SHA256，将产物封存为不可变输入",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "artifacts.stat",
+        "permission": "artifacts.read",
+        "group": "私有产物",
+        "description": "读取本插件产物状态及摘要",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "artifacts.read",
+        "permission": "artifacts.read",
+        "group": "私有产物",
+        "description": "分段读取已封存的产物",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            },
+            "offset": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "artifacts.release",
+        "permission": "artifacts.write",
+        "group": "私有产物",
+        "description": "释放本插件产物；回写正在使用时拒绝释放",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.read",
+        "permission": "files.read",
+        "group": "文件",
+        "description": "按范围读取已授权云盘或本机文件，每段最多 256 KiB",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            },
+            "offset": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "account",
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.mkdir",
+        "permission": "files.write",
+        "group": "文件",
+        "description": "在已授权目录创建子目录，保存幂等回执",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "parent_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "account",
+            "parent_id",
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.rename",
+        "permission": "files.write",
+        "group": "文件",
+        "description": "重命名已授权文件或目录，保存幂等回执",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "account",
+            "id",
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.move",
+        "permission": "files.write",
+        "group": "文件",
+        "description": "在同一来源的授权目录间移动对象",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "ids": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "key": {
+              "type": "string"
+            },
+            "parent_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "account",
+            "ids",
+            "parent_id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.copy",
+        "permission": "files.write",
+        "group": "文件",
+        "description": "复用来源原生复制；跨来源使用暂存和回写",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "ids": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "key": {
+              "type": "string"
+            },
+            "parent_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "account",
+            "ids",
+            "parent_id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "files.delete",
+        "permission": "files.delete",
+        "group": "文件",
+        "description": "按来源原生删除语义删除已授权对象，保存回执且不重放未知写入",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "ids": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "account",
+            "ids"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "media.identify",
+        "permission": "media.read",
+        "group": "识别与 AI",
+        "description": "复用项目文件名解析、季集和媒体命名识别；可选择已有 AI 与 TMDB",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "ai": {
+              "type": "boolean"
+            },
+            "name": {
+              "type": "string"
+            },
+            "tmdb": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "ai.status",
+        "permission": "ai.use",
+        "group": "识别与 AI",
+        "description": "查询已配置 AI 的模型和协议，不返回地址或凭据",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "ai.complete",
+        "permission": "ai.use",
+        "group": "识别与 AI",
+        "description": "通过项目 AI 配置、代理和限流执行通用文本生成",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "input": {
+              "type": "string"
+            },
+            "json": {
+              "type": "boolean"
+            },
+            "max_output_tokens": {
+              "type": "number"
+            },
+            "system": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "input"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "cas.inspect",
+        "permission": "files.read",
+        "group": "CAS",
+        "description": "解析并验证项目兼容的 CAS 描述内容",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "cas.create",
+        "permission": "artifacts.write",
+        "group": "CAS",
+        "description": "根据已验证的文件暂存摘要生成可回写的 CAS 产物",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "file_task": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "file_task"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "strm.tasks",
+        "permission": "strm.read",
+        "group": "STRM",
+        "description": "列出云端和本机范围均已授权的现有 STRM 任务",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "strm.run",
+        "permission": "strm.write",
+        "group": "STRM",
+        "description": "按现有 STRM 配置提交宿主后台任务",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "mode": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "strm.status",
+        "permission": "strm.read",
+        "group": "STRM",
+        "description": "读取授权 STRM 任务的运行记录",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "organize.stop",
+        "permission": "organize.write",
+        "group": "转存与整理",
+        "description": "请求停止已授权来源的项目整理任务",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "interaction.context",
+        "permission": "interaction.read",
+        "group": "交互",
+        "description": "读取宿主投递的当前会话、输入和附件元数据",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "delivery": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "interaction.reply",
+        "permission": "interaction.reply",
+        "group": "交互",
+        "description": "向当前会话回复文字和按钮；按键保存发送回执",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "buttons": {
+              "items": {
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "data": {},
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label",
+                  "action"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "delivery": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "ttl_seconds": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "key",
+            "text"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "interaction.session.set",
+        "permission": "interaction.session",
+        "group": "交互",
+        "description": "等待当前用户下一条输入并绑定已声明动作",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "delivery": {
+              "type": "string"
+            },
+            "state": {},
+            "ttl_seconds": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "action"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "interaction.session.end",
+        "permission": "interaction.session",
+        "group": "交互",
+        "description": "结束当前插件的多轮输入和按钮等待",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "delivery": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "interaction.attachment",
+        "permission": "interaction.attachments",
+        "group": "交互",
+        "description": "将当前消息附件流式导入插件私有产物",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "delivery": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "interaction.send_file",
+        "permission": "interaction.reply",
+        "group": "交互",
+        "description": "将本插件产物、暂存或媒体结果发送到当前会话",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "caption": {
+              "type": "string"
+            },
+            "delivery": {
+              "type": "string"
+            },
+            "input": {
+              "type": "object"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "input"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.instances.list",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "列出已授权的 Emby 实例及连接就绪状态，不返回凭据",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.capabilities",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "查询实例连接、服务版本与公开工具；远端操作按当前 Emby 权限执行",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "instance_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.users.list",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "读取实例用户 ID、名称及禁用状态",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "instance_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.libraries.list",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "读取媒体库或指定用户的媒体视图",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "instance_id": {
+              "type": "string"
+            },
+            "user_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.items.list",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "分页搜索媒体条目、媒体源与逐用户状态；query 使用 Emby 参数名",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "instance_id": {
+              "type": "string"
+            },
+            "query": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "user_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.items.get",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "读取完整条目及版本摘要，供选择性更新复核",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "instance_id": {
+              "type": "string"
+            },
+            "user_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id",
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.persons.list",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "分页搜索人物及人物供应商标识",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "instance_id": {
+              "type": "string"
+            },
+            "query": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "instance_id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.persons.get",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "按名称读取人物资料及版本摘要",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "instance_id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id",
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.persons.credits",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "分页读取人物作品关联",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "instance_id": {
+              "type": "string"
+            },
+            "query": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "instance_id",
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.sessions.list",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "读取完整会话列表，保留同一媒体的多个会话",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "instance_id": {
+              "type": "string"
+            },
+            "query": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "instance_id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.images.list",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "读取条目或人物的图片类型、索引与标签",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "instance_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id",
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.images.download",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "将实例原图保存为本插件私有产物；需 artifacts.write/read 权限",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "image_type": {
+              "type": "string"
+            },
+            "index": {
+              "type": "number"
+            },
+            "instance_id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id",
+            "id",
+            "image_type",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.metadata.update",
+        "permission": "emby.metadata.write",
+        "group": "Emby",
+        "description": "复核版本后合并指定元数据字段，保存前值并回读验证；People 保留插件提供的角色关系",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "expected_version": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "instance_id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id",
+            "id",
+            "key",
+            "expected_version",
+            "fields"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.images.upload",
+        "permission": "emby.images.write",
+        "group": "Emby",
+        "description": "将本插件封存图片产物上传到指定条目或人物，保存操作回执",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "artifact": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "image_type": {
+              "type": "string"
+            },
+            "index": {
+              "type": "number"
+            },
+            "instance_id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id",
+            "id",
+            "image_type",
+            "artifact",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.items.refresh",
+        "permission": "emby.refresh",
+        "group": "Emby",
+        "description": "提交单条目刷新并返回接受回执；不代表扫描完成",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "instance_id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "query": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "instance_id",
+            "id",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.library.scan",
+        "permission": "emby.refresh",
+        "group": "Emby",
+        "description": "提交实例媒体库扫描并返回接受回执",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "instance_id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.media.updated",
+        "permission": "emby.refresh",
+        "group": "Emby",
+        "description": "通知 Emby 其服务器内的媒体路径已变更",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "instance_id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "updates": {
+              "items": {
+                "properties": {
+                  "Path": {
+                    "type": "string"
+                  },
+                  "UpdateType": {
+                    "enum": [
+                      "Created",
+                      "Modified",
+                      "Deleted"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "Path",
+                  "UpdateType"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "instance_id",
+            "key",
+            "updates"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.tasks.list",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "读取 Emby 计划任务状态、扫描进度和最后结果",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "instance_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "emby.operations.get",
+        "permission": "emby.read",
+        "group": "Emby",
+        "description": "读取本插件的 Emby 写入回执；待核验结果不自动重放",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "instance_id": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "operation": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_id",
+            "operation",
+            "key"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "recognition.providers",
+        "permission": "media.read",
+        "group": "识别与 AI",
+        "description": "列出已安装插件声明的识别来源及可用状态",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "recognition.identify",
+        "permission": "media.read",
+        "group": "识别与 AI",
+        "description": "按任务路由调用新识别来源，返回独立媒体身份和待确认原因，不移动文件",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "route": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "account",
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "ed2k.submit",
+        "permission": "ed2k.generate",
+        "group": "ED2K",
+        "description": "连续读取已授权文件生成 ED2K，复用已有结果并返回后台任务",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account",
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "ed2k.list",
+        "permission": "ed2k.read",
+        "group": "ED2K",
+        "description": "查询授权账号和目录内的 ED2K 结果库，不读取文件内容",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            },
+            "offset": {
+              "type": "number"
+            },
+            "query": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        }
+      },
+      {
+        "name": "ed2k.task",
+        "permission": "ed2k.read",
+        "group": "ED2K",
+        "description": "读取授权范围内的 ED2K 任务或已生成链接，其他插件可复用",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "ed2k.retry",
+        "permission": "ed2k.generate",
+        "group": "ED2K",
+        "description": "明确重试已暂停任务，从完整分块检查点继续；冷却期间保持暂停",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "ed2k.cancel",
+        "permission": "ed2k.manage",
+        "group": "ED2K",
+        "description": "停止授权范围内的 ED2K 读取，保留可继续的分块检查点",
+        "business_write": true,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "ed2k.remove",
+        "permission": "ed2k.manage",
+        "group": "ED2K",
+        "description": "删除已结束的 ED2K 任务及链接记录，保留源文件",
+        "business_write": true,
+        "confirmation": true,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      }
+    ]
+  }
+}

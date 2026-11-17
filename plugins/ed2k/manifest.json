@@ -1,7 +1,23 @@
 {
   "schema_version": 1,
   "id": "ed2k",
-  "version": "1.0.2",
+  "version": "1.0.3",
+  "requires": {
+    "api_version": "1",
+    "features": {
+      "manifest.requirements": 1,
+      "ui.pages": 1
+    },
+    "tools": [
+      "accounts.list",
+      "ed2k.cancel",
+      "ed2k.list",
+      "ed2k.remove",
+      "ed2k.retry",
+      "ed2k.submit",
+      "ed2k.task"
+    ]
+  },
   "min_host_version": "1",
   "name": "115 ED2K",
   "description": "从文件浏览生成 ED2K，集中管理并供其他插件调用。",
@@ -25,7 +41,7 @@
     "schema_version": 2,
     "api_version": "1",
     "id": "ed2k",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "name": "115 ED2K",
     "description": "从文件浏览生成 ED2K，集中管理并供其他插件调用。",
     "category": "文件工具",
@@ -121,7 +137,7 @@
     ]
   },
   "release": {
-    "title": "115 ED2K 1.0.2",
-    "notes": "管理页按内容自适应高度，少量记录不再撑出空白，分页紧跟记录；较多记录在列表内滚动。接入公共页面尺寸合同，手机页头说明与操作同排；生成进度由宿主任务中心同步展示，查询记录不再刷屏。"
+    "title": "115 ED2K 1.0.3",
+    "notes": "补齐 ED2K 与账号工具、独立页面的依赖声明；插件发布在固定主程序上检查，不改变生成和管理流程。"
   }
 }
