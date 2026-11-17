@@ -36,6 +36,7 @@ WASM 不挂载宿主文件系统，本机读取额外经 `os.Root` 限制，符�
 | 分类 | 工具 | 权限与行为 |
 | --- | --- | --- |
 | 宿主合同 | `host.capabilities` | `host.read`；返回当前执行的能力状态和资源限制 |
+| 插件能力 | `capabilities.list`、`capabilities.call`、`capabilities.submit`、`capabilities.task`、`capabilities.cancel` | `host.read` / `capabilities.call`；版本化接口、持久绑定、受控委派及后台任务，详见 [能力合同](plugin-capabilities.md) |
 | 宿主 SDK | `sdk.call` | `sdk.call`；声明 SDK 和私密配置绑定，宿主执行协议并只返回业务结果 |
 | 私有状态 | `kv.get`、`kv.list`、`kv.set` | `data.read` / `data.write`；按插件隔离，宿主回执保留键禁止覆盖 |
 | 任务 | `task.progress`、`task.status` | `task.progress` / `task.read`；当前任务进度、本插件任务状态 |

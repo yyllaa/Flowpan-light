@@ -60,7 +60,7 @@ func (r CompatibilityReport) Err() error {
 func CurrentHostContract(hostVersion string) HostContract {
 	c := HostContract{HostVersion: hostVersion, APIVersion: APIVersion,
 		Features: map[string]int{
-			"manifest.requirements": 1, "manifest.extensions": 1,
+			"manifest.requirements": 1, "manifest.extensions": 1, "plugins.capabilities": 1,
 			"jobs.continuation": 1, "http.response.base64": 1,
 			"media.cover-artifact": 1, "media.lyrics": 1,
 			"state.indexed-get": 1, "files.verified-publish": 1,

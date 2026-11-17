@@ -52,3 +52,5 @@
 音乐刮削需要主程序 `2026.11.17-music-runtime` 或包含相同合同的后续版本。先更新主程序，再刷新插件源。详见 [音乐插件](music/README.md) 和 [宿主运行合同](../docs/plugin-music-runtime.md)。
 
 插件依赖、可选功能、兼容性预检和自定义扩展见[声明式兼容合同](../docs/plugin-compatibility.md)。音乐刮削 1.0.1 使用此合同，需要 `2026.11.17-plugin-contract` 或具备相同能力的宿主。
+
+音乐刮削 1.0.2 同步新版独立 SDK，保留原音源、请求间隔、缓存、定时和校验回写流程。新版 SDK、能力提供者/调用方开发包及合同见 [本次发布](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.17-providers)。自主能力层配套主程序 `2026.11.17-plugin-providers`；音乐插件自身继续按清单中实际需要的功能检查兼容性。

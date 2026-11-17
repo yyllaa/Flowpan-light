@@ -95,3 +95,7 @@ Emby 实例、媒体与人物元数据、原图、刷新、任务和事件已通
 ## 独立升级与声明式依赖
 
 新版插件通过 `requires`、`optional` 及 `extensions` 声明能力与扩展数据，详见[兼容合同](plugin-compatibility.md)。普通业务更新无需按插件补主程序；新宿主原语需先实现公共能力。
+
+## 版本化插件能力
+
+`plugins.capabilities=1` 提供本地声明发现、持久依赖绑定、同步委派与持久后台任务。接口由插件的 `provides` / `uses` 声明，宿主不按插件 ID 或品牌增加分支。完整合同见 [插件能力提供与调用](plugin-capabilities.md)。

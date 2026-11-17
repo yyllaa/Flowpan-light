@@ -6,6 +6,7 @@ import (
 )
 
 type Scope struct {
+	CapabilityBindings   map[string]string   `json:"capability_bindings,omitempty"`
 	EmbyInstances        []string            `json:"emby_instances,omitempty"`
 	AutomaticDirectories bool                `json:"automatic_directories,omitempty"`
 	DisabledTools        []string            `json:"disabled_tools,omitempty"`
@@ -15,19 +16,20 @@ type Scope struct {
 	AccountDirectoryIDs  map[string][]string `json:"account_directory_ids,omitempty"`
 }
 type Request struct {
-	Recognition *RecognitionCall  `json:"recognition,omitempty"`
-	Interaction *InteractionInput `json:"interaction,omitempty"`
-	Storage     *StorageCall      `json:"storage,omitempty"`
-	TaskID      string            `json:"task_id"`
-	PluginID    string            `json:"plugin_id"`
-	Version     string            `json:"version"`
-	ActionID    string            `json:"action_id"`
-	Input       map[string]any    `json:"input,omitempty"`
-	Config      map[string]any    `json:"config,omitempty"`
-	Scope       Scope             `json:"scope"`
-	Confirmed   bool              `json:"confirmed"`
-	Schedule    *ScheduleTrigger  `json:"schedule,omitempty"`
-	Event       *Event            `json:"event,omitempty"`
+	Capability  *CapabilityInvocation `json:"capability,omitempty"`
+	Recognition *RecognitionCall      `json:"recognition,omitempty"`
+	Interaction *InteractionInput     `json:"interaction,omitempty"`
+	Storage     *StorageCall          `json:"storage,omitempty"`
+	TaskID      string                `json:"task_id"`
+	PluginID    string                `json:"plugin_id"`
+	Version     string                `json:"version"`
+	ActionID    string                `json:"action_id"`
+	Input       map[string]any        `json:"input,omitempty"`
+	Config      map[string]any        `json:"config,omitempty"`
+	Scope       Scope                 `json:"scope"`
+	Confirmed   bool                  `json:"confirmed"`
+	Schedule    *ScheduleTrigger      `json:"schedule,omitempty"`
+	Event       *Event                `json:"event,omitempty"`
 }
 type Event struct {
 	ID            string          `json:"id"`

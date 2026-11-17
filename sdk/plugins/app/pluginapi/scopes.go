@@ -9,6 +9,14 @@ import (
 // New grants cannot widen a task that was already queued.
 func IntersectScope(frozen, current Scope) Scope {
 	out := Scope{DisabledTools: append(append([]string{}, frozen.DisabledTools...), current.DisabledTools...)}
+	for alias, provider := range frozen.CapabilityBindings {
+		if provider != "" && current.CapabilityBindings[alias] == provider {
+			if out.CapabilityBindings == nil {
+				out.CapabilityBindings = map[string]string{}
+			}
+			out.CapabilityBindings[alias] = provider
+		}
+	}
 	for _, id := range frozen.EmbyInstances {
 		if current.HasEmbyInstance(id) {
 			out.EmbyInstances = append(out.EmbyInstances, id)

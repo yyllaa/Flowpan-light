@@ -38,3 +38,16 @@ SDK 的 Serve 分开处理 run/health/migrate/storage/recognition。扩展数据
 ## 声明式兼容
 
 使用清单 `requires` / `optional` 声明依赖，`extensions` 保存带命名空间的自定义数据。运行时用 `pluginwasm.CheckRequirements` 查询必需与可选缺项。参见[兼容合同](COMPATIBILITY.md)。
+
+## 自主提供与调用能力
+
+`definition.provides` / `definition.uses` 声明版本化业务接口和必需、可选依赖；SDK 的 `CallCapability`、`SubmitCapability`、`GetCapabilityTask`、`CancelCapabilityTask` 复用宿主执行和任务中心。唯一可用提供者自动绑定，多候选在已有授权弹窗选择，重启保留绑定。
+
+完整示例见 [能力合同](CAPABILITIES.md)。仓库根目录可运行：
+
+```powershell
+python tools/plugin-kit.py --out output/format-provider --id format-provider --capability-provider
+python tools/plugin-kit.py --out output/format-consumer --id format-consumer --capability-consumer
+```
+
+生成器从本目录复制 SDK，无需主程序源码。先启用提供者，再启用调用方。新合同需要 `plugins.capabilities: 1`；声明增加业务接口，新增宿主原语仍需宿主实现。带源代码的两个独立开发包同时随本次 Release 提供。

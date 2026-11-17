@@ -19,7 +19,16 @@ parser.add_argument('--recognition', action='store_true', help='export a recogni
 parser.add_argument('--emby', action='store_true', help='export a read-only Emby host contract scaffold')
 parser.add_argument('--interaction', action='store_true', help='include bot commands, conversation replies, sessions, buttons and attachments')
 parser.add_argument('--proxy', choices=('direct', 'project', 'inherit'), default='direct', help='declare direct access or require the project HTTP proxy')
+parser.add_argument('--capability-provider', action='store_true', help='export a versioned plugin capability provider')
+parser.add_argument('--capability-consumer', action='store_true', help='export a plugin that calls a declared capability')
+parser.add_argument('--interface', default='example.text.format', help='namespaced capability interface')
+parser.add_argument('--interface-version', type=int, default=1, help='capability contract version, independent of package version')
 args = parser.parse_args()
+if args.capability_provider or args.capability_consumer:
+    if args.capability_provider and args.capability_consumer or any((args.storage,args.page,args.files,args.recognition,args.emby,args.interaction,args.schedule)):
+        parser.error('capability modes export independent scaffolds')
+    if not re.fullmatch(r'[a-z0-9][a-z0-9._-]{0,63}', args.interface) or not 1 <= args.interface_version <= 1000000:
+        parser.error('invalid capability interface or version')
 if not re.fullmatch(r'[a-z0-9][a-z0-9._-]{0,63}', args.id):
     parser.error('invalid plugin ID')
 if args.id in {'market', 'tasks', 'contributions', 'resources', 'browser', 'capabilities', 'navigation'}:
@@ -36,17 +45,18 @@ if args.interaction and (args.storage or args.page or args.files or args.schedul
     parser.error('--interaction exports a standalone interaction scaffold; other modes can declare the contract manually')
 if not re.fullmatch(r'v?[0-9]+(?:\.[0-9]+)*(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?(?:\+[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?', args.version):
     parser.error('invalid release version')
-repository = Path(__file__).resolve().parents[1]
-root = repository / "sdk/plugins"
+root = Path(__file__).resolve().parents[1]
 target = Path(args.out).resolve()
 target.mkdir(parents=True, exist_ok=False)
 for relative in ('app/pluginapi', 'sdk/pluginwasm'):
     destination = target / relative
     destination.mkdir(parents=True)
-    for source in sorted((root / relative).glob('*.go')):
+    for source in sorted((root / 'sdk/plugins' / relative).glob('*.go')):
         if relative == 'app/pluginapi' and source.name.endswith('_test.go'):
             continue
         shutil.copyfile(source, destination / source.name)
+shutil.copyfile(root / 'docs/plugin-compatibility.md', target / 'COMPATIBILITY.md')
+shutil.copyfile(root / 'docs/plugin-capabilities.md', target / 'CAPABILITIES.md')
 (target / 'plugin').mkdir()
 shutil.copyfile(root / ('plugins/examples/storage-http/main.go' if args.storage else 'plugins/examples/independent-page/main.go' if args.page else 'plugins/examples/starter/main.go'), target / 'plugin/main.go')
 (target / 'go.mod').write_text('module flowpan\n\ngo 1.25.0\n', encoding='utf-8')
@@ -59,13 +69,13 @@ if args.recognition:
     definition['fields'] = []
     definition['actions'] = []
     definition['recognition'] = dict(categories=[dict(id='special',name='专用分类')], providers=[dict(id='catalog', name=args.name, extensions=['.mkv','.mp4','.strm'], keywords=['sample-key'], patterns=[r'(?i)\bNX-[0-9]+\b'], category='special')])
-    shutil.copyfile(repository / 'docs/plugin-recognition.md', target / 'RECOGNITION.md')
+    shutil.copyfile(root / 'docs/plugin-recognition.md', target / 'RECOGNITION.md')
 if args.emby:
     shutil.copyfile(root / 'plugins/examples/emby-tools/main.go', target / 'plugin/main.go')
     permissions.extend(['emby.read'])
     definition['fields'] = []
     definition['actions'][0]['input_fields'] = [dict(key='instance_id', label='Emby 实例 ID', type='text'), dict(key='item_id', label='媒体条目 ID', type='text')]
-    shutil.copyfile(repository / 'docs/plugin-emby.md', target / 'EMBY.md')
+    shutil.copyfile(root / 'docs/plugin-emby.md', target / 'EMBY.md')
 if args.page:
     shutil.copytree(root / 'plugins/examples/independent-page/ui', target / 'ui')
     shutil.copyfile(root / 'web/assets/plugin-page-sdk.js', target / 'ui/flowpan-page-sdk.js')
@@ -124,8 +134,22 @@ if args.schedule:
     permissions.append('schedule')
     definition['fields'].extend([dict(key='scheduled', label='启用定时', type='boolean'), dict(key='cron', label='定时规则', type='cron', hint='0 0 8 * * *', visible_when=dict(field='scheduled', equals=True), required=True)])
     definition['schedules'] = [dict(id='daily', label='每日运行', action='run', cron_field='cron', enabled_field='scheduled')]
+if args.capability_provider or args.capability_consumer:
+    mode = 'capability-provider' if args.capability_provider else 'capability-consumer'
+    shutil.copyfile(root / ('plugins/examples/'+mode+'/main.go'), target / 'plugin/main.go')
+    definition['fields'] = []
+    definition['actions'][0]['input_fields'] = [dict(key='text',label='文本',type='text',required=True)]
+    if args.capability_provider:
+        definition['actions'][0].update(kind='probe',idempotent=True)
+        schema = dict(type='object',properties=dict(text=dict(type='string')),required=['text'])
+        definition['provides'] = [{'id':'format','interface':args.interface,'version':args.interface_version,'action':'run','input':schema,'output':schema}]
+    else:
+        permissions.append('capabilities.call')
+        definition['uses'] = [{'id':'formatter','interface':args.interface,'version':args.interface_version}]
 manifest = dict(schema_version=1, id=args.id, version=args.version, name=args.name, description='外部插件接入示例', category='示例', config_schema_version=1, data_schema_version=1,
                 runtime=dict(kind='wasm', module='bin/plugin.wasm'), package=dict(local=True), permissions=permissions, definition=definition)
+if args.capability_provider or args.capability_consumer:
+    manifest['requires'] = dict(features={'plugins.capabilities':1})
 manifest['release'] = dict(title=args.name+' '+args.version, notes='首次发布。')
 (target / 'CHANGELOG.md').write_text('# 更新日志\n\n## '+args.version+'\n\n首次发布。\n', encoding='utf-8')
 (target / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
@@ -153,6 +177,8 @@ subprocess.run([host,'plugin','check','--release',str(out)],cwd=root,check=True)
 
 发布版本使用数字版本号，支持 v 前缀、预发布及日期版本；新版本同时更新清单的两层 version、release.notes 与 CHANGELOG.md。build.py 自动运行 pack --release 和 check --release，缺少更新日志或版本不可比较时终止发布；普通 check 继续兼容旧包。
 release 可声明 title、notes、published_at（RFC3339）和 url（HTTPS），notes 随安装包保存，本地导入和任意发布站点均可阅读。旧 GitHub 包继续自动定位 Release。
+使用 `requires` / `optional` 声明实际依赖，`extensions` 存放带命名空间的自定义数据。SDK 的 `CheckRequirements` 返回必需和可选缺项；详见 COMPATIBILITY.md。
+使用 --capability-provider / --capability-consumer 导出独立能力提供者与调用方。provides / uses 声明命名接口与版本，唯一提供者自动绑定；多个候选在授权弹窗选择。CallCapability、SubmitCapability、GetCapabilityTask、CancelCapabilityTask 复用宿主运行与任务队列，详见 CAPABILITIES.md。
 HTTP、SDK 和服务请求由宿主自动计入仪表盘；网盘提供者与账号从运行上下文绑定，不需要新增仪表盘页面或为品牌注册计数。
 网盘返回 pluginapi.StorageError 时，SDK 自动保留业务码和 HTTP 状态，FUSE 使用实际提供者标签；只读与可写功能按 storage.capabilities 自动适配。
 

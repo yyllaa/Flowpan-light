@@ -12,6 +12,8 @@ const SchemaVersion = 2
 const APIVersion = "1"
 
 type Definition struct {
+	Provides      []CapabilityProvider   `json:"provides,omitempty"`
+	Uses          []CapabilityUse        `json:"uses,omitempty"`
 	Extensions    Extensions             `json:"extensions,omitempty"`
 	Recognition   *RecognitionDefinition `json:"recognition,omitempty"`
 	Interaction   *InteractionDefinition `json:"interaction,omitempty"`
@@ -182,6 +184,9 @@ func (d Definition) Validate() error {
 		return err
 	}
 	if err := d.validatePages(); err != nil {
+		return err
+	}
+	if err := d.validateCapabilities(); err != nil {
 		return err
 	}
 	if err := d.validateInteraction(); err != nil {

@@ -85,3 +85,5 @@ https://github.com/yyllaa/Flowpan-light/tree/main/plugins
 | [外部 139 API](docs/外部139存储API.md) | 139 账号独立 Token、分页、上传与请求回执。 |
 
 `/config` 保存设置、数据库、登录状态、插件数据与下载的运行组件，升级时必须沿用原目录。主程序镜像、主程序更新包、插件 ZIP、SDK ZIP 的用途不同，选择方法见 [升级与维护](docs/maintenance.md)。
+
+[插件能力提供、依赖绑定与插件间调用](docs/plugin-capabilities.md) · [独立开发包和模板](sdk/plugins/README.md)

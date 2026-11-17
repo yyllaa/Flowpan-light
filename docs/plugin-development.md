@@ -317,3 +317,9 @@ Emby 宿主工具与实例授权见 [plugin-emby.md](plugin-emby.md)；`tools/pl
 ## ED2K 结果与批量文件扩展
 
 通过 `ed2k.*` 和 `pluginwasm.GenerateED2K/ListED2K/ED2KTask` 使用宿主计算与结果库；声明式动态多选可让发布插件筛选已生成记录。通用文件勾选入口和 `placement: "context"` 见 [ED2K 合同](plugin-ed2k.md)。
+
+## 插件自主能力与依赖
+
+插件通过 `definition.provides` / `definition.uses` 自主实现和依赖版本化业务接口。唯一提供者自动绑定，多候选复用授权弹窗选择；同步调用、后台任务、恢复和取消均由宿主通用合同管理。使用方式和边界见 [插件能力提供与调用](plugin-capabilities.md)。
+
+公开仓库附带 `tools/plugin-kit.py` 和完整模板，可直接生成能力提供者或调用方；生成器使用 `sdk/plugins` 的独立 SDK，不依赖主程序源码。

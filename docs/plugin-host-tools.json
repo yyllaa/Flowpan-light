@@ -1,5 +1,162 @@
 {
   "api_version": "1",
+  "contract": {
+    "host_version": "core-dev",
+    "api_version": "1",
+    "features": {
+      "actions.dynamic-options": 1,
+      "files.verified-publish": 1,
+      "http.response.base64": 1,
+      "jobs.continuation": 1,
+      "manifest.extensions": 1,
+      "manifest.requirements": 1,
+      "media.cover-artifact": 1,
+      "media.lyrics": 1,
+      "plugins.capabilities": 1,
+      "state.indexed-get": 1,
+      "tasks.activity": 1,
+      "ui.pages": 1
+    },
+    "tools": [
+      "accounts.list",
+      "ai.complete",
+      "ai.status",
+      "artifacts.create",
+      "artifacts.read",
+      "artifacts.release",
+      "artifacts.seal",
+      "artifacts.stat",
+      "artifacts.write",
+      "browser.close",
+      "browser.evaluate",
+      "browser.open",
+      "capabilities.call",
+      "capabilities.cancel",
+      "capabilities.list",
+      "capabilities.submit",
+      "capabilities.task",
+      "cas.create",
+      "cas.inspect",
+      "dependencies.ensure",
+      "dependencies.status",
+      "downloads.action",
+      "downloads.add",
+      "downloads.list",
+      "downloads.status",
+      "ed2k.cancel",
+      "ed2k.list",
+      "ed2k.remove",
+      "ed2k.retry",
+      "ed2k.submit",
+      "ed2k.task",
+      "emby.capabilities",
+      "emby.images.download",
+      "emby.images.list",
+      "emby.images.upload",
+      "emby.instances.list",
+      "emby.items.get",
+      "emby.items.list",
+      "emby.items.refresh",
+      "emby.libraries.list",
+      "emby.library.scan",
+      "emby.media.updated",
+      "emby.metadata.update",
+      "emby.operations.get",
+      "emby.persons.credits",
+      "emby.persons.get",
+      "emby.persons.list",
+      "emby.sessions.list",
+      "emby.tasks.list",
+      "emby.users.list",
+      "files.cancel",
+      "files.capabilities",
+      "files.copy",
+      "files.delete",
+      "files.list",
+      "files.mkdir",
+      "files.move",
+      "files.publish",
+      "files.read",
+      "files.release",
+      "files.rename",
+      "files.restore",
+      "files.stage",
+      "files.stat",
+      "files.task",
+      "host.capabilities",
+      "http.fetch",
+      "interaction.attachment",
+      "interaction.context",
+      "interaction.reply",
+      "interaction.send_file",
+      "interaction.session.end",
+      "interaction.session.set",
+      "kv.get",
+      "kv.list",
+      "kv.set",
+      "log",
+      "media.cancel",
+      "media.identify",
+      "media.probe",
+      "media.release",
+      "media.result",
+      "media.search",
+      "media.status",
+      "media.submit",
+      "media.task",
+      "notify",
+      "organize.apply",
+      "organize.preview",
+      "organize.run",
+      "organize.status",
+      "organize.stop",
+      "recognition.identify",
+      "recognition.providers",
+      "sdk.call",
+      "secrets.read",
+      "service.call",
+      "service.upload",
+      "shares.create",
+      "shares.revoke",
+      "strm.create",
+      "strm.inspect",
+      "strm.run",
+      "strm.status",
+      "strm.tasks",
+      "task.progress",
+      "task.status",
+      "transfer.parse",
+      "transfer.status",
+      "transfer.submit"
+    ],
+    "limits": {
+      "artifact_bytes": 67108864,
+      "artifact_quota_bytes": 268435456,
+      "artifact_write_bytes": 32768,
+      "continuation_seconds": 86400,
+      "emby_image_bytes": 16777216,
+      "emby_page_size": 200,
+      "emby_response_bytes": 921600,
+      "file_bytes": 21474836480,
+      "host_calls": 128,
+      "interaction_attachment_bytes": 20971520,
+      "interaction_buttons": 8,
+      "interaction_reply_bytes": 16384,
+      "interaction_session_seconds": 1800,
+      "manifest_bytes": 524288,
+      "max_timeout_seconds": 600,
+      "media_artwork_bytes": 524288,
+      "memory_mib": 64,
+      "min_timeout_seconds": 60,
+      "package_bytes": 16777216,
+      "package_extracted_bytes": 33554432,
+      "package_files": 128,
+      "request_bytes": 65536,
+      "response_bytes": 1048576,
+      "service_upload_bytes": 67108864,
+      "share_max_seconds": 86400
+    }
+  },
   "events": [
     "file.changed",
     "organize.completed",
@@ -9,6 +166,8 @@
     "emby.playback.changed"
   ],
   "limits": {
+    "continuation_seconds": 86400,
+    "media_artwork_bytes": 524288,
     "emby_page_size": 200,
     "emby_response_bytes": 921600,
     "emby_image_bytes": 16777216,
@@ -914,6 +1073,105 @@
         },
         "required": [
           "account"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "capabilities.list",
+      "permission": "host.read",
+      "group": "插件能力",
+      "description": "查询本插件声明的能力依赖、绑定与可用提供者，不执行插件",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "capabilities.call",
+      "permission": "capabilities.call",
+      "group": "插件能力",
+      "description": "调用已绑定的插件接口，继承取消、调用预算和授权范围",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "input": {
+            "type": "object"
+          },
+          "use": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "use"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "capabilities.submit",
+      "permission": "capabilities.call",
+      "group": "插件能力",
+      "description": "提交已绑定接口的后台任务，使用稳定幂等键",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "input": {
+            "type": "object"
+          },
+          "key": {
+            "type": "string"
+          },
+          "use": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "use",
+          "key"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "capabilities.task",
+      "permission": "capabilities.call",
+      "group": "插件能力",
+      "description": "查询由本插件提交的能力任务",
+      "business_write": false,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "capabilities.cancel",
+      "permission": "capabilities.call",
+      "group": "插件能力",
+      "description": "取消由本插件提交且声明可取消的能力任务",
+      "business_write": true,
+      "confirmation": false,
+      "input_schema": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
         ],
         "type": "object"
       }
