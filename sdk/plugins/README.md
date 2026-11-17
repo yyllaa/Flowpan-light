@@ -51,3 +51,5 @@ python tools/plugin-kit.py --out output/format-consumer --id format-consumer --c
 ```
 
 生成器从本目录复制 SDK，无需主程序源码。先启用提供者，再启用调用方。新合同需要 `plugins.capabilities: 1`；声明增加业务接口，新增宿主原语仍需宿主实现。带源代码的两个独立开发包同时随本次 Release 提供。
+
+来源与目录选择声明见 [FILE-PICKER.md](FILE-PICKER.md)：`account-list` 可声明 `max: 1`，`path` 可通过 `extensions.flowpan.files.account_field` 绑定来源，复用宿主目录选择器。需要宿主 `ui.file-picker: 1`。

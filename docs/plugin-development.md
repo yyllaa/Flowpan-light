@@ -323,3 +323,5 @@ Emby 宿主工具与实例授权见 [plugin-emby.md](plugin-emby.md)；`tools/pl
 插件通过 `definition.provides` / `definition.uses` 自主实现和依赖版本化业务接口。唯一提供者自动绑定，多候选复用授权弹窗选择；同步调用、后台任务、恢复和取消均由宿主通用合同管理。使用方式和边界见 [插件能力提供与调用](plugin-capabilities.md)。
 
 公开仓库附带 `tools/plugin-kit.py` 和完整模板，可直接生成能力提供者或调用方；生成器使用 `sdk/plugins` 的独立 SDK，不依赖主程序源码。
+
+文件处理插件可复用 [来源与目录选择合同](plugin-config-file-picker.md)，无需在宿主增加插件 ID 或品牌分支。

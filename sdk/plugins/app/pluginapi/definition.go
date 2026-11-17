@@ -217,6 +217,9 @@ func (d Definition) Validate() error {
 		}
 		fields[field.Key] = field
 	}
+	if err := d.validateConfigFileFields(); err != nil {
+		return err
+	}
 	if d.ToggleField != "" && fields[d.ToggleField].Type != "boolean" {
 		return fmt.Errorf("插件开关字段无效")
 	}

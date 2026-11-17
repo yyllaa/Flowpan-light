@@ -64,7 +64,7 @@ func CurrentHostContract(hostVersion string) HostContract {
 			"jobs.continuation": 1, "http.response.base64": 1,
 			"media.cover-artifact": 1, "media.lyrics": 1,
 			"state.indexed-get": 1, "files.verified-publish": 1,
-			"ui.pages": 1, "actions.dynamic-options": 1, "tasks.activity": 1,
+			"ui.pages": 1, "ui.file-picker": 1, "actions.dynamic-options": 1, "tasks.activity": 1,
 		}, Tools: []string{}, Limits: map[string]int64{}}
 	for _, t := range Tools() {
 		c.Tools = append(c.Tools, t.Name)

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "music-scraper",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "min_host_version": "1",
   "requires": {
     "api_version": "1",
@@ -13,7 +13,8 @@
       "media.lyrics": 1,
       "state.indexed-get": 1,
       "files.verified-publish": 1,
-      "ui.pages": 1
+      "ui.pages": 1,
+      "ui.file-picker": 1
     },
     "tools": [
       "artifacts.create",
@@ -82,7 +83,7 @@
     "schema_version": 2,
     "api_version": "1",
     "id": "music-scraper",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "name": "音乐刮削",
     "description": "本地与网盘音乐标签、封面、歌词；增量处理、定时刮削与备份恢复。",
     "category": "媒体工具",
@@ -113,14 +114,20 @@
         "label": "音乐来源（选择一个）",
         "type": "account-list",
         "required": true,
-        "hint": "选择一个已授权账号；本地目录请选择本机目录。"
+        "hint": "选择一个已授权来源，支持网盘和本机目录。",
+        "max": 1
       },
       {
         "key": "directory",
         "label": "音乐目录",
         "type": "path",
         "required": true,
-        "hint": "本地填写完整目录；网盘填写音乐文件夹 ID，支持递归。"
+        "hint": "选择音乐目录，支持递归；也可填写网盘文件夹 ID 或本机完整路径。",
+        "extensions": {
+          "flowpan.files": {
+            "account_field": "account"
+          }
+        }
       },
       {
         "key": "source",
@@ -362,7 +369,6 @@
     ]
   },
   "release": {
-    "title": "音乐刮削 1.0.2",
-    "notes": "同步新版独立 SDK，与声明式能力层宿主兼容；保留按实际工具和功能合同检查兼容性。\n\n本版不改变音源、匹配、串行请求间隔、缓存、定时和校验回写流程。"
+    "notes": "修复来源选择只显示 115；接入已授权网盘和本机目录，支持浏览目录，切换来源后清空旧目录。"
   }
 }
