@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -141,5 +142,52 @@ func TestWopanMoveMixedSelection(t *testing.T) {
 	}
 	if err := s.Check(); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestWopanMutationReadsEachParentOnce(t *testing.T) {
+	s := wopanfixture.New()
+	defer s.Close()
+	s.Files["a:0"] = []wopanfixture.File{{ID: "first", Name: "first", Type: 1}}
+	for i := 0; i < 499; i++ {
+		s.Files["a:0"] = append(s.Files["a:0"], wopanfixture.File{ID: fmt.Sprintf("filler-%d", i), Name: "filler", Type: 1})
+	}
+	s.Files["a:0"] = append(s.Files["a:0"], wopanfixture.File{ID: "last", Name: "last", Type: 1})
+	s.Files["a:other"] = []wopanfixture.File{{ID: "other-file", Name: "other", Type: 1}}
+	ids := []string{mutationRef("first", "0", false, "0"), mutationRef("last", "0", false, "0"), mutationRef("other-file", "other", false, "0", "other")}
+	res := mutationCall(t, s, context.Background(), "delete", ids, "")
+	if res.Failed || s.Count("QueryAllFiles") != 3 {
+		t.Fatalf("result=%+v listings=%d", res, s.Count("QueryAllFiles"))
+	}
+	if err := s.Check(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestWopanMutationMissingAcrossPagesDoesNotWrite(t *testing.T) {
+	s := wopanfixture.New()
+	defer s.Close()
+	for i := 0; i < 500; i++ {
+		s.Files["a:0"] = append(s.Files["a:0"], wopanfixture.File{ID: fmt.Sprintf("filler-%d", i), Name: "filler", Type: 1})
+	}
+	ids := []string{mutationRef("media-a", "0", false, "0"), mutationRef("missing", "0", false, "0")}
+	res := mutationCall(t, s, context.Background(), "delete", ids, "")
+	if !res.Failed || s.Count("QueryAllFiles") != 2 || s.Count(batchPath) != 0 {
+		t.Fatalf("result=%+v listings=%d writes=%d", res, s.Count("QueryAllFiles"), s.Count(batchPath))
+	}
+}
+
+func TestWopanMutationRefreshesBetweenOperations(t *testing.T) {
+	s := wopanfixture.New()
+	defer s.Close()
+	file := mutationRef("media-a", "0", false, "0")
+	first := mutationCall(t, s, context.Background(), "move", []string{file}, rootID)
+	if first.Failed || s.Count("QueryAllFiles") != 1 {
+		t.Fatalf("first result=%+v listings=%d", first, s.Count("QueryAllFiles"))
+	}
+	s.Files["a:0"] = s.Files["a:0"][:1]
+	second := mutationCall(t, s, context.Background(), "move", []string{file}, rootID)
+	if !second.Failed || s.Count("QueryAllFiles") != 2 || s.Count(batchPath) != 0 {
+		t.Fatalf("second result=%+v listings=%d writes=%d", second, s.Count("QueryAllFiles"), s.Count(batchPath))
 	}
 }

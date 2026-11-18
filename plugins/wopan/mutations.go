@@ -53,13 +53,42 @@ func (a *adapter) mutate(ctx context.Context, op string, p pluginapi.StoragePara
 			return err
 		}
 	}
+	// Read each parent only once for this operation; do not retain stale listings.
+	pending := make(map[string]map[string]objectRef)
+	parents := make([]string, 0)
+	for _, ref := range refs {
+		if pending[ref.Parent] == nil {
+			pending[ref.Parent] = make(map[string]objectRef)
+			parents = append(parents, ref.Parent)
+		}
+		pending[ref.Parent][ref.ID] = ref
+	}
+	found := make(map[string]wopan.Entry, len(refs))
+	for _, parent := range parents {
+		remaining := pending[parent]
+		for page := 0; len(remaining) > 0; page++ {
+			if page >= 1000 {
+				return errors.New("联通云盘目录分页超过上限")
+			}
+			items, more, err := a.client.ListPage(ctx, parent, page, 500, 1)
+			if err != nil {
+				return err
+			}
+			for _, e := range items {
+				if ref, ok := remaining[e.ID]; ok && e.IsDir == ref.Dir {
+					found[e.ID] = e
+					delete(remaining, e.ID)
+				}
+			}
+			if len(remaining) > 0 && !more {
+				return errors.New("联通云盘文件不存在或已移动")
+			}
+		}
+	}
 	var files, dirs []string
 	version := ""
 	for _, ref := range refs {
-		current, err := a.find(ctx, ref.Parent, func(e wopan.Entry) bool { return e.ID == ref.ID && e.IsDir == ref.Dir })
-		if err != nil {
-			return err
-		}
+		current := found[ref.ID]
 		if op == "move" && ref.Parent == target.ID {
 			continue
 		}
