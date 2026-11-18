@@ -88,4 +88,4 @@ https://github.com/yyllaa/Flowpan-light/tree/main/plugins
 
 [插件能力提供、依赖绑定与插件间调用](docs/plugin-capabilities.md) · [独立开发包和模板](sdk/plugins/README.md)
 
-本轮插件更新与固定 SDK 发布流程见 [插件修复发布](/yyllaa/Flowpan-light/blob/main/RELEASE-PLUGINS-2026.11.17-FIXES.md)。
+插件当前版本、安装入口与下载地址见 [插件目录](plugins/README.md)。
