@@ -1769,7 +1769,7 @@
     {
       "schema_version": 1,
       "id": "storage-wopan",
-      "version": "0.2.3",
+      "version": "0.2.4",
       "requires": {
         "api_version": "1",
         "features": {
@@ -1789,9 +1789,9 @@
         "module": "plugin.wasm"
       },
       "package": {
-        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.17-fixes/storage-wopan-0.2.3.zip",
-        "sha256": "656dad3a36c2be87c5148a6f0a76d8a5a8d8e2e00ad87275f59d587b7e02d325",
-        "commit_sha": "0a43cd10fb6c4196960e19bcd7bc5b80e7d6abef"
+        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.18-wopan-0.2.4/storage-wopan-0.2.4.zip",
+        "sha256": "11fad34fd514b5d866ebb5335ba5eff18377a960f9b8b8555029011b0d7759ed",
+        "commit_sha": "cf5f5ac49411687bc57ce08a947f62f6a285925d"
       },
       "permissions": [
         "storage.provider",
@@ -1801,7 +1801,7 @@
         "schema_version": 2,
         "api_version": "1",
         "id": "storage-wopan",
-        "version": "0.2.3",
+        "version": "0.2.4",
         "name": "联通云盘",
         "description": "将联通云盘个人空间接入账号中心、文件浏览、STRM 和上传任务。",
         "category": "网盘",
@@ -1865,8 +1865,8 @@
         }
       },
       "release": {
-        "title": "联通云盘 0.2.3",
-        "notes": "补齐 HTTP 工具及 API 依赖，随包提供更新日志；发布使用固定主程序检查，保留原网盘协议与文件流程。"
+        "title": "联通云盘 0.2.4",
+        "notes": "批量删除和移动时复用同一父目录的分页结果，减少重复目录请求；每次新操作仍重新读取。"
       }
     },
     {
