@@ -12,7 +12,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: |
-          for plugin in ed2k dian-openapi wopan music; do
+          for plugin in ed2k dian-openapi wopan; do
             python tools/plugin_release.py check --plugin plugins/$plugin
           done
           python tools/plugin_release.py test-modules

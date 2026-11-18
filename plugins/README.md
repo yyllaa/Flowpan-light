@@ -12,7 +12,6 @@
 | 癫影 OpenAPI | resource-dian-openapi | 1.3.10 | [dian-openapi](dian-openapi) | 必须使用项目 HTTP 代理 |
 | 联通云盘 | storage-wopan | 0.2.2 | [wopan](wopan) | 直连 |
 | 115 ED2K | ed2k | 1.0.2 | [ed2k](ed2k) | 由宿主读取授权文件 |
-| 音乐刮削 | music-scraper | 1.0.0 | [music](music) | 使用项目代理和各音源间隔 |
 
 两个癫影版本使用不同 ID，各自安装、配置、定时任务、运行记录和私有数据，互不覆盖。浏览器版需要项目浏览器能力，OpenAPI 版通过宿主 sdk.call 使用私有 SDK，无需浏览器。
 
@@ -49,12 +48,10 @@
 癫影 OpenAPI 1.3.10 修复分享结果中的 TMDB 编号显示；115 ED2K 1.0.2 收紧管理页留白并接入任务中心。配套主程序为 `2026.11.16-plugins-mobile-tmdb`，先更新主程序，再刷新已有插件源并检查更新。详见各插件更新日志。
 
 
-音乐刮削需要主程序 `2026.11.17-music-runtime` 或包含相同合同的后续版本。先更新主程序，再刷新插件源。详见 [音乐插件](music/README.md) 和 [宿主运行合同](../docs/plugin-music-runtime.md)。
 
-插件依赖、可选功能、兼容性预检和自定义扩展见[声明式兼容合同](../docs/plugin-compatibility.md)。音乐刮削 1.0.1 使用此合同，需要 `2026.11.17-plugin-contract` 或具备相同能力的宿主。
+插件依赖、可选功能、兼容性预检和自定义扩展见[声明式兼容合同](../docs/plugin-compatibility.md)。
 
-音乐刮削 1.0.2 同步新版独立 SDK，保留原音源、请求间隔、缓存、定时和校验回写流程。新版 SDK、能力提供者/调用方开发包及合同见 [本次发布](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.17-providers)。自主能力层配套主程序 `2026.11.17-plugin-providers`；音乐插件自身继续按清单中实际需要的功能检查兼容性。
+新版 SDK、能力提供者/调用方开发包及合同见 [本次发布](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.17-providers)。自主能力层配套主程序 `2026.11.17-plugin-providers`。
 
-音乐刮削 1.0.3 修复来源只显示 115 的问题，支持选择已授权网盘及本机目录，目录浏览复用项目控件。先更新主程序到 `2026.11.17-plugin-file-picker` 或满足 `ui.file-picker: 1` 的版本。
 
 本轮插件更新与固定 SDK 发布流程见 [插件修复发布](/yyllaa/Flowpan-light/blob/main/RELEASE-PLUGINS-2026.11.17-FIXES.md)。
