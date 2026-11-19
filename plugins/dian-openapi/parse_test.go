@@ -32,6 +32,39 @@ func TestDianParsersKeepShareAndOfflineLinks(t *testing.T) {
 	}
 }
 
+func TestDianOpenAPIEpisodeFieldsReachResourceTitle(t *testing.T) {
+	raw := []byte(`{"items":[{"share_id":25,"resource_id":123,"status":"active","media_type":"tv","season":3,"seasons_csv":"3","episodes_csv":"1,2,3,4,5,6","file_name":"The.Lord.of.the.Rings.S03E05.4K.WEB-DL.mkv","total_size_human":"16.42GB"}]}`)
+	shares, count, err := parseDianOpenAPIList(raw, "tv")
+	if err != nil || count != 1 || len(shares) != 1 {
+		t.Fatalf("parse Dian API response: count=%d shares=%d err=%v", count, len(shares), err)
+	}
+	if got := shares[0].seasonMark(); got != "S03E01-E06" {
+		t.Fatalf("season mark = %q, want S03E01-E06", got)
+	}
+	resources := resourceResult(shares)["resources"].([]resource)
+	if len(resources) != 1 || !strings.Contains(resources[0].Title, "[S03E01-E06]") {
+		t.Fatalf("Dian resource title = %#v, want API episode range", resources)
+	}
+}
+
+func TestDianOpenAPIListAcceptsEpisodeArraysAndMovieFieldsStayOutOfEpisodeMark(t *testing.T) {
+	raw := []byte(`{"items":[{"share_id":26,"resource_id":124,"status":"active","media_type":"tv","season_number":3,"seasons_csv":[3],"episodes_csv":[1,2,3,4,5,6],"file_name":"The.Lord.of.the.Rings.S03E05.4K.WEB-DL.mkv"},{"share_id":27,"resource_id":125,"status":"active","media_type":"movie","season":3,"seasons_csv":"3","episodes_csv":"1,2,3,4,5,6","title_override":"Movie.2022.4K.WEB-DL"}]}`)
+	shares, count, err := parseDianOpenAPIList(raw, "tv")
+	if err != nil || count != 2 || len(shares) != 2 {
+		t.Fatalf("parse Dian API response: count=%d shares=%d err=%v", count, len(shares), err)
+	}
+	if got := shares[0].seasonMark(); got != "S03E01-E06" {
+		t.Fatalf("array episode mark = %q, want S03E01-E06", got)
+	}
+	resources := resourceResult(shares)["resources"].([]resource)
+	if !strings.Contains(resources[0].Title, "[S03E01-E06]") {
+		t.Fatalf("TV resource title = %q, want API episode range", resources[0].Title)
+	}
+	if strings.Contains(resources[1].Title, "S03") {
+		t.Fatalf("movie title acquired TV episode metadata: %q", resources[1].Title)
+	}
+}
+
 func TestLargeResourceListsFitHostProtocol(t *testing.T) {
 	shares := make([]dianShare, 250)
 	for n := range shares {

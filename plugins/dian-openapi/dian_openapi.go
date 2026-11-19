@@ -254,8 +254,8 @@ func parseDianOpenAPIList(raw []byte, mediaType string) ([]dianShare, int, error
 	for _, raw := range result.Items {
 		var item dianShare
 		var ids struct {
-			ShareID     int    `json:"share_id"`
-			EpisodesCSV string `json:"episodes_csv"`
+			ShareID int    `json:"share_id"`
+			Title   string `json:"title"`
 		}
 		if err := json.Unmarshal(raw, &item); err != nil {
 			return nil, 0, fmt.Errorf("解析癫影 OpenAPI 分享失败")
@@ -266,14 +266,14 @@ func parseDianOpenAPIList(raw []byte, mediaType string) ([]dianShare, int, error
 		if ids.ShareID > 0 {
 			item.ID = ids.ShareID
 		}
+		if item.ResourceTitle == "" {
+			item.ResourceTitle = ids.Title
+		}
 		if item.ID <= 0 || item.Status != "" && item.Status != "active" {
 			continue
 		}
 		if item.MediaType == "" {
 			item.MediaType = mediaType
-		}
-		if item.Episodes == "" {
-			item.Episodes = ids.EpisodesCSV
 		}
 		items = append(items, item)
 	}

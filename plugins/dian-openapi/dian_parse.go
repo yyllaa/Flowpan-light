@@ -4,6 +4,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,15 +18,21 @@ type dianShare struct {
 	Status         string         `json:"status"`
 	MediaType      string         `json:"media_type"`
 	Season         int            `json:"season"`
-	SeasonsCSV     string         `json:"seasons_csv"`
+	SeasonNumber   int            `json:"season_number"`
+	SeasonsCSV     any            `json:"seasons_csv"`
+	Seasons        any            `json:"seasons"`
 	EpisodeCount   int            `json:"episode_count"`
-	Episodes       string         `json:"episodes"` // "1,2,3"
+	EpisodeStart   int            `json:"episode_start"`
+	EpisodeEnd     int            `json:"episode_end"`
+	Episodes       any            `json:"episodes"` // CSV string or a numeric array
+	EpisodesCSV    any            `json:"episodes_csv"`
 	TitleOverride  string         `json:"title_override"`
 	OfflineTitle   string         `json:"offline_title"`
 	FileName       string         `json:"file_name"`
 	FileExtension  string         `json:"file_extension"`
 	FileList       []string       `json:"file_list"`
 	HasChineseSub  bool           `json:"has_chinese_subtitle"`
+	SubtitleLabel  string         `json:"subtitle_label"`
 	TagDecoded     map[string]any `json:"tag_decoded"`
 	TotalSizeBytes int64          `json:"total_size_bytes"`
 	TotalSizeHuman string         `json:"total_size_human"`
@@ -77,14 +84,15 @@ func (s dianShare) title() string {
 
 // seasonMark 站点标的季集写成标题里认得出的样子（S05E01-E16 / S01-S03 / S05），给 resCoverageOf 估覆盖用
 func (s dianShare) seasonMark() string {
-	var seasons []int
-	for _, f := range strings.Split(s.SeasonsCSV, ",") {
-		if n, err := strconv.Atoi(strings.TrimSpace(f)); err == nil && n > 0 {
-			seasons = append(seasons, n)
-		}
+	seasons := dianNumberList(s.SeasonsCSV)
+	if len(seasons) == 0 {
+		seasons = dianNumberList(s.Seasons)
 	}
 	if len(seasons) == 0 && s.Season > 0 {
 		seasons = []int{s.Season}
+	}
+	if len(seasons) == 0 && s.SeasonNumber > 0 {
+		seasons = []int{s.SeasonNumber}
 	}
 	switch {
 	case len(seasons) == 0:
@@ -92,10 +100,16 @@ func (s dianShare) seasonMark() string {
 	case len(seasons) > 1:
 		return fmt.Sprintf("S%02d-S%02d", seasons[0], seasons[len(seasons)-1])
 	}
-	var eps []int
-	for _, f := range strings.Split(s.Episodes, ",") {
-		if n, err := strconv.Atoi(strings.TrimSpace(f)); err == nil && n > 0 {
-			eps = append(eps, n)
+	eps := dianNumberList(s.EpisodesCSV)
+	if len(eps) == 0 {
+		eps = dianNumberList(s.Episodes)
+	}
+	if len(eps) == 0 && s.EpisodeStart > 0 {
+		eps = []int{s.EpisodeStart}
+		if s.EpisodeEnd > s.EpisodeStart && s.EpisodeEnd-s.EpisodeStart <= 1000 {
+			for n := s.EpisodeStart + 1; n <= s.EpisodeEnd; n++ {
+				eps = append(eps, n)
+			}
 		}
 	}
 	if len(eps) == 0 {
@@ -113,6 +127,49 @@ func (s dianShare) seasonMark() string {
 		return fmt.Sprintf("S%02dE%02d", seasons[0], lo)
 	}
 	return fmt.Sprintf("S%02dE%02d-E%02d", seasons[0], lo, hi)
+}
+
+func dianNumberList(value any) []int {
+	var entries []string
+	switch typed := value.(type) {
+	case string:
+		entries = strings.FieldsFunc(typed, func(r rune) bool { return r == ',' || r == '，' || r == ';' || r == '；' || r == '|' })
+	case []string:
+		entries = typed
+	case []any:
+		for _, entry := range typed {
+			entries = append(entries, fmt.Sprint(entry))
+		}
+	default:
+		if n, err := strconv.Atoi(fmt.Sprint(value)); err == nil && n > 0 {
+			return []int{n}
+		}
+	}
+	seen := map[int]bool{}
+	for _, entry := range entries {
+		entry = strings.TrimSpace(strings.ToUpper(entry))
+		entry = strings.TrimLeft(entry, "SEASON ")
+		if split := strings.IndexAny(entry, "-–—~至－"); split > 0 {
+			lo, errLo := strconv.Atoi(strings.TrimLeft(strings.TrimSpace(entry[:split]), "E"))
+			hi, errHi := strconv.Atoi(strings.TrimLeft(strings.TrimSpace(entry[split+1:]), "E"))
+			if errLo == nil && errHi == nil && lo > 0 && hi >= lo && hi-lo <= 1000 {
+				for n := lo; n <= hi; n++ {
+					seen[n] = true
+				}
+				continue
+			}
+		}
+		entry = strings.TrimLeft(entry, "E")
+		if n, err := strconv.Atoi(entry); err == nil && n > 0 {
+			seen[n] = true
+		}
+	}
+	result := make([]int, 0, len(seen))
+	for n := range seen {
+		result = append(result, n)
+	}
+	sort.Ints(result)
+	return result
 }
 
 // parseDianDetail resource-detail 的返回 → 有效的分享

@@ -1,0 +1,109 @@
+{
+  "items": [
+    {
+      "episode_count": 8,
+      "episodes": "1,2,3,4,5,6,7,8",
+      "file_extension": "MKV",
+      "has_chinese_subtitle": false,
+      "media_type": "tv",
+      "season": 0,
+      "seasons": "1,2",
+      "seasons_csv": "1,2",
+      "subtitle_kind": "",
+      "subtitle_label": "",
+      "tag_decoded": {
+        "audio_codec": "",
+        "chn_sub": false,
+        "frame_rate": "",
+        "hdr": "",
+        "resolution": "4K",
+        "source": "",
+        "video_codec": ""
+      },
+      "total_size_human": "149.65 GB",
+      "share_id": 101,
+      "resource_id": 201,
+      "title": "Fixture",
+      "file_name": "Fixture.mkv"
+    },
+    {
+      "episode_count": 4,
+      "episodes": "1,2,3,4",
+      "file_extension": "MKV",
+      "has_chinese_subtitle": false,
+      "media_type": "tv",
+      "season": 3,
+      "seasons": "3",
+      "seasons_csv": "3",
+      "subtitle_kind": "",
+      "subtitle_label": "",
+      "tag_decoded": {
+        "audio_codec": "",
+        "chn_sub": false,
+        "frame_rate": "",
+        "hdr": "",
+        "resolution": "4K",
+        "source": "",
+        "video_codec": ""
+      },
+      "total_size_human": "35.36 GB",
+      "share_id": 102,
+      "resource_id": 202,
+      "title": "Fixture",
+      "file_name": "Fixture.mkv"
+    },
+    {
+      "episode_count": 8,
+      "episodes": "1,2,3,4,5,6,7,8",
+      "file_extension": "MKV",
+      "has_chinese_subtitle": true,
+      "media_type": "tv",
+      "season": 2,
+      "seasons": "",
+      "seasons_csv": "",
+      "subtitle_kind": "embedded_chs",
+      "subtitle_label": "内封",
+      "tag_decoded": {
+        "audio_codec": "EAC3",
+        "chn_sub": true,
+        "frame_rate": "24fps",
+        "hdr": "Dolby Vision",
+        "resolution": "4K",
+        "source": "WEB-DL",
+        "video_codec": "H.265"
+      },
+      "total_size_human": "72.51 GB",
+      "share_id": 103,
+      "resource_id": 203,
+      "title": "Fixture",
+      "file_name": "Fixture.mkv"
+    },
+    {
+      "episode_count": 8,
+      "episodes": "1,2,3,4,5,6,7,8",
+      "file_extension": "MKV",
+      "has_chinese_subtitle": true,
+      "media_type": "tv",
+      "season": 1,
+      "seasons": "",
+      "seasons_csv": "",
+      "subtitle_kind": "embedded_chs",
+      "subtitle_label": "内封",
+      "tag_decoded": {
+        "audio_codec": "EAC3",
+        "chn_sub": true,
+        "frame_rate": "24fps",
+        "hdr": "Dolby Vision",
+        "resolution": "4K",
+        "source": "WEB-DL",
+        "video_codec": "H.265"
+      },
+      "total_size_human": "75.19 GB",
+      "share_id": 104,
+      "resource_id": 204,
+      "title": "Fixture",
+      "file_name": "Fixture.mkv"
+    }
+  ],
+  "total": 4
+}

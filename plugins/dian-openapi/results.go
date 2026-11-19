@@ -79,7 +79,7 @@ func resourceResult(shares []dianShare) map[string]any {
 			remaining -= len(file)
 			files = append(files, file)
 		}
-		items = append(items, resource{ID: dianRef(s), Title: truncateStr(s.title(), 512), Size: truncateStr(s.TotalSizeHuman, 64), Points: cost, Owned: s.owned(), PanType: pan, Files: files})
+		items = append(items, resource{ID: dianRef(s), Title: truncateStr(s.title(), 512), Size: truncateStr(s.TotalSizeHuman, 64), Points: cost, Owned: s.owned(), PanType: pan, Files: files, Tags: s.metadataTags()})
 		if len(items) >= 200 {
 			break
 		}
@@ -102,4 +102,28 @@ func resourceResult(shares []dianShare) map[string]any {
 			items = items[:len(items)-1]
 		}
 	}
+}
+
+// Preserve API metadata independently of the filename and title size budget.
+func (s dianShare) metadataTags() []string {
+	var tags []string
+	if s.MediaType == "tv" {
+		if mark := s.seasonMark(); mark != "" {
+			tags = append(tags, mark)
+		}
+	}
+	for _, key := range []string{"resolution", "source", "video_codec", "hdr", "audio_codec", "frame_rate"} {
+		if v, ok := s.TagDecoded[key].(string); ok && strings.TrimSpace(v) != "" {
+			tags = append(tags, strings.TrimSpace(v))
+		}
+	}
+	if s.SubtitleLabel != "" {
+		tags = append(tags, s.SubtitleLabel)
+	} else if s.HasChineseSub {
+		tags = append(tags, "中字")
+	}
+	if s.FileExtension != "" {
+		tags = append(tags, s.FileExtension)
+	}
+	return tags
 }

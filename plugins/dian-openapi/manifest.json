@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "resource-dian-openapi",
-  "version": "1.3.11",
+  "version": "1.3.12",
   "requires": {
     "api_version": "1",
     "features": {
@@ -43,7 +43,7 @@
     "schema_version": 2,
     "api_version": "1",
     "id": "resource-dian-openapi",
-    "version": "1.3.11",
+    "version": "1.3.12",
     "name": "癫影 OpenAPI",
     "description": "资源查询、解锁与每日签到。",
     "category": "资源",
@@ -1621,7 +1621,7 @@
     ]
   },
   "release": {
-    "title": "癫影 OpenAPI 1.3.11",
-    "notes": "补齐实际宿主工具和动态选项依赖；使用固定主程序验收，保留原签到、查询、解锁和发布流程。"
+    "title": "癫影 OpenAPI 1.3.12",
+    "notes": "保留 API 季集、编码、HDR、音轨、帧率、字幕和容器标签；补齐无文件名资源的作品标题。"
   }
 }
