@@ -148,6 +148,21 @@ func execute(ctx context.Context, c *pluginapi.StorageCall, h *http.Client) (plu
 		}
 		result.Failed = true
 		result.Message = message
+		failure := &pluginapi.StorageError{Message: message}
+		var business interface{ BusinessCode() string }
+		if errors.As(err, &business) {
+			failure.Code = business.BusinessCode()
+		}
+		var status interface{ HTTPStatus() int }
+		if errors.As(err, &status) {
+			failure.Status = status.HTTPStatus()
+		}
+		if errors.Is(err, wopan.ErrNeedLogin) {
+			failure.Status = http.StatusUnauthorized
+		}
+		if (failure.Code != "" || failure.Status != 0) && failure.Validate() == nil {
+			result.Data["storage_error"] = failure
+		}
 	}
 	return result, nil
 }

@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>插件页面</title><link rel="stylesheet" href="./style.css"></head>
+<body>
+  <main>
+    <p>运行插件并查看结果。插件设置由项目统一管理。</p>
+    <div class="controls"><button id="run" type="button">运行</button><button id="settings" type="button">插件设置</button></div>
+    <div id="state" role="status" aria-live="polite">正在连接项目</div>
+    <pre id="result" hidden></pre>
+  </main>
+  <script src="./flowpan-page-sdk.js"></script><script type="module" src="./app.js"></script>
+</body></html>

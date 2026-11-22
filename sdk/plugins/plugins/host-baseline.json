@@ -1,18 +1,19 @@
 {
   "schema_version": 1,
-  "id": "2026.11.17-plugin-direct-drive",
-  "image_id": "sha256:d930e9f7795912bd76224fc2de2753487fd14dff91094ea32da2ff7365bd883d",
+  "id": "2026.11.22-plugin-sdk-baseline",
+  "image_id": "sha256:60aa2274371d1be557938bc079f1057c67166e4241169f0fddeaae2383dae56f",
   "platform": "linux/amd64",
-  "sdk_sha256": "6bef28819b4fa15e6ec69f8adb5ec73273aa26f325abf2b666adbc350b4fb510",
+  "sdk_sha256": "76ddf27a2bed599fd0a0426e6f0be510d04e07df0f712a6e229d7c4d99b550bc",
   "capabilities": {
     "api_version": "1",
     "contract": {
-      "host_version": "2026.11.17-plugin-direct-drive",
+      "host_version": "2026.11.22-plugin-sdk-baseline",
       "api_version": "1",
       "features": {
         "actions.dynamic-options": 1,
         "files.verified-publish": 1,
         "http.response.base64": 1,
+        "interaction.menus": 1,
         "jobs.continuation": 1,
         "manifest.extensions": 1,
         "manifest.requirements": 1,

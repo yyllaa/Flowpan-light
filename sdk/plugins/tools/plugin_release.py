@@ -86,6 +86,8 @@ def required_features(manifest):
         features['ui.pages'] = 1
     if definition.get('provides') or definition.get('uses'):
         features['plugins.capabilities'] = 1
+    if (definition.get('interaction') or {}).get('menus'):
+        features['interaction.menus'] = 1
     if any(a.get('continuable') for a in definition.get('actions', [])):
         features['jobs.continuation'] = 1
     fields = list(definition.get('fields', []))
@@ -277,10 +279,9 @@ def catalog(args):
     if (manifest['id'], manifest['version']) != (receipt['plugin_id'], receipt['version']):
         raise ValueError('verification identity differs from package')
     manifest['package'] = dict(url=args.url, sha256=sha(package))
-    if args.commit:
-        if not re.fullmatch(r'[0-9a-f]{40}', args.commit):
-            raise ValueError('commit must be a full SHA')
-        manifest['package']['commit_sha'] = args.commit
+    if not isinstance(args.commit, str) or not re.fullmatch(r'[0-9a-f]{40}', args.commit):
+        raise ValueError('commit must be a full SHA')
+    manifest['package']['commit_sha'] = args.commit
     write_json(args.out, dict(schema_version=1, name='Flowpan verified plugins', plugins=[manifest]))
     print('PLUGIN_CATALOG_OK source=final_zip checksum=PASS')
 
@@ -306,7 +307,7 @@ def main(argv=None):
             cmd.add_argument('workflow', nargs=argparse.REMAINDER)
         if name == 'catalog':
             cmd.add_argument('--url', required=True)
-            cmd.add_argument('--commit')
+            cmd.add_argument('--commit', required=True, help='full 40-character lowercase source commit SHA')
             cmd.add_argument('--out', required=True, type=Path)
     cmd = sub.add_parser('test-modules')
     cmd.add_argument('--go', default=os.environ.get('FLOWPAN_GO', 'go'))

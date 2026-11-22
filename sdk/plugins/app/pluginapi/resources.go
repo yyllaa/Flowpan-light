@@ -25,6 +25,7 @@ type ResourceProvider struct {
 type Resource struct {
 	ID      string   `json:"id"`
 	Title   string   `json:"title"`
+	Description string `json:"description,omitempty"`
 	Size    string   `json:"size,omitempty"`
 	Points  int      `json:"points"`
 	Owned   bool     `json:"owned"`

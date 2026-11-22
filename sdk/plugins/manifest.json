@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "id": "standalone-example",
+  "id": "external-example",
   "version": "1.0.0",
   "name": "外部插件示例",
   "description": "外部插件接入示例",
@@ -24,7 +24,7 @@
   "definition": {
     "schema_version": 2,
     "api_version": "1",
-    "id": "standalone-example",
+    "id": "external-example",
     "version": "1.0.0",
     "name": "外部插件示例",
     "runtime": "wasm",
@@ -56,8 +56,21 @@
       }
     ]
   },
+  "requires": {
+    "api_version": "1",
+    "features": {
+      "manifest.requirements": 1
+    },
+    "tools": [
+      "host.capabilities",
+      "kv.get",
+      "kv.set",
+      "log",
+      "task.progress"
+    ]
+  },
   "release": {
     "title": "外部插件示例 1.0.0",
-    "notes": "独立 SDK 示例，支持通用宿主工具与发布校验。"
+    "notes": "首次发布。"
   }
 }

@@ -12,8 +12,19 @@ import (
 // Free text belongs to a plugin only after an explicit entry or session.set.
 type InteractionDefinition struct {
 	Commands         []InteractionCommand `json:"commands,omitempty"`
+	Menus            []InteractionMenu    `json:"menus,omitempty"`
 	MessageAction    string               `json:"message_action,omitempty"`
 	AttachmentAction string               `json:"attachment_action,omitempty"`
+}
+
+// InteractionMenu contributes an entry to the host's configured chat menus.
+// Command always references a declared interaction command, never a raw callback.
+type InteractionMenu struct {
+	ID        string   `json:"id"`
+	Label     string   `json:"label"`
+	Command   string   `json:"command"`
+	Arguments string   `json:"arguments,omitempty"`
+	Channels  []string `json:"channels,omitempty"`
 }
 type InteractionCommand struct {
 	Name        string `json:"name"`
@@ -80,6 +91,9 @@ type InteractionSendFile struct {
 var interactionCommandName = regexp.MustCompile(`^[a-z][a-z0-9_]{0,31}$`)
 
 func ReservedInteractionCommand(name string) bool {
+	if strings.HasPrefix(strings.ToLower(name), "pm_") {
+		return true
+	}
 	switch strings.ToLower(name) {
 	case "status", "dashboard", "eventsync", "incremental", "strmincremental", "full", "fullsync", "strmfull", "strmfullsync", "plugin", "plugins", "reply", "cancel", "start", "help", "fp", "flowpan":
 		return true
@@ -119,6 +133,26 @@ func (d Definition) validateInteraction() error {
 		if id != "" && !validAction(id) {
 			return fmt.Errorf("插件交互入口动作无效：%s", id)
 		}
+	}
+	if len(x.Menus) > 32 {
+		return fmt.Errorf("插件交互菜单超过上限")
+	}
+	menuIDs := map[string]bool{}
+	for _, m := range x.Menus {
+		if !interactionCommandName.MatchString(m.ID) || menuIDs[m.ID] || !seen[m.Command] ||
+			!utf8.ValidString(m.Label) || strings.TrimSpace(m.Label) != m.Label || m.Label == "" ||
+			utf8.RuneCountInString(m.Label) > 20 || len(m.Label) > 60 || strings.ContainsAny(m.Label, "\r\n\x00\t") ||
+			!utf8.ValidString(m.Arguments) || len(m.Arguments) > 512 || strings.ContainsAny(m.Arguments, "\r\n\x00") {
+			return fmt.Errorf("插件交互菜单无效：%s", m.ID)
+		}
+		channels := map[string]bool{}
+		for _, channel := range m.Channels {
+			if channel != "wecom" && channel != "telegram" || channels[channel] {
+				return fmt.Errorf("插件交互菜单通道无效：%s", m.ID)
+			}
+			channels[channel] = true
+		}
+		menuIDs[m.ID] = true
 	}
 	return nil
 }

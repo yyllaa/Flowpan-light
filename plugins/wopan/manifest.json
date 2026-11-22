@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "storage-wopan",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "requires": {
     "api_version": "1",
     "features": {
@@ -31,7 +31,7 @@
     "schema_version": 2,
     "api_version": "1",
     "id": "storage-wopan",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "name": "联通云盘",
     "description": "将联通云盘个人空间接入账号中心、文件浏览、STRM 和上传任务。",
     "category": "网盘",
@@ -95,7 +95,8 @@
     }
   },
   "release": {
-    "title": "联通云盘 0.2.4",
-    "notes": "批量删除和移动时复用同一父目录的分页结果，减少重复目录请求；每次新操作仍重新读取。"
+    "title": "联通云盘 0.2.5",
+    "notes": "保留联通云盘业务错误码和 HTTP 状态，修复错误解释后及 WASM 返回时丢失错误类型的问题；保留原有批量目录复用优化、扫码登录与续期流程。",
+    "url": "https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.22-wopan-sdk"
   }
 }

@@ -46,11 +46,27 @@ func IsNeedLogin(code string) bool { return code == "1001" || code == "10002404"
 
 // APIError 保留服务端错误码，方便上层区分"没权限"和"网络错"
 type APIError struct {
-	Code string
-	Desc string
+	Code    string
+	Desc    string
+	message string
 }
 
-func (e *APIError) Error() string { return "wopan: " + e.Code + " " + e.Desc }
+func (e *APIError) Error() string {
+	if e.message != "" {
+		return e.message
+	}
+	return "wopan: " + e.Code + " " + e.Desc
+}
+func (e *APIError) BusinessCode() string { return e.Code }
+
+// HTTPStatusError keeps provider status available across the WASM boundary.
+type HTTPStatusError struct {
+	StatusCode int
+	Message    string
+}
+
+func (e *HTTPStatusError) Error() string   { return e.Message }
+func (e *HTTPStatusError) HTTPStatus() int { return e.StatusCode }
 
 type Config struct {
 	BaseURL   string
@@ -453,7 +469,7 @@ func (c *Client) restJSON(ctx context.Context, method, path string, body any, al
 		return nil, err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("wopan: HTTP %d: %s", resp.StatusCode, truncate(raw, 300))
+		return nil, &HTTPStatusError{StatusCode: resp.StatusCode, Message: fmt.Sprintf("wopan: HTTP %d: %s", resp.StatusCode, truncate(raw, 300))}
 	}
 	var env struct {
 		Meta struct {
@@ -517,7 +533,7 @@ func (c *Client) postJSON(ctx context.Context, path string, body any) (json.RawM
 		return nil, err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("wopan: HTTP %d: %s", resp.StatusCode, truncate(raw, 300))
+		return nil, &HTTPStatusError{StatusCode: resp.StatusCode, Message: fmt.Sprintf("wopan: HTTP %d: %s", resp.StatusCode, truncate(raw, 300))}
 	}
 	return raw, nil
 }

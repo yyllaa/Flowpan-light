@@ -106,14 +106,18 @@ func (c *Client) List(ctx context.Context, spaceType, dirID, familyID string) ([
 func explainOp(op string, err error) error {
 	var ae *APIError
 	if errors.As(err, &ae) {
+		var message string
 		switch ae.Code {
 		case "500010006":
-			return fmt.Errorf("wopan: %s失败：文件被占用（服务端异步任务未完成），请稍后重试", op)
+			message = fmt.Sprintf("wopan: %s失败：文件被占用（服务端异步任务未完成），请稍后重试", op)
 		case "9999":
-			return fmt.Errorf("wopan: %s失败（9999 系统异常）—— 常见原因：写操作太频繁被限流（放慢重试）；或 id 类型不匹配", op)
+			message = fmt.Sprintf("wopan: %s失败（9999 系统异常）—— 常见原因：写操作太频繁被限流（放慢重试）；或 id 类型不匹配", op)
 		case "500", "1000":
-			return fmt.Errorf("wopan: %s失败（%s %s）—— 常见原因：id 类型不匹配（目录 id 当文件用 / is_dir 传错）、fid 为空或未 URL 编码",
+			message = fmt.Sprintf("wopan: %s失败（%s %s）—— 常见原因：id 类型不匹配（目录 id 当文件用 / is_dir 传错）、fid 为空或未 URL 编码",
 				op, ae.Code, ae.Desc)
+		}
+		if message != "" {
+			return &APIError{Code: ae.Code, Desc: ae.Desc, message: message}
 		}
 	}
 	return err
@@ -322,10 +326,10 @@ func (c *Client) batch(ctx context.Context, req batchReq) error {
 	}
 	var ae *APIError
 	if errors.As(lastErr, &ae) && ae.Code == "500010006" {
-		return fmt.Errorf("wopan: 文件被占用（服务端异步任务未完成），已重试 4 次仍失败，请稍后再试")
+		return &APIError{Code: ae.Code, Desc: ae.Desc, message: "wopan: 文件被占用（服务端异步任务未完成），已重试 4 次仍失败，请稍后再试"}
 	}
 	if errors.As(lastErr, &ae) && ae.Code == "9999" {
-		return fmt.Errorf("wopan: 服务端系统异常（9999），多次重试仍失败 —— 大概率是写操作太频繁触发限流，请放慢或稍后再试")
+		return &APIError{Code: ae.Code, Desc: ae.Desc, message: "wopan: 服务端系统异常（9999），多次重试仍失败 —— 大概率是写操作太频繁触发限流，请放慢或稍后再试"}
 	}
 	return lastErr
 }
@@ -617,7 +621,7 @@ func (c *Client) uploadPart(ctx context.Context, f *os.File, off, n int64, field
 		return "", err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("wopan: 上传分片 HTTP %d: %s", resp.StatusCode, truncate(raw, 200))
+		return "", &HTTPStatusError{StatusCode: resp.StatusCode, Message: fmt.Sprintf("wopan: 上传分片 HTTP %d: %s", resp.StatusCode, truncate(raw, 200))}
 	}
 	var r struct {
 		Code string `json:"code"`
@@ -858,7 +862,7 @@ func (c *Client) Download(ctx context.Context, fid, spaceType string) (io.ReadCl
 	}
 	if resp.StatusCode/100 != 2 {
 		resp.Body.Close()
-		return nil, 0, fmt.Errorf("wopan: 下载 HTTP %d", resp.StatusCode)
+		return nil, 0, &HTTPStatusError{StatusCode: resp.StatusCode, Message: fmt.Sprintf("wopan: 下载 HTTP %d", resp.StatusCode)}
 	}
 	return resp.Body, resp.ContentLength, nil
 }

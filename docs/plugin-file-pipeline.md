@@ -2,6 +2,8 @@
 
 云盘音乐标签、字幕和其他媒体处理插件通过宿主文件任务搬运数据，通过媒体任务调用共享依赖。大文件不进入 WASM 内存，不使用 `http.fetch` 承载音频，也不向插件返回账号凭据或签名下载链接。
 
+账号、目录及冻结任务的范围按 [通用接入合同的授权边界](plugin-integration-contract.md#授权边界) 校验；普通插件整盘授权只作用于当前插件，独立文件任务不修改原生 STRM、FUSE 或整理配置。
+
 ## 接入流程
 
 1. 声明 `host.read`、`files.read`、`files.publish`、`media.read`、`media.process`，按需声明元数据站点的 `http.fetch` 和 `http_hosts`。发布或恢复动作声明 `danger: true` 和确认文案。原有账号、目录授权继续生效。

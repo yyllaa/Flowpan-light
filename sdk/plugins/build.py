@@ -1,10 +1,6 @@
-import argparse, os, subprocess
+import argparse, sys
 from pathlib import Path
-p=argparse.ArgumentParser(); p.add_argument('--host',required=True); p.add_argument('--go',default='go'); a=p.parse_args()
-root=Path(__file__).resolve().parent; host=str(Path(a.host).resolve()); out=root/'plugin.zip'
-if out.exists(): p.error('plugin.zip already exists; choose a new release directory or rename the previous archive')
-(root/'bin').mkdir(exist_ok=True)
-env=os.environ.copy(); env.update(GOOS='wasip1',GOARCH='wasm',CGO_ENABLED='0')
-subprocess.run([a.go,'build','-trimpath','-buildvcs=false','-ldflags=-s -w','-o',str(root/'bin/plugin.wasm'),'./plugin'],cwd=root,env=env,check=True)
-subprocess.run([host,'plugin','pack','--release','--dir',str(root),'--out',str(out)],cwd=root,check=True)
-subprocess.run([host,'plugin','check','--release',str(out)],cwd=root,check=True)
+root=Path(__file__).resolve().parent
+sys.path.insert(0,str(root/'tools'))
+from plugin_release import main
+main(['build','--plugin',str(root),'--out',str(root/'plugin.zip'),*sys.argv[1:]])

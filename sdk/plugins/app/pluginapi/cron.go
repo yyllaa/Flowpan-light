@@ -49,6 +49,30 @@ func CronMatches(value string, now time.Time) bool {
 	return true
 }
 
+// CronTimesBetween returns scheduled minute slots in (after, until] in the
+// timezone of after. It uses the same field and Sunday semantics as CronMatches.
+func CronTimesBetween(value string, after, until time.Time) []time.Time {
+	if !after.Before(until) || ValidateCron(value) != nil {
+		return nil
+	}
+	fields := strings.Fields(value)
+	ranges := [][2]int{{0, 59}, {0, 59}, {0, 23}, {1, 31}, {1, 12}, {0, 7}}
+	var matches [6][60]bool
+	for i := 1; i < len(fields); i++ {
+		for v := ranges[i][0]; v <= ranges[i][1]; v++ {
+			matches[i][v] = cronFieldMatches(fields[i], v, ranges[i][0], ranges[i][1])
+		}
+	}
+	matches[5][0] = matches[5][0] || matches[5][7]
+	var times []time.Time
+	for at := after.Truncate(time.Minute).Add(time.Minute); !at.After(until); at = at.Add(time.Minute) {
+		if matches[1][at.Minute()] && matches[2][at.Hour()] && matches[3][at.Day()] && matches[4][at.Month()] && matches[5][at.Weekday()] {
+			times = append(times, at)
+		}
+	}
+	return times
+}
+
 func validateCronField(field string, min int, max int) error {
 	if field == "" {
 		return fmt.Errorf("不能为空")

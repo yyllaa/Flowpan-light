@@ -17,6 +17,11 @@ spec.loader.exec_module(release)
 
 
 class ReleaseChecks(unittest.TestCase):
+    def test_interaction_menus_require_semantic_contract(self):
+        manifest = {'definition': {'interaction': {'menus': [{'id': 'start', 'label': '开始', 'command': 'work'}]}}}
+        self.assertEqual(release.required_features(manifest)['interaction.menus'], 1)
+        self.assertNotIn('interaction.menus', release.required_features({'definition': {'interaction': {'commands': []}}}))
+
     def setUp(self):
         self.base = release.baseline()
         self.manifest = dict(id='fixture', version='1.0.0', runtime=dict(kind='wasm'),
@@ -88,15 +93,23 @@ class ReleaseChecks(unittest.TestCase):
                             sdk_sha256=self.base['sdk_sha256'], static_checked=True, runtime_verified=False)
             release.write_json(str(package) + '.verified.json', verified)
             args = type('Args', (), dict(package=package, baseline=release.BASELINE,
-                url='https://example.com/plugin.zip', commit=None, out=folder / 'index.json'))()
+                url='https://example.com/plugin.zip', commit='b' * 40, out=folder / 'index.json'))()
             with self.assertRaisesRegex(ValueError, 'workflow verification'):
                 release.catalog(args)
             verified['runtime_verified'] = True
             release.write_json(str(package) + '.verified.json', verified)
             release.catalog(args)
             entry = release.read_json(args.out)['plugins'][0]
+            self.assertEqual('b' * 40, entry['package']['commit_sha'])
             entry.pop('package')
             self.assertEqual(self.manifest, entry)
+            args.commit = None
+            with self.assertRaisesRegex(ValueError, 'commit must be a full SHA'):
+                release.catalog(args)
+            args.commit = 'not-a-commit'
+            with self.assertRaisesRegex(ValueError, 'commit must be a full SHA'):
+                release.catalog(args)
+            args.commit = 'b' * 40
             package.write_bytes(package.read_bytes() + b'changed')
             with self.assertRaisesRegex(ValueError, 'does not match'):
                 release.catalog(args)
@@ -127,9 +140,15 @@ class ReleaseChecks(unittest.TestCase):
                     self.assertEqual(set(report['tools']), set(manifest['requires']['tools']))
                     self.assertEqual(self.base['sdk_sha256'], release.check_sdk_lock(target, self.base)['sdk_sha256'])
                     self.assertTrue((target / 'tools/plugin_release.py').is_file())
+                    self.assertEqual((ROOT / 'docs/plugin-integration-contract.md').read_bytes(),
+                                     (target / 'INTEGRATION.md').read_bytes())
                     if mode == ['--storage']:
                         self.assertIn('actions.dynamic-options', manifest['requires']['features'])
                     if mode == ['--page']:
+                        self.assertEqual(manifest['definition']['pages'][0]['id'], 'home')
+                        self.assertEqual([action['id'] for action in manifest['definition']['actions']], ['run'])
+                        self.assertNotIn('media.process', manifest['permissions'])
+                        self.assertIn('FlowpanPage.loadUI()', (target / 'ui/app.js').read_text(encoding='utf-8'))
                         # Use the exported checker itself outside the parent repository.
                         subprocess.run([sys.executable, str(target / 'tools/plugin_release.py'),
                             'check', '--plugin', str(target)], cwd=target, check=True, stdout=subprocess.PIPE)

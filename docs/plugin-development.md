@@ -6,19 +6,29 @@
 
 从本项目根目录导出一个新目录：
 
-```powershell
+```sh
 python tools/plugin-kit.py --out ../my-plugin --id my-plugin --name 我的插件
 ```
 
 导出目录含标准库依赖的 SDK、合同、示例源码、清单和构建脚本，可移出项目独立使用；不依赖本项目 go.mod 中的云盘或服务端依赖。
 
-```powershell
+准备 Go 1.25、Python 3 和 Docker，并确保开发包中 `plugins/host-baseline.json` 指定的镜像已导入本机 Docker。Go 和 Python 在开发机上执行；Docker 用固定 Linux 镜像打包和校验。
+
+```sh
 cd ../my-plugin
 go test ./sdk/pluginwasm
-python build.py --host D:/实际位置/flowpan.exe --go go
+python build.py
 ```
 
-Linux 的 `--host` 指向实际 flowpan 可执行文件。构建脚本使用 Go 的 WASI 目标，生成并校验 `plugin.zip`。本地调试阶段不要求仓库地址或 commit；在项目的「辅助插件 → 插件管理 → 已安装」导入并启用。导入后按实际用途设置账号、目录与工具授权。已有 ZIP 保留，发布新版本时改名或使用新输出目录。
+先修改导出目录中的 `plugin/main.go` 和 `manifest.json`。构建脚本使用 Go 的 WASI 目标，生成并校验 `plugin.zip`；结果是候选包，尚未执行插件业务。本地调试阶段不要求仓库地址或 commit；在项目的「辅助插件 → 插件管理 → 已安装」导入并启用，配置后运行并检查运行记录。导入后按实际用途设置账号、目录与工具授权。已有 ZIP 保留，发布新版本时改名或使用新输出目录。工作流验证与生成索引见开发包中的 `RELEASE.md`。
+
+## 账号与目录授权
+
+普通资源／动作插件勾选账号后，自动授权覆盖该账号整个网盘，只对当前插件生效；无需先绑定 STRM、FUSE 或整理目录。用户明确选择目录时保留该范围与保存模式。默认主号、新增主号、小号、号池和同名账号按真实身份分别校验。
+
+网盘提供者插件只使用自身账号与绑定目录，本机目录继续使用已配置的本地范围。任务受提交时与当前授权共同限制，扩大授权不扩大旧任务，撤权会阻止后续访问。插件管理操作不得改写主程序配置、任务或其他插件授权，原生功能继续按自己的配置执行。
+
+开发及验收遵循 [通用接入合同的授权边界](plugin-integration-contract.md#授权边界) 和 [请求预算与错误处理](plugin-integration-contract.md#请求预算与错误处理)。导出开发包包含同一合同的 `INTEGRATION.md`，发布前运行 `npm run check:plugin-contract` 并检查真实管理接口前后配置不变。
 
 ## 通用执行入口
 
@@ -91,7 +101,7 @@ SDK 为注册的宿主能力提供调用入口，结果类型仍可按业务使�
 python tools/plugin-kit.py --out ../sample-drive --id sample-drive --name 示例网盘 --provider-id sampledrive --storage
 ```
 
-该模板只带示例协议转发器，不含真实账号、默认插件源或供应商实现；替换 `plugins/examples/storage-http/main.go` 的协议后，先运行 SDK 测试，再用宿主的本地假服务做多账号和生命周期验证。
+该模板只带示例协议转发器，不含真实账号、默认插件源或供应商实现；替换导出目录 `plugin/main.go` 的协议后，先运行 SDK 测试，再用宿主的本地假服务做多账号和生命周期验证。
 
 ## 可识别错误
 
@@ -318,10 +328,6 @@ Emby 宿主工具与实例授权见 [plugin-emby.md](plugin-emby.md)；`tools/pl
 
 通过 `ed2k.*` 和 `pluginwasm.GenerateED2K/ListED2K/ED2KTask` 使用宿主计算与结果库；声明式动态多选可让发布插件筛选已生成记录。通用文件勾选入口和 `placement: "context"` 见 [ED2K 合同](plugin-ed2k.md)。
 
-## 插件自主能力与依赖
+## 固定主程序与独立发布
 
-插件通过 `definition.provides` / `definition.uses` 自主实现和依赖版本化业务接口。唯一提供者自动绑定，多候选复用授权弹窗选择；同步调用、后台任务、恢复和取消均由宿主通用合同管理。使用方式和边界见 [插件能力提供与调用](plugin-capabilities.md)。
-
-公开仓库附带 `tools/plugin-kit.py` 和完整模板，可直接生成能力提供者或调用方；生成器使用 `sdk/plugins` 的独立 SDK，不依赖主程序源码。
-
-文件处理插件可复用 [来源与目录选择合同](plugin-config-file-picker.md)，无需在宿主增加插件 ID 或品牌分支。
+插件依赖检查、SDK.lock.json、独立 Go 模块测试和最终 ZIP 验收统一使用 [插件独立发布流程](plugin-release.md)。模板自动列出所用工具与界面功能；构建候选包不等于业务验收，发布索引从通过固定主程序工作流测试的最终 ZIP 生成。

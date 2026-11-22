@@ -70,7 +70,7 @@ func (c *Client) QuickTransfer(ctx context.Context, sha, name, parent string, si
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		return "", false, fmt.Errorf("联通云盘秒传返回 HTTP %d", res.StatusCode)
+		return "", false, &HTTPStatusError{StatusCode: res.StatusCode, Message: fmt.Sprintf("联通云盘秒传返回 HTTP %d", res.StatusCode)}
 	}
 	raw, err := io.ReadAll(io.LimitReader(res.Body, 65537))
 	if err != nil || len(raw) > 65536 {
