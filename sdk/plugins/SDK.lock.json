@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "baseline": "2026.11.22-plugin-sdk-baseline",
-  "image_id": "sha256:60aa2274371d1be557938bc079f1057c67166e4241169f0fddeaae2383dae56f",
-  "sdk_sha256": "76ddf27a2bed599fd0a0426e6f0be510d04e07df0f712a6e229d7c4d99b550bc",
+  "baseline": "2026.11.23-openlist-plugin",
+  "image_id": "sha256:48575619784fbb2022b4ebe0dadfa93af98fbb2b40c1bb448c1a85eeba235c0e",
+  "sdk_sha256": "3c3e763b2b0052f9c7e4e86e43d54c8c5f270c838d66f58b459ad8d403ed61db",
   "files": {
     "app/pluginapi/capabilities.go": "956144699c13d430d68375eee6b7035c147d1c755cf66b6fdbd28f9fd1c2d440",
     "app/pluginapi/config_files.go": "4c5aa74ac349ba5fb73651a03e8d505506ace5edc90e176d24a7bca4cb79338f",
-    "app/pluginapi/contract.go": "23689adc07e071c09877947724b0c2247d2b040142f30e0a0bf92c575275112b",
+    "app/pluginapi/contract.go": "11744b4d56a068bac628e28a5a920d4da395ef5cc4a65ab53a4e3438e7dd2044",
     "app/pluginapi/cron.go": "4af695af8885e5c9e3e0b3ad075757c4bfbcb29d0c38af67e7f2fa854f98146f",
     "app/pluginapi/definition.go": "b2edd474e671131ad58f81472a31d140110d5e5e0defd8670273e6106526c161",
     "app/pluginapi/directory_scope.go": "69d0208ab7cec6845ccbe8681460ea303c177051d2a21b6d591a821f9f7fc74d",
@@ -25,12 +25,14 @@
     "app/pluginapi/schedule.go": "566def2a19e2b0dd5544498fb2fed69c99dedaf657fbdefa41db226502282c1a",
     "app/pluginapi/scopes.go": "efa90b53bdec08cd341a946eaaf846acf4d4ec6c7a028fada62eec829a9081a9",
     "app/pluginapi/sdk.go": "958664fc3cd5ac5f6a88bdd9c74406c9645d4285ee7d02caefc5d0d81a94848d",
-    "app/pluginapi/storage.go": "0e859e32b2d18424b750bf66e86e30f7c6257c3b7fce9bf2bb5ebcb7565058ba",
+    "app/pluginapi/storage.go": "a72937b72e0e2ac138edf5306fbe23456e0ed5677b181b78b4112f3625dc54ed",
     "app/pluginapi/storage_changes.go": "b2f0dbecd12b02e38cf6f43e6d21ac9c4558394ac90a50cde64e8ad276015388",
+    "app/pluginapi/storage_endpoint.go": "3595f56e226c47b20d08b8d992f56ecfcce98c5ff2114ab42f378651d5e46631",
     "app/pluginapi/storage_error.go": "e363d429e833d24624763565b7eb42e7a02f25289234e3f1addc8513fac40c9b",
     "app/pluginapi/storage_fields.go": "661649924a0a672d1aeb46740d34c1d749ce07d595e3dd9961e208e77c8fde94",
+    "app/pluginapi/storage_paths.go": "154f8593f7c84ca92d073516260da7db7dc6fe2569d3a81acf14a0d22b6e6e70",
     "app/pluginapi/storage_share.go": "5ebdfed25fd180754c455483d81d3e3f41e3b0d7be51e9c4f592e2fa7982d909",
-    "app/pluginapi/tools.go": "061f7f01994d18255797fe1a0cdc9e65f862a12e6889e300713dbeade807ad78",
+    "app/pluginapi/tools.go": "44b34b132a8403f37704e1697ee5bd48a5443df492beac46025d2c66581a37a7",
     "sdk/pluginwasm/capabilities.go": "78cdcfc14c99c6d207ed8382cec5e6e46cbf976b5cb2fc03c8320c2670c78192",
     "sdk/pluginwasm/client.go": "b8c33ea291bac579f315121351f9ba64348672c91d954cb89b3dcf257e202eed",
     "sdk/pluginwasm/ed2k.go": "e6adac36790750acc9c8536820da568775e68dafcd8625c898911d5d8ad615a5",
@@ -45,6 +47,7 @@
     "sdk/pluginwasm/recognition.go": "988f5595644e6f56a768023969f7925636eff641cde53f38f81d346fd5379436",
     "sdk/pluginwasm/requirements.go": "14250b951866bc95ef927074476a4a18ecfa92daa68a0313b34b6b0ae390b07b",
     "sdk/pluginwasm/storage.go": "e816e5a44046c16eadb8ea67bac37c346894b84e32c9ea90065527665c81713f",
+    "sdk/pluginwasm/storage_paths.go": "3afc83e86cc33246bc1a300689a1122c383b1bf12bbfaafb4b05a16fad741ea0",
     "sdk/pluginwasm/tools.go": "e114655c62314976a3f86b2bd4698b643481ac653cb8c66459a77a1b96a5b9fd"
   }
 }

@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "id": "2026.11.22-plugin-sdk-baseline",
-  "image_id": "sha256:60aa2274371d1be557938bc079f1057c67166e4241169f0fddeaae2383dae56f",
+  "id": "2026.11.23-openlist-plugin",
+  "image_id": "sha256:48575619784fbb2022b4ebe0dadfa93af98fbb2b40c1bb448c1a85eeba235c0e",
   "platform": "linux/amd64",
-  "sdk_sha256": "76ddf27a2bed599fd0a0426e6f0be510d04e07df0f712a6e229d7c4d99b550bc",
+  "sdk_sha256": "3c3e763b2b0052f9c7e4e86e43d54c8c5f270c838d66f58b459ad8d403ed61db",
   "capabilities": {
     "api_version": "1",
     "contract": {
-      "host_version": "2026.11.22-plugin-sdk-baseline",
+      "host_version": "2026.11.23-openlist-plugin",
       "api_version": "1",
       "features": {
         "actions.dynamic-options": 1,
@@ -21,6 +21,8 @@
         "media.lyrics": 1,
         "plugins.capabilities": 1,
         "state.indexed-get": 1,
+        "storage.account-endpoint": 1,
+        "storage.path-refs": 1,
         "tasks.activity": 1,
         "ui.file-picker": 1,
         "ui.pages": 1
@@ -126,6 +128,7 @@
         "service.upload",
         "shares.create",
         "shares.revoke",
+        "storage.paths",
         "strm.create",
         "strm.inspect",
         "strm.run",
@@ -421,6 +424,41 @@
           },
           "required": [
             "url"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "name": "storage.paths",
+        "permission": "storage.provider",
+        "group": "网盘",
+        "description": "维护当前网盘账号的持久路径引用",
+        "business_write": false,
+        "confirmation": false,
+        "input_schema": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "operation": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "paths": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "operation",
+            "namespace"
           ],
           "type": "object"
         }

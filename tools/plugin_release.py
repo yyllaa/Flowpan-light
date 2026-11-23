@@ -94,6 +94,8 @@ def required_features(manifest):
     fields = list(definition.get('fields', []))
     fields += [f for a in definition.get('actions', []) for f in a.get('input_fields', [])]
     storage = definition.get('storage') or {}
+    if storage.get('endpoint_field'):
+        features['storage.account-endpoint'] = 1
     fields += storage.get('fields', [])
     fields += [f for group in (storage.get('task_fields') or {}).values() for f in group]
     if any(f.get('options_source') for f in fields):

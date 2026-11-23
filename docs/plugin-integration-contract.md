@@ -2,6 +2,8 @@
 
 新增插件通过清单和 SDK 接入共用宿主。插件维护供应商协议，宿主负责新版提示、发布说明、仪表盘、账号、权限和 FUSE；新增品牌不增加共享页面分支，也不自行上报调用次数。
 
+网盘账号和任务字段统一由 `FlowpanStorageUI.Form` 渲染，复用主程序的 `provider-settings-field`、标签、输入框、按钮及主题边框。账号表单在桌面排列两列，服务 URL 占整行，手机排列单列；字段声明只决定内容、条件和分组，不决定像素尺寸或颜色。新插件不得附带品牌专用 CSS；样式偏差修复共用组件，并以另一个提供者及原生页面验证。现有文案、授权与任务行为不随样式修改。
+
 机器人入口使用可选 `definition.interaction` 及六项 `interaction.*` 工具，复用现有 Telegram、企业微信配置。命令、会话、按钮、附件、宿主确认和生命周期合同见 [插件交互](plugin-interaction.md)，独立开发包使用 `--interaction` 导出。
 
 | 声明或调用 | 宿主自动行为 | 固定验证 |
@@ -118,3 +120,8 @@ npm run check:frontend
 ## ED2K 与文件批量扩展
 
 文件浏览的通用 `file-selection` 扩展点、提供者过滤、上下文动作、动态多选及共享结果库见 [ED2K 合同](plugin-ed2k.md)。宿主、SDK 和选取组件不按插件 ID 分支。
+
+
+## 账号服务地址与持久路径引用
+
+`storage.endpoint_field` 仅作用于当前提供者账号的网络访问，要求 `storage.account-endpoint: 1`；HTTP/HTTPS、端口及反代路径前缀在元数据和传输链路一致核对，不修改任何普通插件授权。`storage.paths`/`storage.path-refs: 1` 提供按插件、账号、服务身份隔离的 SQLite 路径映射，支持批量 bind、resolve、relocate 和 forget；插件更新快照及卸载清理覆盖此索引。所有异步写入需等待任务成功并核对文件，未知回执禁止盲目重放。

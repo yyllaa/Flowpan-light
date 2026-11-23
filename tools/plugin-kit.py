@@ -130,7 +130,7 @@ if args.storage:
     if args.schedule:
         parser.error('--storage and --schedule use different starter handlers')
     permissions[:] = ['storage.provider', 'http.fetch', 'log.write']
-    definition.update(fields=[], actions=[], http_hosts=['storage.example.com'], storage=dict(id=args.provider_id, name=args.name, login_methods=['token'], fields=[dict(key='endpoint',label='接口地址',type='url',required=True,hint='HTTPS 地址，需要同步声明 http_hosts'),dict(key='token',label='Token',type='secret',required=True)], capabilities=['list','stat','read','link','upload','mkdir','rename','delete','copy','move','refresh']))
+    definition.update(fields=[], actions=[], http_hosts=['storage.example.com'], storage=dict(id=args.provider_id, name=args.name, endpoint_field='endpoint', login_methods=['token'], fields=[dict(key='endpoint',label='接口地址',type='url',required=True,hint='当前账号的 HTTP/HTTPS 服务地址；访问限于该地址和路径前缀'),dict(key='token',label='Token',type='secret',required=True)], capabilities=['list','stat','read','link','upload','mkdir','rename','delete','copy','move','refresh']))
 if args.storage:
     definition['storage']['fields'].append(dict(key='client_version',label='客户端版本',type='select',default='v1',group='连接设置',options_source='client_versions',hint='驱动返回支持的接口版本；按目标网盘调整。'))
     definition['storage']['task_fields'] = dict(

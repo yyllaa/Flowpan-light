@@ -65,7 +65,8 @@ func CurrentHostContract(hostVersion string) HostContract {
 			"media.cover-artifact": 1, "media.lyrics": 1,
 			"state.indexed-get": 1, "files.verified-publish": 1,
 			"ui.pages": 1, "ui.file-picker": 1, "actions.dynamic-options": 1, "tasks.activity": 1,
-			"interaction.menus": 1,
+			"interaction.menus":        1,
+			"storage.account-endpoint": 1, "storage.path-refs": 1,
 		}, Tools: []string{}, Limits: map[string]int64{}}
 	for _, t := range Tools() {
 		c.Tools = append(c.Tools, t.Name)

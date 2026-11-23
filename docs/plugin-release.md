@@ -2,11 +2,11 @@
 
 业务逻辑、来源协议和规则由插件维护。发布插件时使用已发布的主程序，不编译或修改主程序来配合插件。本仓库的 `plugins/host-baseline.json` 固定验收镜像 ID、能力快照和 SDK 源码哈希；相同能力名称的历史实现差异先由固定构建验收，不能把“工具存在”当作所有行为均已验证。
 
-## 2026-11-22 基线更新
+## 2026-11-24 基线更新
 
-当前验收基线为 `2026.11.22-plugin-sdk-baseline`，固定镜像 ID、能力快照和 SDK 哈希记录在 `plugins/host-baseline.json`。
+当前验收基线为 `2026.11.23-openlist-plugin`，固定镜像 ID、能力快照和 SDK 哈希记录在 `plugins/host-baseline.json`。
 
-本次 SDK 增加 `CronTimesBetween` 分钟级定时枚举和资源结果的可选 `description` 字段。ABI、API 版本、现有工具及语义功能版本保持兼容；旧插件继续按原依赖声明检查。
+本次增加 `storage.account-endpoint: 1` 和 `storage.path-refs: 1`，支持账号配置的服务端点边界及持久路径引用。OpenList 0.1.0 要求这两个合同；旧版主程序须先更新到配套镜像。已有插件继续按原依赖声明检查。
 
 ## 声明检查
 

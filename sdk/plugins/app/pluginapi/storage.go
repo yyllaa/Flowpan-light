@@ -10,14 +10,16 @@ import (
 // StorageDefinition contributes a provider to the application's native account
 // and file APIs. Fields belong to each account, independently of plugin config.
 type StorageDefinition struct {
-	ID           string             `json:"id"`
-	Name         string             `json:"name"`
-	Icon         string             `json:"icon,omitempty"`
-	LoginMethods []string           `json:"login_methods"`
-	Fields       []Field            `json:"fields,omitempty"`
-	Capabilities []string           `json:"capabilities"`
-	TaskFields   map[string][]Field `json:"task_fields,omitempty"`
-	ShareLinks   []StorageShareRule `json:"share_links,omitempty"`
+	// EndpointField binds network access to this account's configured service URL.
+	EndpointField string             `json:"endpoint_field,omitempty"`
+	ID            string             `json:"id"`
+	Name          string             `json:"name"`
+	Icon          string             `json:"icon,omitempty"`
+	LoginMethods  []string           `json:"login_methods"`
+	Fields        []Field            `json:"fields,omitempty"`
+	Capabilities  []string           `json:"capabilities"`
+	TaskFields    map[string][]Field `json:"task_fields,omitempty"`
+	ShareLinks    []StorageShareRule `json:"share_links,omitempty"`
 }
 
 func (d StorageDefinition) Has(capability string) bool {
@@ -70,6 +72,17 @@ func (d StorageDefinition) Validate() error {
 	}
 	if err := ValidateStorageFields(d.Fields, false); err != nil {
 		return err
+	}
+	if d.EndpointField != "" {
+		found := false
+		for _, f := range d.Fields {
+			if f.Key == d.EndpointField && f.Type == "url" && f.Required && !f.ReadOnly && f.VisibleWhen == nil {
+				found = true
+			}
+		}
+		if !found {
+			return fmt.Errorf("网盘服务地址字段必须为固定必填 URL 字段")
+		}
 	}
 	for scope, fields := range d.TaskFields {
 		switch scope {

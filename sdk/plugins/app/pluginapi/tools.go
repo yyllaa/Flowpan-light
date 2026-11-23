@@ -50,6 +50,7 @@ func Tools() []Tool {
 		tool("task.progress", "task.progress", "任务与通知", "更新当前插件任务进度", "done?:number total?:number percent?:number message?:string checkpoint?:object", false, false),
 		tool("task.status", "task.read", "任务与通知", "读取本插件的任务记录", "id:string", false, false),
 		tool("http.fetch", "http.fetch", "网络", "通过项目代理请求声明的 HTTPS 站点", "url:string method?:string body?:string headers?:object auth_secret?:string", false, false),
+		tool("storage.paths", "storage.provider", "网盘", "维护当前网盘账号的持久路径引用", "operation:string namespace:string paths?:array id?:string path?:string", false, false),
 		tool("service.call", "service.call", "网络", "调用插件显式配置的外部服务", "method:string path:string body?:object", false, false),
 		tool("browser.open", "browser.use", "浏览器", "打开声明的站点，按插件和账号隔离登录状态", "url:string profile?:string", false, false),
 		tool("browser.evaluate", "browser.use", "浏览器", "在当前任务页面运行脚本，支持宿主注入凭据", "session:string script:string args?:object secrets?:object", false, false),
