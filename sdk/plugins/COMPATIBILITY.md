@@ -61,7 +61,7 @@ SDK 请求 `host.capabilities`。运行器返回实际绑定的工具；旧宿�
 | 新配置、按钮、动作、定时任务、仪表盘与独立页面 | definition、actions、schedule、dashboard、UI SDK | 使用已有字段和组件时无需更新 |
 | 本地/网盘文件扫描、暂存、封装、上传及恢复 | files、artifacts、media、tasks | 使用已有操作与格式时无需更新 |
 | 新网盘提供者 | storage provider 合同、账号与范围授权 | 提供者实现现有接口时无需增加品牌分支 |
-| 插件间调用与结果复用 | provides / uses、capabilities.call / submit、接口版本与持久绑定 | 同一接口版本下插件独立升级；详见 plugin-capabilities.md |
+| 插件间调用与结果复用 | provides / uses、capabilities.call / submit、接口版本与持久绑定 | 同一接口版本下插件独立升级；详见 [插件能力合同](CAPABILITIES.md) |
 | 新的系统设备、协议原语或宿主字段语义 | 新宿主实现与功能版本 | 先补通用基础，再由插件声明依赖 |
 
 FFmpeg、FFprobe、浏览器等外部依赖使用现有依赖状态和下载流程。WASM 插件通过公共媒体与浏览器工具调用，不自行在宿主执行 shell 或安装任意原生模块。请求间隔、来源协议、查询缓存和批次策略由插件维护；主程序继续处理任务持久化、账号级调度、文件校验与权限。

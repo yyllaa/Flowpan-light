@@ -28,7 +28,7 @@ python build.py
 
 网盘提供者插件只使用自身账号与绑定目录，本机目录继续使用已配置的本地范围。任务受提交时与当前授权共同限制，扩大授权不扩大旧任务，撤权会阻止后续访问。插件管理操作不得改写主程序配置、任务或其他插件授权，原生功能继续按自己的配置执行。
 
-开发及验收遵循 [通用接入合同的授权边界](plugin-integration-contract.md#授权边界) 和 [请求预算与错误处理](plugin-integration-contract.md#请求预算与错误处理)。导出开发包包含同一合同的 `INTEGRATION.md`，发布前运行 `npm run check:plugin-contract` 并检查真实管理接口前后配置不变。
+开发及验收遵循 [通用接入合同的授权边界](../sdk/plugins/INTEGRATION.md#授权边界) 和 [请求预算与错误处理](../sdk/plugins/INTEGRATION.md#请求预算与错误处理)。导出开发包包含同一合同的 `INTEGRATION.md`，发布前按 [固定宿主发布验收](../sdk/plugins/RELEASE.md) 检查管理接口前后的配置。
 
 ## 通用执行入口
 
@@ -292,11 +292,11 @@ response, err := pluginwasm.Fetch(pluginwasm.HTTPRequest{
 
 ## 插件更新日志与仪表盘
 
-插件包发布至 GitHub Release 后，应填写该版本的发布标题、更新内容及需要的主程序版本。插件管理按插件目录中的安装包 URL 定位对应 Release，点击“更新日志”在应用内读取正文，使用纯文本显示；读取失败可重试或在 GitHub 查看，不从任意网页或插件动作加载 HTML。检查新版只刷新已启用插件源，不自动安装。
+插件包发布至 GitHub Release 后，应填写该版本的发布标题、更新内容及需要的主程序版本。辅助插件页面按插件目录中的安装包 URL 定位对应 Release，点击“更新日志”在应用内读取纯文本正文。读取失败可重试或在 GitHub 查看。检查新版只刷新已启用插件源，不自动安装。
 
 网盘插件通过现有 storage/http.fetch 合同自动接入 API 调用仪表盘；宿主按真实提供者和账号统计，普通动作插件单独分组。新增插件无需为仪表盘编写业务动作、额外网络轮询或品牌前端。字段和计数口径见 [网盘插件接入](网盘插件接入.md#仪表盘与-fuse-日志合同)。
 
-新插件按 [插件通用接入合同](plugin-integration-contract.md) 随包填写 release.notes，支持本地 ZIP 与不同发布站点。导出模板自带更新日志和发布校验；npm run check:plugin-contract 固定验证通用接入。旧 GitHub 发布说明读取继续兼容；SDK 与服务请求和 HTTP 请求一样由宿主自动统计。
+新插件按 [插件通用接入合同](../sdk/plugins/INTEGRATION.md) 随包填写 release.notes，支持本地 ZIP 与不同发布站点。导出模板自带更新日志和发布校验。旧 GitHub 发布说明读取继续兼容；SDK 与服务请求和 HTTP 请求一样由宿主自动统计。
 
 
 ## 云盘媒体处理插件
@@ -330,4 +330,4 @@ Emby 宿主工具与实例授权见 [plugin-emby.md](plugin-emby.md)；`tools/pl
 
 ## 固定主程序与独立发布
 
-插件依赖检查、SDK.lock.json、独立 Go 模块测试和最终 ZIP 验收统一使用 [插件独立发布流程](plugin-release.md)。模板自动列出所用工具与界面功能；构建候选包不等于业务验收，发布索引从通过固定主程序工作流测试的最终 ZIP 生成。
+插件依赖检查、SDK.lock.json、独立 Go 模块测试和最终 ZIP 验收统一使用 [插件独立发布流程](../sdk/plugins/RELEASE.md)。模板自动列出所用工具与界面功能；构建候选包不等于业务验收，发布索引从通过固定主程序工作流测试的最终 ZIP 生成。

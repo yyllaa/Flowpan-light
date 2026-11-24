@@ -48,21 +48,20 @@ if args.interaction and (args.storage or args.page or args.files or args.schedul
 if not re.fullmatch(r'v?[0-9]+(?:\.[0-9]+)*(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?(?:\+[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?', args.version):
     parser.error('invalid release version')
 root = Path(__file__).resolve().parents[1]
+sdk = root / 'sdk/plugins'
 base = baseline(args.baseline)
-sdk_lock(root / 'sdk/plugins', base=base)
+sdk_lock(sdk, base=base)
 target = Path(args.out).resolve()
 target.mkdir(parents=True, exist_ok=False)
 for relative in ('app/pluginapi', 'sdk/pluginwasm'):
     destination = target / relative
     destination.mkdir(parents=True)
-    for source in sorted((root / 'sdk/plugins' / relative).glob('*.go')):
+    for source in sorted((sdk / relative).glob('*.go')):
         if relative == 'app/pluginapi' and source.name.endswith('_test.go'):
             continue
         shutil.copyfile(source, destination / source.name)
-shutil.copyfile(root / 'docs/plugin-compatibility.md', target / 'COMPATIBILITY.md')
-shutil.copyfile(root / 'docs/plugin-capabilities.md', target / 'CAPABILITIES.md')
-shutil.copyfile(root / 'docs/plugin-release.md', target / 'RELEASE.md')
-shutil.copyfile(root / 'docs/plugin-integration-contract.md', target / 'INTEGRATION.md')
+for name in ('COMPATIBILITY.md', 'CAPABILITIES.md', 'RELEASE.md', 'INTEGRATION.md', 'FILE-PICKER.md'):
+    shutil.copyfile(sdk / name, target / name)
 (target / 'tools/plugin-scan').mkdir(parents=True)
 for name in ('plugin_release.py', 'plugin-scan/main.go', 'plugin-scan/main_test.go'):
     shutil.copyfile(root / 'tools' / name, target / 'tools' / name)
@@ -90,7 +89,7 @@ if args.emby:
     shutil.copyfile(root / 'docs/plugin-emby.md', target / 'EMBY.md')
 if args.page:
     shutil.copytree(root / 'plugins/examples/starter-page/ui', target / 'ui')
-    shutil.copyfile(root / 'web/assets/plugin-page-sdk.js', target / 'ui/flowpan-page-sdk.js')
+    shutil.copyfile(sdk / 'web/assets/plugin-page-sdk.js', target / 'ui/flowpan-page-sdk.js')
     definition['pages'] = [dict(id='home', label=args.name, icon='file', description='插件页面', navigation=True, entry='ui/index.html')]
 if args.interaction:
     shutil.copyfile(root / 'plugins/examples/interaction/main.go', target / 'plugin/main.go')

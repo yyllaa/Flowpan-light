@@ -6,19 +6,19 @@
 
 当前验收基线为 `2026.11.23-openlist-plugin`，固定镜像 ID、能力快照和 SDK 哈希记录在 `plugins/host-baseline.json`。
 
-本次增加 `storage.account-endpoint: 1` 和 `storage.path-refs: 1`，支持账号配置的服务端点边界及持久路径引用。OpenList 0.1.0 要求这两个合同；旧版主程序须先更新到配套镜像。已有插件继续按原依赖声明检查。
+本次增加 `storage.account-endpoint: 1` 和 `storage.path-refs: 1`，支持账号配置的服务端点边界及持久路径引用。OpenList 插件需要这两个合同；旧版主程序须先更新到配套镜像。已有插件继续按原依赖声明检查。
 
 ## 声明检查
 
 ```powershell
-python tools/plugin_release.py check --all
+python tools/plugin_release.py check --plugin plugins/ed2k
 python tools/plugin_release.py test-modules
 python -m unittest discover -s tools/tests -p test_plugin_release.py
 ```
 
 新 WASM 插件必须声明 `requires.api_version`、实际工具、配置及页面所需功能。检查器使用 Go AST 解析直接工具调用、SDK 别名和 SDK 封装的传递调用，检查清单、权限和固定宿主是否满足要求。可选能力在 `optional` 中声明，由插件实现降级。动态派发位置单独报告，仍须编写工作流测试；静态分析不会证明全部动态分支已运行。
 
-原生内置配置继续使用原合同。根 CI 另行发现 `plugins/`、`sdk/` 中的独立 Go 模块并进入各模块运行 build、vet、test，不能只在根目录执行 `./plugins/...`。
+将 plugins/ed2k 换成所维护的插件目录。旧版癫影浏览器包继续使用原合同。仓库 CI 另行发现 `plugins/`、`sdk/` 中的独立 Go 模块并进入各模块运行 build、vet、test，不能只在根目录执行 `./plugins/...`。
 
 ## 导出开发包
 
@@ -50,7 +50,7 @@ python tools/plugin_release.py catalog --package plugin.zip --url https://exampl
 ## 构建候选包
 
 ```powershell
-python tools/plugin_release.py build --plugin plugins/flowpan.ed2k --out output/my-release/ed2k.zip
+python tools/plugin_release.py build --plugin plugins/ed2k --out output/my-release/ed2k.zip
 ```
 
 默认使用本机已有的固定 Linux 镜像，以不可变 ID 运行，不拉取替代镜像、不访问外网。构建只编译插件 WASM；打包与 `plugin check --release` 在固定主程序中执行。机器需预先导入对应发布镜像。
@@ -70,7 +70,7 @@ python tools/plugin_release.py catalog --package output/my-release/ed2k.zip --ur
 
 通用验收覆盖：本地 ZIP 与在线目录导入、启用、配置与数据保留、账号隔离、无 STRM/FUSE 绑定的目录选择、游标分页、权限撤销、任务进度、重启恢复、取消及回退。插件业务测试再覆盖实际处理、重复请求和异常回执。用模拟提供者做组合测试；真实网盘保留小样本和请求间隔，模拟 3000 首不写成真实 3000 首上传。
 
-每个新插件及插件发布前运行 `npm run check:plugin-contract`。该检查包含普通插件无 STRM/FUSE 绑定时的整盘授权、115 默认／新增主号及号池隔离、授权模式保存、撤权与冻结任务、未缓存新目录的文件事件，以及网盘提供者和本机目录隔离。普通资源／动作插件只获得当前插件已勾选账号的授权；实际处理目录由插件自己的配置决定，不修改 STRM、FUSE 或其他插件的范围。固定宿主镜像上的插件工作流也须核对这些行为；旧镜像仍有共用缺陷时，先验收并发布修复宿主，不在插件中增加绕过分支。
+主程序维护者在主程序工程运行 `npm run check:plugin-contract`。该检查包含普通插件无 STRM/FUSE 绑定时的整盘授权、115 默认／新增主号及号池隔离、授权模式保存、撤权与冻结任务、未缓存新目录的文件事件，以及网盘提供者和本机目录隔离。普通资源／动作插件只获得当前插件已勾选账号的授权；实际处理目录由插件自己的配置决定，不修改 STRM、FUSE 或其他插件的范围。固定宿主镜像上的插件工作流也须核对这些行为；旧镜像仍有共用缺陷时，先验收并发布修复宿主，不在插件中增加绕过分支。
 
 `catalog` 必须读取与当前包、SDK、固定镜像一致的 `.verified.json`。它从最终 ZIP 中读取清单并计算包 SHA-256，生成索引条目，不再手写两份清单。回执是本地/CI 测试证据，不是来自插件或第三方的可信签名；审阅测试代码与保管发布权限仍由项目负责。
 
@@ -88,7 +88,7 @@ python tools/plugin_release.py catalog --package output/my-release/ed2k.zip --ur
 基于 plugins/host-baseline.json 中固定的已发布主程序开发插件。
 业务变化在插件中实现，补齐 requires/optional，保留旧数据和可选降级。
 运行声明检查、独立模块测试，构建最终 ZIP，并在固定镜像上验证完整工作流。
-运行 npm run check:plugin-contract，验证插件账号授权独立于 STRM/FUSE 配置、账号隔离、撤权及新目录事件；普通插件复用宿主整盘授权。
+在主程序工程运行 npm run check:plugin-contract，验证插件账号授权独立于 STRM/FUSE 配置、账号隔离、撤权及新目录事件；普通插件复用宿主整盘授权。
 验证插件管理操作前后主程序配置、任务、账号及其他插件授权保持原值，主程序原生功能不依赖普通插件启停。
 验证后从最终 ZIP 生成索引，保留包、SDK、主程序哈希与测试命令。
 若需要修改主程序，先提供已有工具不能满足需求的具体证据。

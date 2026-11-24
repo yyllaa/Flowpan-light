@@ -2,6 +2,8 @@
 
 此目录可独立开发，SDK 与合同来自导出时的项目源码，仅依赖 Go 标准库。
 
+COMPATIBILITY、CAPABILITIES、FILE-PICKER、INTEGRATION 和 RELEASE 的原文在此目录统一维护，导出开发包时一并附带。
+
 `definition.network.proxy` 声明网络策略：direct 为直连，project 必须使用项目设置中的 HTTP 代理，inherit 跟随项目设置。代理地址由宿主管理。导出时可用 --proxy project 选择需要代理的插件。
 
 1. 编辑 `plugin/main.go` 和 `manifest.json`，同步两层 ID、版本及权限，并填写 release.notes 与 CHANGELOG.md。
@@ -38,7 +40,7 @@ SDK 的 Serve 分开处理 run/health/migrate/storage/recognition。扩展数据
 
 ## ED2K 与文件浏览扩展
 
-本 SDK 提供 `GenerateED2K`、`ListED2K`、`ED2KTask`、`RetryED2K`、`CancelED2K` 和 `RemoveED2K`，与 `ed2k.generate/read/manage` 权限配合。文件选择入口、提供者过滤、上下文动作及动态多选见 [ED2K 合同](../../docs/plugin-ed2k.md)。宿主需要 `2026.11.16-ed2k` 或包含同等合同的版本。
+本 SDK 提供 `GenerateED2K`、`ListED2K`、`ED2KTask`、`RetryED2K`、`CancelED2K` 和 `RemoveED2K`，与 `ed2k.generate/read/manage` 权限配合。文件选择入口、提供者过滤、上下文动作及动态多选见 [ED2K 合同](https://github.com/yyllaa/Flowpan-light/blob/main/docs/plugin-ed2k.md)。宿主需要 `2026.11.16-ed2k` 或包含同等合同的版本。
 
 ## 声明式兼容
 

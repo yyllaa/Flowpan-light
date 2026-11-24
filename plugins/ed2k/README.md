@@ -8,4 +8,4 @@
 
 算法固定为给定 115 向量：9,728,000 字节分块、MD4 摘要、多块摘要合并、不增加空尾块。空文件直接生成空 MD4。默认串行读取，最大文件 1 TiB，等待队列最多 200 个；这些是宿主资源上限，不代表服务端风控阈值。
 
-构建：`python plugins/flowpan.ed2k/build.py --host /实际路径/flowpan --go go --out /输出路径/ed2k-1.0.2.zip`。构建执行发布包校验，页面资产随插件 ZIP 分发。
+构建：`python tools/plugin_release.py build --plugin plugins/ed2k --out dist/ed2k-1.0.3.zip`。构建执行发布包校验，页面资产随插件 ZIP 分发。

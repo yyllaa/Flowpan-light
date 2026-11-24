@@ -1,0 +1,6 @@
+# The published SDK lock hashes the committed Go source bytes.
+sdk/plugins/app/pluginapi/*.go text eol=lf
+sdk/plugins/sdk/pluginwasm/*.go text eol=lf
+
+# Keep the standalone page bridge byte-identical across checkouts.
+sdk/plugins/web/assets/plugin-page-sdk.js text eol=lf

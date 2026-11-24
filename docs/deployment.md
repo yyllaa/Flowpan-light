@@ -8,7 +8,7 @@
 - 与主机 CPU 架构匹配的 Flowpan 主程序镜像包。`linux/amd64` 与 `linux/arm64` 应按实际交付的平台选择。
 - 可持久保存配置的部署目录，下载运行组件和处理本地媒体时还需预留磁盘空间。
 
-目前仓库 [Releases](https://github.com/yyllaa/Flowpan-light/releases) 提供插件和 SDK，主程序镜像按单独交付的离线文件导入。GitHub 自动生成的 `Source code.zip`、`resource-dian-*.zip` 和 `Flowpan-Plugin-SDK.zip` 均不是主程序镜像包。
+主程序镜像按单独交付的离线文件导入。公开 Release 附件包括 Web 更新包、插件和 SDK，各类文件的入口见 [升级与维护](maintenance.md#文件包用途)。
 
 ## 通过 Compose 部署
 

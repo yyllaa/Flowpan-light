@@ -140,11 +140,14 @@ class ReleaseChecks(unittest.TestCase):
                     self.assertEqual(set(report['tools']), set(manifest['requires']['tools']))
                     self.assertEqual(self.base['sdk_sha256'], release.check_sdk_lock(target, self.base)['sdk_sha256'])
                     self.assertTrue((target / 'tools/plugin_release.py').is_file())
-                    self.assertEqual((ROOT / 'docs/plugin-integration-contract.md').read_bytes(),
-                                     (target / 'INTEGRATION.md').read_bytes())
+                    sdk = ROOT / 'sdk/plugins'
+                    for name in ('COMPATIBILITY.md', 'CAPABILITIES.md', 'RELEASE.md', 'INTEGRATION.md', 'FILE-PICKER.md'):
+                        self.assertEqual((sdk / name).read_bytes(), (target / name).read_bytes(), name)
                     if mode == ['--storage']:
                         self.assertIn('actions.dynamic-options', manifest['requires']['features'])
                     if mode == ['--page']:
+                        self.assertEqual((sdk / 'web/assets/plugin-page-sdk.js').read_bytes(),
+                                         (target / 'ui/flowpan-page-sdk.js').read_bytes())
                         self.assertEqual(manifest['definition']['pages'][0]['id'], 'home')
                         self.assertEqual([action['id'] for action in manifest['definition']['actions']], ['run'])
                         self.assertNotIn('media.process', manifest['permissions'])

@@ -4,7 +4,7 @@
 
 网盘账号和任务字段统一由 `FlowpanStorageUI.Form` 渲染，复用主程序的 `provider-settings-field`、标签、输入框、按钮及主题边框。账号表单在桌面排列两列，服务 URL 占整行，手机排列单列；字段声明只决定内容、条件和分组，不决定像素尺寸或颜色。新插件不得附带品牌专用 CSS；样式偏差修复共用组件，并以另一个提供者及原生页面验证。现有文案、授权与任务行为不随样式修改。
 
-机器人入口使用可选 `definition.interaction` 及六项 `interaction.*` 工具，复用现有 Telegram、企业微信配置。命令、会话、按钮、附件、宿主确认和生命周期合同见 [插件交互](plugin-interaction.md)，独立开发包使用 `--interaction` 导出。
+机器人入口使用可选 `definition.interaction` 及六项 `interaction.*` 工具，复用现有 Telegram、企业微信配置。命令、会话、按钮、附件、宿主确认和生命周期合同见 [插件交互](https://github.com/yyllaa/Flowpan-light/blob/main/docs/plugin-interaction.md)，独立开发包使用 `--interaction` 导出。
 
 | 声明或调用 | 宿主自动行为 | 固定验证 |
 | --- | --- | --- |
@@ -89,6 +89,8 @@ SDK 的 `Serve(Handlers{Storage: ...})` 自动将错误放入 `storage_error`，
 
 ## 项目回归入口
 
+主程序维护者在主程序工程运行以下检查。独立插件的构建和工作流验收见 [RELEASE.md](RELEASE.md)。
+
 ```sh
 npm run check:plugin-contract
 npm run check:frontend
@@ -101,7 +103,7 @@ npm run check:frontend
 后续开发可直接采用以下要求：
 
 ```text
-按 docs/plugin-integration-contract.md 接入新插件，优先使用 tools/plugin-kit.py。
+按本合同接入新插件，从公开仓库运行 tools/plugin-kit.py 导出模板。
 供应商协议放在插件中；共享宿主、页面、仪表盘和日志不增加品牌或插件 ID 分支。
 随版本填写 release.notes，数字版本可比较，使用 pack/check --release。
 网盘能力按 storage.capabilities 声明，错误使用 pluginapi.StorageError。
@@ -115,11 +117,11 @@ npm run check:frontend
 
 ## 云盘文件处理
 
-音乐、字幕等插件通过通用 `files.stage`、媒体 `file_task` 输入和 `files.publish` 衔接网盘文件。账号与目录沿用当前授权，上传与恢复使用明确冲突策略，未知回执不自动重放；能力按每个驱动实际支持情况返回。SDK 开发包使用 `--files` 导出示例，字段与恢复流程见 [云盘文件处理合同](plugin-file-pipeline.md)。
+音乐、字幕等插件通过通用 `files.stage`、媒体 `file_task` 输入和 `files.publish` 衔接网盘文件。账号与目录沿用当前授权，上传与恢复使用明确冲突策略，未知回执不自动重放；能力按每个驱动实际支持情况返回。SDK 开发包使用 `--files` 导出示例，字段与恢复流程见 [云盘文件处理合同](https://github.com/yyllaa/Flowpan-light/blob/main/docs/plugin-file-pipeline.md)。
 
 ## ED2K 与文件批量扩展
 
-文件浏览的通用 `file-selection` 扩展点、提供者过滤、上下文动作、动态多选及共享结果库见 [ED2K 合同](plugin-ed2k.md)。宿主、SDK 和选取组件不按插件 ID 分支。
+文件浏览的通用 `file-selection` 扩展点、提供者过滤、上下文动作、动态多选及共享结果库见 [ED2K 合同](https://github.com/yyllaa/Flowpan-light/blob/main/docs/plugin-ed2k.md)。宿主、SDK 和选取组件不按插件 ID 分支。
 
 
 ## 账号服务地址与持久路径引用

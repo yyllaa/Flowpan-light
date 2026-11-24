@@ -8,11 +8,12 @@
 | --- | --- |
 | 主程序离线镜像 `.tar` / `.tar.gz` | 通过 `docker load -i` 导入，再由 Compose 创建容器。 |
 | 主程序更新包 | 在“其他设置 → 系统更新”选择并安装，必须匹配当前环境及架构。 |
+| Web 更新包 `flowpan-web.zip` | 从“其他设置 → 系统更新 → Web 更新源”检查并安装，操作见 [Web 独立更新](web-update.md)。 |
 | `resource-dian-版本.zip` 等插件包 | 在“插件市场”本地导入，或通过插件来源安装。 |
 | `Flowpan-Plugin-SDK.zip` | 外部插件开发使用。 |
 | GitHub 自动生成的 `Source code.zip` | 仓库文件快照，不能作为主程序镜像或插件安装包。 |
 
-当前仓库 [Releases](https://github.com/yyllaa/Flowpan-light/releases) 提供插件与 SDK，主程序离线镜像按单独交付的文件使用。对照文件用途选择安装入口。
+仓库 [Releases](https://github.com/yyllaa/Flowpan-light/releases) 提供 Web 更新、插件和 SDK。主程序离线镜像按单独交付的文件使用。
 
 ## 持久化与备份
 
@@ -57,7 +58,7 @@ docker compose --env-file .env -f deploy/compose.yaml logs --tail=100
 docker compose --env-file .env -f deploy/compose.yaml restart flowpan-core
 ```
 
-内置更新状态保存在 `/config/updates`，容器入口负责加载相应运行版本。升级后检查后台当前版本及启动日志。插件更新走插件管理页面，不能把插件包放到系统更新入口。
+内置更新状态保存在 `/config/updates`，容器入口负责加载相应运行版本。升级后检查后台当前版本及启动日志。插件从辅助插件页面更新，流程见 [插件使用](plugins.md#更新与卸载)。界面更新和回退见 [Web 独立更新](web-update.md)。
 
 ## 回退版本
 
