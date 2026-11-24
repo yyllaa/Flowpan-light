@@ -58,7 +58,9 @@ docker compose --env-file .env -f deploy/compose.yaml logs --tail=100
 docker compose --env-file .env -f deploy/compose.yaml restart flowpan-core
 ```
 
-内置更新状态保存在 `/config/updates`，容器入口负责加载相应运行版本。升级后检查后台当前版本及启动日志。插件从辅助插件页面更新，流程见 [插件使用](plugins.md#更新与卸载)。界面更新和回退见 [Web 独立更新](web-update.md)。
+主程序更新的运行文件保存在 `/config/updates/runtime/active`。容器仍使用同一个内置主程序版本时，入口会加载已保存的主程序更新。改用内置主程序版本不同的镜像时，入口会归档旧的主程序更新，再启动该镜像的主程序。支持自动清理的版本在启动时保留一份主程序更新备份，供回退使用。
+
+独立 Web 使用 `/config/updates/web/` 的独立版本记录，按 Web 兼容性和版本选择。升级后检查后台主程序版本、Web 版本和启动日志。相关流程见[插件更新](plugins.md#更新与卸载)和 [Web 独立更新](web-update.md)。
 
 ## 回退版本
 

@@ -10,6 +10,8 @@
 
 ## 声明检查
 
+在公开仓库根目录运行。
+
 ```powershell
 python tools/plugin_release.py check --plugin plugins/ed2k
 python tools/plugin_release.py test-modules
@@ -30,22 +32,24 @@ python tools/plugin-kit.py --out ../my-plugin --id my-plugin --page
 
 ### 在独立开发包中构建和发布
 
-以下命令在导出目录执行。安装 Go 1.25、Python 3 和 Docker，并预先导入 `plugins/host-baseline.json` 中 `image_id` 指向的固定镜像；工具不会自动拉取镜像。修改 `plugin/main.go`、`manifest.json` 和 `CHANGELOG.md` 后运行：
+以下命令在导出的插件目录执行。使用 Go 1.25、Python 3（仓库 CI 使用 3.12）和支持 Linux 容器的 Docker。用 `docker load -i` 导入单独交付的 Flowpan 主程序镜像，再用 `docker image inspect` 确认镜像 ID 和平台与 `plugins/host-baseline.json` 的 `image_id`、`platform` 一致。构建工具按该 ID 使用本机镜像。
+
+修改 `plugin/main.go`、`manifest.json` 和 `CHANGELOG.md` 后运行以下命令。
 
 ```sh
-go test ./sdk/pluginwasm
+go test ./...
 python tools/plugin_release.py check --plugin .
 python build.py
 ```
 
-`plugin.zip` 和 `plugin.zip.build.json` 是候选包及构建回执。导入候选包并完成启用、配置、运行、更新和业务异常等工作流验证；将可重复执行的实际测试保存为自己的 `tests/workflow.py`，由它启动固定镜像并安装最终 ZIP。然后执行：
+`plugin.zip` 和 `plugin.zip.build.json` 是候选包及静态构建回执。编写可重复执行的 `tests/workflow.py`，启动固定镜像并安装同一个 ZIP，再断言插件的启用、配置、运行、更新及业务异常等行为。固定基线 `2026.11.23-openlist-plugin` 上首次安装后需要手动启用。支持自动启用的新版宿主另行验收。
 
 ```sh
 python tools/plugin_release.py verify --package plugin.zip -- python tests/workflow.py
-python tools/plugin_release.py catalog --package plugin.zip --url https://example.com/plugin.zip --commit 40位小写源码commit --out index.json
+python tools/plugin_release.py catalog --package plugin.zip --url https://github.com/OWNER/REPO/releases/download/TAG/my-plugin.zip --commit COMMIT_SHA_40_HEX --out plugin-index.json
 ```
 
-替换 URL 和 commit 为实际值；发布 ZIP、源码和生成的索引。每个新版本更新清单两层版本及发布说明，输出使用新的目录或移走旧候选包；包变化后必须重新构建和验证。工作流测试的具体断言由插件业务决定，构建或静态检查不能替代它。
+将 URL 和 commit 换成实际的下载地址和 40 位小写源码提交 SHA。在线安装使用与插件源同一 GitHub 仓库的附件地址。`catalog` 输出当前插件的单条索引，将该条目合并到插件源的 `plugins/index.json` 后发布。每个新版本更新清单的两层版本和 `release.notes`，并在新目录生成和验证候选包。
 
 ## 构建候选包
 
@@ -53,9 +57,9 @@ python tools/plugin_release.py catalog --package plugin.zip --url https://exampl
 python tools/plugin_release.py build --plugin plugins/ed2k --out output/my-release/ed2k.zip
 ```
 
-默认使用本机已有的固定 Linux 镜像，以不可变 ID 运行，不拉取替代镜像、不访问外网。构建只编译插件 WASM；打包与 `plugin check --release` 在固定主程序中执行。机器需预先导入对应发布镜像。
+开发机编译插件 WASM。默认使用本机的固定 Linux 镜像执行 `plugin pack --release` 与 `plugin check --release`，运行参数包含 `--pull=never` 和 `--network none`。
 
-没有 Docker 时，可传 `--host /path/to/flowpan --host-sha256 实际程序SHA256`。程序字节哈希及返回的完整能力快照均需匹配；二进制哈希记入候选包回执。这用于明确固定的同版二进制，不把任意开发版视为支持基线。
+使用对应版本的本机可执行文件构建候选包时，传入 `--host /path/to/flowpan --host-sha256 SHA256`。工具比较文件哈希和传入值，并对照固定基线检查完整能力快照。候选包回执记录该二进制的哈希。正式发布继续在固定基线上运行工作流验收。
 
 成功后得到 ZIP 和 `.build.json`，其中 `static_checked=true`、`runtime_verified=false`。已有输出不覆盖，版本不同放进新的发布目录。静态检查不执行插件业务，不能据此直接发布。
 
@@ -63,7 +67,7 @@ python tools/plugin_release.py build --plugin plugins/ed2k --out output/my-relea
 
 ```powershell
 python tools/plugin_release.py verify --package output/my-release/ed2k.zip -- python tests/my_plugin_workflow.py
-python tools/plugin_release.py catalog --package output/my-release/ed2k.zip --url https://example.com/ed2k.zip --commit COMMIT_SHA_40_HEX --out output/my-release/index.json
+python tools/plugin_release.py catalog --package output/my-release/ed2k.zip --url https://github.com/OWNER/REPO/releases/download/TAG/ed2k.zip --commit COMMIT_SHA_40_HEX --out output/my-release/plugin-index.json
 ```
 
 `verify` 执行真实测试命令，为测试提供 `FLOWPAN_PLUGIN_ZIP`、`FLOWPAN_IMAGE_ID`、`FLOWPAN_BASELINE`。测试应启动该固定镜像、安装该最终 ZIP，覆盖插件实际工作流；不能用占位命令、仅编译或健康检查代替。测试失败不生成新验证回执；ZIP 变化后原回执失效。

@@ -12,15 +12,20 @@ python tools/plugin-kit.py --out ../my-plugin --id my-plugin --name 我的插件
 
 导出目录含标准库依赖的 SDK、合同、示例源码、清单和构建脚本，可移出项目独立使用；不依赖本项目 go.mod 中的云盘或服务端依赖。
 
-准备 Go 1.25、Python 3 和 Docker，并确保开发包中 `plugins/host-baseline.json` 指定的镜像已导入本机 Docker。Go 和 Python 在开发机上执行；Docker 用固定 Linux 镜像打包和校验。
+准备 Go 1.25 和 Python 3（仓库 CI 使用 3.12）。默认构建流程还需要运行 Linux 容器的 Docker，以及已导入本机的固定验收镜像。开发包中的 `plugins/host-baseline.json` 记录镜像 ID 和平台。参见 [固定宿主发布验收](../sdk/plugins/RELEASE.md#在独立开发包中构建和发布)。
+
+先修改导出目录中的 `plugin/main.go`、`manifest.json` 和 `CHANGELOG.md`，然后运行以下命令。
 
 ```sh
 cd ../my-plugin
-go test ./sdk/pluginwasm
+go test ./...
+python tools/plugin_release.py check --plugin .
 python build.py
 ```
 
-先修改导出目录中的 `plugin/main.go` 和 `manifest.json`。构建脚本使用 Go 的 WASI 目标，生成并校验 `plugin.zip`；结果是候选包，尚未执行插件业务。本地调试阶段不要求仓库地址或 commit；在项目的「辅助插件 → 插件管理 → 已安装」导入并启用，配置后运行并检查运行记录。导入后按实际用途设置账号、目录与工具授权。已有 ZIP 保留，发布新版本时改名或使用新输出目录。工作流验证与生成索引见开发包中的 `RELEASE.md`。
+`build.py` 编译 WASI 并使用固定宿主打包和静态校验，生成候选包 `plugin.zip` 和构建回执 `plugin.zip.build.json`。本地调试可直接导入 ZIP。工作流验收和发布索引的步骤见开发包中的 `RELEASE.md`。
+
+在「辅助插件 → 插件管理 → 插件市场」的「本地插件包」选择 ZIP，点击「导入插件」。支持自动启用的宿主会在首次安装校验和健康检查通过后启用插件。必需的插件能力缺失或提供者待选择时，补齐依赖或在「已安装 → 授权范围」选择提供者，再启用。旧宿主在「已安装」手动启用。更新保留原有启停状态。按插件用途配置账号、目录和工具授权，再运行插件并查看运行记录。
 
 ## 账号与目录授权
 
@@ -125,12 +130,17 @@ ABI 保留原有 `error` 文字，并附加 `error_code`。SDK 返回 `*pluginap
 
 ## 本地打包及校验
 
-```powershell
-flowpan plugin pack --dir ./my-plugin --out ./my-plugin-1.0.0.zip
-flowpan plugin check ./my-plugin-1.0.0.zip
+通常在开发包目录运行 `python build.py`。直接使用 `flowpan plugin pack` 时，先在导出的工程中编译清单 `runtime.module` 指定的 WASM。默认路径是 `bin/plugin.wasm`。下面以 Bash 和可用的 `flowpan` 命令为例，从仓库根目录开始执行。
+
+```bash
+cd ../my-plugin
+mkdir -p bin
+GOOS=wasip1 GOARCH=wasm CGO_ENABLED=0 go build -trimpath -o bin/plugin.wasm ./plugin
+flowpan plugin pack --release --dir . --out ../my-plugin-1.0.0.zip
+flowpan plugin check --release ../my-plugin-1.0.0.zip
 ```
 
-pack 只收集 manifest.json 和清单指定的 WASM，生成 ZIP 前复用正式安装器校验清单、权限、路径、重复文件、体积与模块，并执行 WASM 编译检查。check 使用相同校验，不安装、不启用、不执行插件；实际导入仍执行原健康检查和更新回滚。命令输出 JSON，包含插件 ID、版本、SHA256 和 executed=false，适合接入构建流水线。
+`pack` 收集 `manifest.json`、已经编译的 WASM 和声明了 `definition.pages` 时的 `ui/` 静态资源。`pack` 与 `check` 复用安装器的校验和 WASM 模块编译检查，输出包含插件 ID、版本、SHA-256 和 `executed: false` 的 JSON。实际导入时，宿主运行健康检查，并在更新失败时回退。
 
 ## 资源类插件与交互
 

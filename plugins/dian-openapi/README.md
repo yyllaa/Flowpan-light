@@ -2,7 +2,7 @@
 
 插件 ID：`resource-dian-openapi`。与浏览器版 `resource-dian` 分开安装，配置、密钥、运行记录和定时任务按插件 ID 独立保存；不会作为浏览器版的更新覆盖安装。
 
-版本 1.3.10，仅使用 OpenAPI V2。在项目中导入插件，填写个人中心生成的 OpenAPI Key，保存并启用。此版本要求宿主提供 `sdk.call`、动作选项配置绑定、动作分组、作品选择器和表格结果界面，请与对应新版 Flowpan 一起使用。
+版本 1.3.12，使用 OpenAPI V2。通过插件市场安装，或导入 `resource-dian-openapi-1.3.12.zip`。安装后填写个人中心生成的 OpenAPI Key 并保存，启用步骤见[插件安装和更新](../../docs/plugins.md)。所需宿主工具和界面能力以[清单](manifest.json)的 `requires` 为准。
 
 清单声明 `definition.network.proxy="project"`，请求统一使用项目设置中的 HTTP 代理；未配置代理时显示配置提示。请与支持网络策略声明的新版宿主配套使用。
 
@@ -17,6 +17,7 @@
 扩展功能使用普通表单，不要求填写 JSON：
 
 - 发布分享：搜索并选择作品，支持 115 分享链接或同类磁力 / ED2K 批量链接；SHA1 每行一项；清晰度、格式、片源、编码、HDR、音轨、字幕通过选项填写。剧集范围和补充信息折叠展示，特别篇季数 0 会保留。发布前展示冻结的参数摘要并再次确认。
+- 离线资源发布：可合并手动填写的磁力／ED2K 链接和 ED2K 结果库复选项。宿主再次核对所选记录状态与账号、目录权限。
 - SHA1 查重：选择作品后粘贴 SHA1，每行一项，自动去重并校验 40 位十六进制格式。
 - 分享查重：支持完整 115 链接或分享码，结果直接显示是否已发布。
 - RSS：作品类型和清晰度支持多选，分类和地区每行一项；读取下一批沿用本次条件，修改条件后需重新查询。
@@ -43,14 +44,13 @@
 
 ## 构建
 
-使用与本插件配套的通用插件开发包，可在项目源码之外独立构建：
+在公开仓库根目录运行以下命令。
 
 ```powershell
-$env:GOOS='wasip1'
-$env:GOARCH='wasm'
-$env:CGO_ENABLED='0'
-go build -buildvcs=false -trimpath -ldflags='-s -w' -o bin/plugin.wasm ./plugins/resources/dian
-# 清单与 bin/plugin.wasm 放入打包目录，执行 Flowpan plugin pack/check。
+cd plugins/dian-openapi
+go test ./...
+cd ../..
+python plugins/build.py --plugin dian-openapi --out dist/dian-openapi
 ```
 
-运行包只包含 manifest.json 和 WASM。修改清单权限、版本和 SDK 声明时，需要同步宿主能力要求。
+构建输出为 `dist/dian-openapi/resource-dian-openapi-1.3.12.zip`。正式发布需要使用提供癫影站点 SDK 的配套主程序验证。验收方式及版本变化见[发布验收](../../sdk/plugins/RELEASE.md)和[更新日志](CHANGELOG.md)。

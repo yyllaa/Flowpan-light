@@ -56,18 +56,16 @@
 
 这是清单字段片段；完整清单仍包含运行时、权限和 definition。`notes` 最多 64 KiB，按纯文本显示，不执行 Markdown 内的 HTML；`title` 最多 256 字节，`published_at` 使用 RFC3339，`url` 使用 HTTPS。标题、时间和链接可省略，正文足以支持本地离线阅读。宿主不抓取任意发布页；声明的链接只在用户打开时跳转。
 
-未声明 `release` 的旧包继续可安装；旧 GitHub 下载地址继续定位对应 Release。新版检查按原安装源匹配，源失效时显示错误，多个来源不会自动替换。相同版本和较低版本不提示更新；本地 ZIP 安装继续下载、导入流程。
+Flowpan 优先显示清单中的 `release.notes`。缺少内嵌说明且插件目录使用 GitHub Release 附件下载地址时，宿主按附件地址定位对应 Release。`CHANGELOG.md` 是源码仓库的开发记录，构建时单独维护 `release.notes`。新版检查按原安装源匹配更高版本，源失效时显示错误。需要换源时，由用户选择来源并重新安装。本地安装的插件通过导入新版 ZIP 更新。
 
-新开发包默认生成 `release`、`CHANGELOG.md` 和发布检查：
+新开发包默认生成 `release`、`CHANGELOG.md` 和 `build.py`。在导出后的开发包目录执行：
 
 ```sh
-python tools/plugin-kit.py --out ../my-plugin --id my-plugin --name 我的插件 --version 1.0.0
-python tools/plugin-kit.py --out ../my-drive --storage --id my-drive --provider-id mydrive --name 我的网盘
-flowpan plugin pack --release --dir ../my-plugin --out my-plugin.zip
-flowpan plugin check --release my-plugin.zip
+python tools/plugin_release.py check --plugin .
+python build.py
 ```
 
-发布检查要求正文非空及可比较的数字版本，支持 `v1.2.0`、`1.2.0-rc.1`、`2026.11.14`。普通 `pack`/`check` 保留旧包兼容。升级时同步清单两层 `version`、`release.notes`、`CHANGELOG.md` 和插件源索引。新元数据与发布检查需要支持本合同的宿主。
+发布检查要求正文非空及可比较的数字版本，支持 `v1.2.0`、`1.2.0-rc.1`、`2026.11.14`。普通 `pack`/`check` 保留旧包兼容。升级时同步清单两层 `version`、`release.notes` 和 `CHANGELOG.md`，从验收通过的 ZIP 生成插件源索引。构建和工作流验收按 [RELEASE.md](RELEASE.md) 执行。
 
 ## 仪表盘和 FUSE
 

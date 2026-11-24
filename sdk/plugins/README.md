@@ -2,17 +2,16 @@
 
 此目录可独立开发，SDK 与合同来自导出时的项目源码，仅依赖 Go 标准库。
 
-COMPATIBILITY、CAPABILITIES、FILE-PICKER、INTEGRATION 和 RELEASE 的原文在此目录统一维护，导出开发包时一并附带。
+`COMPATIBILITY.md`、`CAPABILITIES.md`、`FILE-PICKER.md`、`INTEGRATION.md` 和 `RELEASE.md` 随开发包一起分发。
 
 `definition.network.proxy` 声明网络策略：direct 为直连，project 必须使用项目设置中的 HTTP 代理，inherit 跟随项目设置。代理地址由宿主管理。导出时可用 --proxy project 选择需要代理的插件。
 
-1. 编辑 `plugin/main.go` 和 `manifest.json`，同步两层 ID、版本及权限，并填写 release.notes 与 CHANGELOG.md。
-2. 运行 `go test ./sdk/pluginwasm`。
-3. 运行 `python build.py`，使用固定的已发布主程序镜像构建候选包，详见 RELEASE.md。
-4. 将生成的 plugin.zip 在「辅助插件 → 插件管理 → 已安装」导入，启用后运行。
+1. 编辑 `plugin/main.go` 和 `manifest.json`，同步两层 ID、版本及权限，并填写 `release.notes` 与 `CHANGELOG.md`。
+2. 运行 `go test ./...` 和 `python tools/plugin_release.py check --plugin .`。
+3. 导入 `plugins/host-baseline.json` 指定的镜像，再运行 `python build.py` 构建候选包。完整的构建条件及业务验收步骤见 [RELEASE.md](RELEASE.md)。
+4. 在「辅助插件 → 插件管理 → 插件市场」的「本地插件包」选择 `plugin.zip`，点击「导入插件」。支持自动启用的宿主在首次安装通过健康检查后启用。必需的插件能力缺失或提供者待选择时，配置后再启用。旧宿主在「已安装」手动启用。更新沿用原启停状态。按用途配置插件及授权后运行。
 
-发布版本使用数字版本号，支持 v 前缀、预发布及日期版本；新版本同时更新清单的两层 version、release.notes 与 CHANGELOG.md。build.py 自动核对 SDK.lock.json、依赖声明及固定主程序，再运行 pack --release 和 check --release；真实工作流测试通过后才生成发布索引。普通 check 继续兼容旧包。
-release 可声明 title、notes、published_at（RFC3339）和 url（HTTPS），notes 随安装包保存，本地导入和任意发布站点均可阅读。旧 GitHub 包继续自动定位 Release。
+发布版本使用数字版本号，支持 v 前缀、预发布及日期版本。更新时同步清单两层 `version`、`release.notes` 和 `CHANGELOG.md`。`release.notes` 随 ZIP 和插件索引分发，供 Flowpan 显示。`CHANGELOG.md` 是源码仓库的维护记录。旧 GitHub 插件包的发布说明回查规则见 [INTEGRATION.md](INTEGRATION.md#发布说明)。
 使用 `requires` / `optional` 声明实际依赖，`extensions` 存放带命名空间的自定义数据。SDK 的 `CheckRequirements` 返回必需和可选缺项；详见 COMPATIBILITY.md。
 使用 --capability-provider / --capability-consumer 导出独立能力提供者与调用方。provides / uses 声明命名接口与版本，唯一提供者自动绑定；多个候选在授权弹窗选择。CallCapability、SubmitCapability、GetCapabilityTask、CancelCapabilityTask 复用宿主运行与任务队列，详见 CAPABILITIES.md。
 HTTP、SDK 和服务请求由宿主自动计入仪表盘；网盘提供者与账号从运行上下文绑定，不需要新增仪表盘页面或为品牌注册计数。
@@ -57,6 +56,6 @@ python tools/plugin-kit.py --out output/format-provider --id format-provider --c
 python tools/plugin-kit.py --out output/format-consumer --id format-consumer --capability-consumer
 ```
 
-生成器从本目录复制 SDK，无需主程序源码。先启用提供者，再启用调用方。新合同需要 `plugins.capabilities: 1`；声明增加业务接口，新增宿主原语仍需宿主实现。带源代码的两个独立开发包同时随本次 Release 提供。
+生成器从公开 SDK 目录复制文件。先启用提供者，再启用调用方。此合同需要 `plugins.capabilities: 1`。声明可增加业务接口，新增宿主原语仍需宿主实现。
 
 来源与目录选择声明见 [FILE-PICKER.md](FILE-PICKER.md)：`account-list` 可声明 `max: 1`，`path` 可通过 `extensions.flowpan.files.account_field` 绑定来源，复用宿主目录选择器。需要宿主 `ui.file-picker: 1`。

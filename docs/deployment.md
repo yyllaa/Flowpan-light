@@ -162,7 +162,7 @@ docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.fuse.yam
 
 可选配置增加 `/dev/fuse`、`SYS_ADMIN`、AppArmor 配置和 `/cloud` 的 `rshared` 绑定。然后进入项目挂载页面，选择账号与来源目录并启用挂载。
 
-启用后，后续重建和升级继续带上这两个 `-f` 参数。
+使用 FUSE 时，重建、升级和日常维护继续带上这两个 `-f` 参数。支持同账号多目录挂载的主程序可在挂载配置中通过“新增目录”添加目录，每个目录单独启停。可用选项见 [OpenList 插件说明](../plugins/openlist/README.md)。
 
 ### 3. 提供给其他容器
 

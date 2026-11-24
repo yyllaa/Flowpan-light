@@ -1,8 +1,8 @@
 # 联通云盘原生网盘插件
 
-- 插件 ID：`storage-wopan`；网盘提供者：`wopan`；版本：`0.2.2`。
+- 插件 ID：`storage-wopan`；网盘提供者：`wopan`；版本：`0.2.5`。
 - 清单声明 `definition.network.proxy="direct"`，接口与宿主处理的文件传输均直连，不使用项目 HTTP 代理。
-- 独立 WASM ZIP，不需要独立进程或镜像，不注册为默认插件源，也不自动启用。
+- 以独立 WASM ZIP 发布。添加来源、导入 ZIP 和启用方式见[插件安装和更新](../../docs/plugins.md)。
 - 安装并启用后，通过项目原生账号中心添加联通云盘账号；文件浏览、STRM、有声书和上传任务使用同一来源及能力目录。
 
 ## 已实现的能力
@@ -22,7 +22,7 @@
 ## 安装
 
 1. 使用包含本版网盘宿主扩展的 Flowpan（`StorageUploadStep.hash_algorithm/save_checkpoint`、multipart 上传及业务续期持久化）。旧版主程序需先更新。
-2. 在插件管理导入 `storage-wopan-0.2.2.zip` 并启用。
+2. 从插件市场安装 `storage-wopan`，或在“本地插件包”导入 `storage-wopan-0.2.5.zip`。旧版宿主需要在“已安装”手动启用。
 3. 在原生账号中心选择“联通云盘”，添加账号后点击“生成二维码”扫码登录。账号名称仅为显示名，可单独保存，无需填写 Token。
 4. 在文件浏览选择该账号；STRM、上传任务按该来源选择目录。
 
@@ -38,18 +38,19 @@
 
 ## 构建和测试
 
-在 Flowpan 项目根目录运行：
+在公开仓库根目录运行以下命令。
 
 ```powershell
-go test ./plugins/storage/wopan/...
-go test ./app/pluginstorage ./app/pluginruntime -run '^TestWopan' -count=1 -v
-python plugins/storage/wopan/build.py --go C:/实际位置/go.exe --out D:/输出/storage-wopan-0.2.2.zip
+cd plugins/wopan
+go test ./...
+cd ../..
+python plugins/build.py --plugin wopan --out dist/wopan
 ```
 
-`build.py` 临时构建 WASM，只打包 `manifest.json` 与 `plugin.wasm`；不会把本地配置、源码、浏览器或其他运行文件放进插件包。
+构建输出为 `dist/wopan/storage-wopan-0.2.5.zip`，插件包包含 `manifest.json` 与 `plugin.wasm`。正式发布使用固定主程序验证 ZIP 和运行流程。详见[发布验收](../../sdk/plugins/RELEASE.md)。
 
 ## 协议来源和验证
 
-`internal/wopan` 从用户提供的 `wopan-go-src/wopan` 机械复制，原文件哈希见 `upstream-sha256.json`。适配 Token 续期回调、扫码参数编码、只读重试；建目录和重命名保留错误且不重放未知结果，追加单页/账号/上传元数据桥接；原目录保持不变。
+`internal/wopan` 的来源哈希保存在 `upstream-sha256.json`。适配包含 Token 续期回调、扫码参数编码、只读重试和上传元数据桥接。
 
-回归测试使用本地 TLS 协议服务，实际加载并执行 WASM，校验签名、AES 请求、二维码、双账号、分页、字节 Range、续期、秒传、分片、配额和未知回执。本轮实际联网分享查询已确认返回用户提供的音频；完整验证记录见 `output/plugin-share-protection-20261112/VERIFICATION.txt`，协议模拟测试与真实账号测试分别记录。
+公开模块的测试使用本地协议服务覆盖二维码、双账号、分页、续期、上传和业务错误。0.2.5 保留服务端业务码与 HTTP 状态。版本变化和各版验收入口见[更新日志](CHANGELOG.md)。

@@ -31,4 +31,4 @@ python plugins/build.py --out dist/plugins
 python plugins/build.py --plugin dian-openapi --plugin wopan --out dist/selected
 ```
 
-构建器产出独立 WASM ZIP 和 SHA-256。使用 `--host` 指定 Flowpan 可执行文件进行校验。插件示例在 `plugins/examples/` 使用独立 Go 模块，随模块测试一并检查。
+此命令用于批量生成 WASM ZIP、SHA-256 和 SDK 开发包。`--host` 使用指定的 Flowpan 可执行文件执行 `pack --release` 和 `check --release`。正式发布按固定宿主流程构建候选包、执行工作流测试和生成索引。参见 [固定宿主发布验收](../sdk/plugins/RELEASE.md)。插件示例在 `plugins/examples/` 使用独立 Go 模块，随模块测试一并检查。
