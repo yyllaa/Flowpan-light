@@ -2018,7 +2018,7 @@
     {
       "schema_version": 1,
       "id": "storage-openlist",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "name": "OpenList",
       "description": "将 OpenList 及其挂载的存储接入账号中心、文件浏览、播放、STRM、有声书、整理、上传和 FUSE。",
       "category": "网盘",
@@ -2029,9 +2029,9 @@
         "module": "plugin.wasm"
       },
       "package": {
-        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.24-openlist/storage-openlist-0.1.0.zip",
-        "sha256": "8f56373ec5dc3f6583fe84afc793e85f075f0ed05a498010024211bc756151db",
-        "commit_sha": "55085cb7700d1665290ce6b8f99a5d3b8e50d783"
+        "url": "https://github.com/yyllaa/Flowpan-light/releases/download/plugins-2026.11.24-openlist-0.1.1/storage-openlist-0.1.1.zip",
+        "sha256": "2898fba0c64fd569514a8d01c760efd0fe1c6817899ec85d679f03bdcf60f508",
+        "commit_sha": "cf6241feea478fed5e30e04b87a9ddc0baab51d0"
       },
       "permissions": [
         "storage.provider",
@@ -2057,7 +2057,7 @@
         "schema_version": 2,
         "api_version": "1",
         "id": "storage-openlist",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "name": "OpenList",
         "description": "将 OpenList 及其挂载的存储接入账号中心、文件浏览、播放、STRM、有声书、整理、上传和 FUSE。",
         "category": "网盘",
@@ -2175,8 +2175,8 @@
         }
       },
       "release": {
-        "title": "OpenList 0.1.0",
-        "notes": "首次接入 OpenList：账号独立配置、分页浏览、Range 播放、STRM、有声书、FUSE 及文件操作；持久引用跟随改名和移动，异步任务核验完成后再回报成功，上传沿用宿主流式传输。"
+        "title": "OpenList 0.1.1",
+        "notes": "修复未开启代理的存储下载返回 403：下载和播放改用 OpenList 下载入口，沿用存储自身的直链或代理设置，保留签名、Range 读取及账号隔离。"
       }
     }
   ]
