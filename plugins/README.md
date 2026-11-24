@@ -14,7 +14,7 @@
 | 癫影 OpenAPI | resource-dian-openapi | 1.3.12 | [dian-openapi](dian-openapi) | 必须使用项目 HTTP 代理 |
 | 联通云盘 | storage-wopan | 0.2.5 | [wopan](wopan) | 直连 |
 | 115 ED2K | ed2k | 1.0.3 | [ed2k](ed2k) | 由宿主读取授权文件 |
-| OpenList | storage-openlist | 0.1.0 | [openlist](openlist) | 当前账号服务地址 |
+| OpenList | storage-openlist | 0.1.1 | [openlist](openlist) | 当前账号服务地址 |
 
 两个癫影版本使用不同 ID，各自安装、配置、定时任务、运行记录和私有数据，互不覆盖。浏览器版需要项目浏览器能力，OpenAPI 版通过宿主 sdk.call 使用私有 SDK，无需浏览器。
 
@@ -62,3 +62,10 @@
 须先更新到 `2026.11.23-openlist-plugin` 配套主程序，再刷新插件源安装。主程序镜像仍通过单独交付的离线文件导入。验证使用 OpenList 4.2.9 Local 驱动，未逐一验证外部网盘驱动或系统 FUSE 挂载。
 
 [OpenList 插件与新版 SDK](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.24-openlist)；[网盘接入合同](../docs/网盘插件接入.md)。
+
+
+## OpenList 0.1.1
+
+修复部分存储下载返回 403：下载和播放改用 `/d`，由 OpenList 按存储配置选择直链或代理，保留签名及 Range 读取。沿用 0.1.0 的宿主合同，已安装配套主程序时无需更新镜像，已有指向 Flowpan 的 STRM 无需重新生成。
+
+[OpenList 0.1.1 安装包](https://github.com/yyllaa/Flowpan-light/releases/tag/plugins-2026.11.24-openlist-0.1.1)。

@@ -2,7 +2,7 @@
 
 Flowpan-light 是面向 **115 网盘与中国移动云盘（139）** 的媒体管理服务，提供多账号文件浏览、转存下载、自动整理、STRM、云盘挂载、有声书和播放代理，并支持通过外部插件扩展资源查询等能力。
 
-联通云盘和 OpenList 可通过[插件目录](plugins/README.md)接入。OpenList 0.1.0 需要 `2026.11.23-openlist-plugin` 配套主程序。
+联通云盘和 OpenList 可通过[插件目录](plugins/README.md)接入。OpenList 0.1.1 需要 `2026.11.23-openlist-plugin` 或更新的配套主程序；已安装配套主程序的用户，本次只需更新插件。
 
 本仓库提供项目文档、Docker 部署示例、外部 API / SDK 与插件目录。**主程序通过预构建镜像交付，部署不需要主程序源码。**
 

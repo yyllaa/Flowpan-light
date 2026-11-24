@@ -409,13 +409,15 @@ func (a *adapter) link() (pluginapi.StorageLink, error) {
 		return pluginapi.StorageLink{}, fail("400", 400, "目录不能播放")
 	}
 	u := *a.endpoint
-	u.Path += "/p" + path.Join(a.creds.BasePath, p)
+	u.Path += "/d" + path.Join(a.creds.BasePath, p)
 	u.RawPath = ""
-	query := url.Values{"force": []string{"true"}, "d": []string{"1"}}
+	query := url.Values{"d": []string{"1"}}
 	if o.Sign != "" {
 		query.Set("sign", o.Sign)
 	}
 	u.RawQuery = query.Encode()
+	// The download route honors OpenList's storage proxy policy; forcing /p
+	// rejects otherwise valid direct downloads when that storage disallows proxying.
 	// Credentials are never placed in playback URLs or client-visible headers.
 	return pluginapi.StorageLink{URL: u.String(), ExpiresAt: time.Now().Add(2 * time.Minute)}, nil
 }
