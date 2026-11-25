@@ -23,3 +23,9 @@ Web 更新保留当前版本和一个回退版本。可在 Web 更新源点击 *
 正式 Web 更新使用 `web-api<代数>-<版本>` 标签，在 [GitHub Releases](https://github.com/yyllaa/Flowpan-light/releases) 上传签名的 `flowpan-web.zip`。Release 正文填写更新说明。Flowpan 从同一 Web API 代数中读取附带 Web ZIP 的正式版本。Web 版本号和主程序版本号分别维护。
 
 仓库内的插件页面桥接脚本由 [插件 SDK](../sdk/plugins/README.md) 管理。官方 Web 的安装包与更新说明统一从 Releases 获取。
+
+### 维护者发布标准
+
+1. **定版本**。Web 版本按 `YYYY.MM.DD.N` 递增，标签用 `web-api<代数>-<版本>`。同一代数的 Web 继续支持已有主程序。新增接口可选时要兼容旧主程序，必须依赖新接口时先更新主程序和 Web API 代数。
+2. **检查一次**。运行前端检查，用官方密钥签出最终 `flowpan-web.zip`，对这份 ZIP 跑一次浏览器发布检查，覆盖桌面登录、移动端更新页、静态资源和回退。构建输入和 ZIP 的 SHA-256 一致时可复用通过记录。只有更新机制或后端接口约定有变化时，才补查受影响的安装、回退或兼容场景。
+3. **通过即发布**。把同一份已验证的 ZIP 和中文更新说明发布到 GitHub Releases。发布后只核对正式标签、公开附件和 SHA-256。发现失败先修正对应问题，再重跑受影响的检查。
